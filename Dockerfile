@@ -7,7 +7,7 @@ RUN pushd /tmp/jobs_install &&\
   pip3 install . &&\
   popd &&\
   rm -rf /tmp/jobs_install &&\
-  pip3 install git+https://gitlab.cee.redhat.com/bayesian/worker.git
+  pip3 install git+https://github.com/baytemp/worker.git
 
 # A temporary hack to keep Selinon up2date
 COPY hack/update_selinon.sh /tmp/
