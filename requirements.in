@@ -1,0 +1,5 @@
+connexion>=1.0.31
+apscheduler
+pytimeparse
+Flask-Script
+uwsgi

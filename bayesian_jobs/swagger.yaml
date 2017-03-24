@@ -1,0 +1,230 @@
+swagger: "2.0"
+info:
+  title: API for Bayesian Core Jobs
+  version: "0.1"
+basePath: "/api/v1/"
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /liveness:
+    get:
+      tags: [Service settings]
+      operationId: bayesian_jobs.api_v1.get_liveness
+      summary: Get job service liveness
+      responses:
+        200:
+          description: Service is alive
+  /readiness:
+    get:
+      tags: [Service settings]
+      operationId: bayesian_jobs.api_v1.get_readiness
+      summary: Get job service readiness
+      responses:
+        200:
+          description: Service is ready
+  /service/state:
+    get:
+      tags: [Service settings]
+      operationId: bayesian_jobs.api_v1.get_service_state
+      summary: Get job service state
+      responses:
+        200:
+          description: State of the job service
+    put:
+      tags: [Service settings]
+      operationId: bayesian_jobs.api_v1.put_service_state
+      summary: Pause or resume job execution
+      parameters:
+        - $ref: "#/parameters/state"
+      responses:
+        201:
+          description: Information about job execution
+  /jobs:
+    get:
+      tags: [Jobs options]
+      operationId: bayesian_jobs.api_v1.get_jobs
+      summary: Get all pending jobs
+      parameters:
+        - $ref: "#/parameters/job_type"
+      responses:
+        200:
+          description: All active jobs
+  '/jobs/{job_id}':
+    delete:
+       tags: [Jobs options]
+       operationId: bayesian_jobs.api_v1.delete_jobs
+       summary: Delete a job
+       parameters:
+        - $ref: "#/parameters/job_id_path"
+       responses:
+         201:
+           description: Job with the given id was removed
+    put:
+      tags: [Jobs options]
+      operationId: bayesian_jobs.api_v1.put_jobs
+      summary: Jobs state manipulation
+      parameters:
+        - $ref: "#/parameters/job_id_path"
+        - $ref: "#/parameters/state"
+      responses:
+        201:
+          description: New analyses job scheduled
+  '/jobs/clean-failed':
+    delete:
+       tags: [Jobs options]
+       operationId: bayesian_jobs.api_v1.delete_clean_failed
+       summary: Delete all failed jobs
+       responses:
+         201:
+           description: All failed jobs were deleted
+  '/jobs/flow-scheduling':
+    post:
+      tags: [Add new jobs]
+      operationId: bayesian_jobs.api_v1.post_flow_scheduling
+      summary: Schedule a new job for analyses
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+        - name: kwargs
+          in: body
+          required: false
+          description: Job keyword arguments for analyses scheduling
+          schema:
+            $ref: "#/definitions/FlowKwargs"
+      responses:
+        201:
+          description: New analyses job scheduled
+  '/jobs/selective-flow-scheduling':
+    post:
+      tags: [Add new jobs]
+      operationId: bayesian_jobs.api_v1.post_selective_flow_scheduling
+      summary: Schedule a new job for analyses only with selected tasks marked for execution
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+        - name: kwargs
+          in: body
+          required: false
+          description: Job keyword arguments for selective analyses scheduling
+          schema:
+            $ref: "#/definitions/SelectiveKwargs"
+      responses:
+        201:
+          description: New analyses job scheduled
+
+parameters:
+  job_id_path:
+    name: job_id
+    in: path
+    required: true
+    description: Job identifier
+    type: string
+  job_id:
+    name: job_id
+    in: query
+    required: false
+    description: Job identifier
+    type: string
+  periodically:
+    name: periodically
+    in: query
+    type: string
+    required: false
+    description: Set periodical job execution
+  when:
+    name: when
+    in: query
+    type: string
+    required: false
+    description: Date time in UTC when the job run should be scheduled
+  misfire_grace_time:
+    name: misfire_grace_time
+    in: query
+    type: string
+    required: false
+    description: Time how much job’s execution is allowed to be late before throwing away
+  state:
+    name: state
+    in: query
+    required: true
+    description: State
+    type: string
+    items:
+      type: string
+    enum:
+      - paused
+      - running
+  job_type:
+     name: job_type
+     in: query
+     required: false
+     description: Job specific listing
+     type: string
+     items:
+       type: string
+     enum:
+       - all
+       - failed
+       - user
+
+definitions:
+  FlowKwargs:
+    type: object
+    required:
+      - flow_name
+      - flow_arguments
+    properties:
+      flow_name: &flow_name_analysis
+        type: string
+        description: Selinon flow that should be run
+        example: "bayesianFlow"
+      flow_arguments: &flow_arguments
+        type: array
+        description: List of arguments that should be supplied per flow
+        items:
+          $ref: "#/definitions/Any"
+        example:
+          - ecosystem: "npm"
+            name: "serve-static"
+            version: "1.7.1"
+            force: true
+          - ecosystem: "maven"
+            name: "net.iharder:base64"
+            version: "2.3.9"
+            force: true
+  SelectiveKwargs:
+    type: object
+    required:
+      - flow_name
+      - task_names
+      - flow_arguments
+    properties:
+      flow_name:
+        <<: *flow_name_analysis
+      task_names: &task_names
+        type: array
+        description: A list of tasks that should be run
+        items:
+          type: string
+        example:
+          - "github_details"
+          - "ResultCollector"
+      flow_arguments:
+        <<: *flow_arguments
+      run_subsequent:
+        type: boolean
+        description: Run nodes that are dependent on tasks listed in task_names
+        example: false
+
+  Any:
+    type: object
+    additionalProperties: true

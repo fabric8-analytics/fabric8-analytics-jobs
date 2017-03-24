@@ -1,0 +1,12 @@
+---
+  handler: FlowScheduling
+  job_id: cveCheckJob
+  kwargs:
+    flow_name: cveCheckFlow
+    flow_arguments:
+      - only_already_scanned: true
+        ignore_modification_time: false
+  when:
+  periodically: 5 day
+  misfire_grace_time: 1 hour
+  state: running
