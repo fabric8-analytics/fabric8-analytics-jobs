@@ -61,7 +61,8 @@ class Scheduler(object):
 
     @classmethod
     def schedule_job(cls, scheduler, handler_name,
-                     job_id=None, when=None, periodically=None, misfire_grace_time=None, state=None, kwargs=None):
+                     job_id=None, when=None, periodically=None, misfire_grace_time=None, state=None,
+                     **kwargs):
         """Schedule a job
 
         :param scheduler: scheduler that should be used to schedule a job

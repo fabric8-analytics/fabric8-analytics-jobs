@@ -120,6 +120,24 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+  '/jobs/popular-analyses':
+    post:
+      tags: [Add new jobs]
+      operationId: bayesian_jobs.api_v1.post_popular_analyses
+      summary: Analyse TOP packages
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+        - $ref: "#/parameters/ecosystem"
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/nversions"
+        - $ref: "#/parameters/force"
+      responses:
+        201:
+          description: New analyses job scheduled
 
 parameters:
   job_id_path:
@@ -175,6 +193,36 @@ parameters:
        - all
        - failed
        - user
+  ecosystem:
+     name: ecosystem
+     in: query
+     required: true
+     description: Ecosystem
+     type: string
+     items:
+       type: string
+     enum:
+       - maven
+       - npm
+  count:
+    name: count
+    in: query
+    required: false
+    description: Number of items
+    type: integer
+  nversions:
+    name: nversions
+    in: query
+    required: false
+    description: Number of versions of each item
+    type: integer
+  force:
+    name: force
+    in: query
+    required: false
+    description: Force analyses scheduling
+    type: boolean
+    default: false
 
 definitions:
   FlowKwargs:

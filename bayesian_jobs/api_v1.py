@@ -121,3 +121,13 @@ def post_flow_scheduling(scheduler, **kwargs):
 @uses_scheduler
 def post_selective_flow_scheduling(scheduler, **kwargs):
     return post_schedule_job(scheduler, handlers.SelectiveFlowScheduling.__name__, **kwargs)
+
+
+@uses_scheduler
+def post_popular_analyses(scheduler, **kwargs):
+    if kwargs['ecosystem'] == 'maven':
+        handler_name = handlers.MavenPopularAnalyses.__name__
+    elif kwargs['ecosystem'] == 'npm':
+        handler_name = handlers.NpmPopularAnalyses.__name__
+    kwargs.pop('ecosystem')
+    return post_schedule_job(scheduler, handler_name, **kwargs)
