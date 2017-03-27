@@ -78,4 +78,5 @@ target/
 # Misc
 cucos-license-check-unreleased.rpm
 
-
+# workaround for private GH repositories
+worker/
