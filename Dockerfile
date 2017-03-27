@@ -5,9 +5,11 @@ RUN useradd coreapi
 COPY ./ /tmp/jobs_install/
 RUN pushd /tmp/jobs_install &&\
   pip3 install . &&\
+  # workaround for private GH repositories
+  # run ./get-worker.sh first
+  pip3 install worker/ &&\
   popd &&\
-  rm -rf /tmp/jobs_install &&\
-  pip3 install git+https://github.com/baytemp/worker.git
+  rm -rf /tmp/jobs_install
 
 # A temporary hack to keep Selinon up2date
 COPY hack/update_selinon.sh /tmp/
