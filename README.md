@@ -36,7 +36,42 @@ A new job can be added by:
 
   * doing request to API - once the database will be erased, these jobs will disappear
   * specifying job in a YAML file - these jobs are inserted to database on each start up (duplicities are avoided)
+
+### Running a custom job
+
+You can use UI that will automatically create periodic jobs, do POST requests for you or generate curl commands that can be run. Just go to the `/api/v1/ui/` endpoint and:
+
+  1. click on "Add new jobs"
+  2. Select desired action, for analyses scheduling click on "POST /jobs/flow-scheduling"
+  3. Modify job parameters if needed
+     * ! Make sure you create a job with a state you want - `running` or `paused`
+  4. Follow example arguments - you can click on the example on the right hand side and modify it as desired
+  5. Click on "Try it out!", the flow will be scheduled
   
+The UI will also prepare a curl command for you. Here is an example for analyses scheduling for two packages (localhost):
+
+```bash
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{ \ 
+   "flow_arguments": [ \ 
+     { \ 
+       "ecosystem": "npm", \ 
+       "force": true, \ 
+       "name": "serve-static", \ 
+       "version": "1.7.1" \ 
+     }, \ 
+     { \ 
+       "ecosystem": "maven", \ 
+       "force": true, \ 
+       "name": "net.iharder:base64", \ 
+       "version": "2.3.9" \ 
+     } \ 
+   ], \ 
+   "flow_name": "bayesianFlow" \ 
+ }' 'http://localhost:34000/api/v1/jobs/flow-scheduling?state=running'
+```
+
+If something went wrong, check failed jobs in "Jobs options", `/jobs` endpoint. There are tracked failed jobs with all the details such as exceptions that were raised, see bellow.
+
 ## Job failures
 
 If a job fails, there is inserted a log entry to database. This entry is basically an empty job (when run it does nothing) with information that describe failure (traceback) and job arguments.
