@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+import traceback
 import logging
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
 
 import bayesian_jobs.handlers as handlers
+from bayesian_jobs.handlers.base import BaseHandler
 from bayesian_jobs.utils import (get_service_state_str, get_job_state_str, job2raw_dict, is_failed_job)
 from bayesian_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
 
@@ -108,6 +110,24 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
         return {"job": job2raw_dict(job)}, 201
     except ScheduleJobError as exc:
         return {"error": str(exc)}, 401
+
+
+def post_show_select_query(filter_definition):
+    try:
+        query = BaseHandler(job_id=None).construct_select_query(filter_definition)
+    except Exception as exc:
+        logger.exception(str(exc))
+        return {"error": str(exc), "traceback": traceback.format_exc()}, 401
+    return {"query": query}, 200
+
+
+def post_expand_filter_query(filter_definition):
+    try:
+        matched = BaseHandler(job_id=None).expand_filter_query({BaseHandler.DEFAULT_FILTER_KEY: filter_definition})
+    except Exception as exc:
+        logger.exception(str(exc))
+        return {"error": str(exc), "traceback": traceback.format_exc()}, 401
+    return {"matched": matched}, 200
 
 
 #
