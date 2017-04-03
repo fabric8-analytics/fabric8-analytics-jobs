@@ -3,3 +3,4 @@ apscheduler
 pytimeparse
 Flask-Script
 uwsgi
+mosql

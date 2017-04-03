@@ -15,6 +15,7 @@ itsdangerous==0.24        # via flask
 Jinja2==2.9.5             # via flask
 jsonschema==2.6.0         # via connexion, swagger-spec-validator
 MarkupSafe==0.23          # via jinja2
+mosql==0.11
 packaging==16.8           # via setuptools
 pyparsing==2.1.10         # via packaging
 pytimeparse==1.1.6

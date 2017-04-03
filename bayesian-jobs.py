@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
 import os
+import json
 import connexion
 import logging
 from flask import redirect
+from datetime import datetime
 from flask_script import Manager
 from bayesian_jobs.scheduler import Scheduler
 import bayesian_jobs.defaults as defaults
+
+
+class SafeJSONEncoder(json.JSONEncoder):
+    """ Convert objects to JSON, safely """
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+        try:
+            return json.JSONEncoder.default(self, o)
+        except:
+            return repr(o)
 
 
 logger = logging.getLogger(__name__)
@@ -13,6 +26,7 @@ app = connexion.App(__name__)
 app.add_api(defaults.SWAGGER_YAML_PATH)
 # Expose for uWSGI
 application = app.app
+application.json_encoder = SafeJSONEncoder
 manager = Manager(app.app)
 
 
@@ -55,6 +69,7 @@ def runserver():
         debug=True,
         use_reloader=True,
         threaded=True,
+        json_encoder=SafeJSONEncoder,
         processes=1
     )
 

@@ -80,6 +80,40 @@ paths:
        responses:
          201:
            description: All failed jobs were deleted
+         401:
+           description: Error describing issue in your SQL query or error on querying
+  '/debug/show-select-query':
+    post:
+       tags: [Debug]
+       operationId: bayesian_jobs.api_v1.post_show_select_query
+       summary: Show SQL query that will be used in case of filter parametrized jobs
+       parameters:
+        - name: filter_definition
+          in: body
+          required: true
+          description: JSON describing SQL query
+          schema:
+            $ref: "#/definitions/Filter"
+       responses:
+         200:
+           description: Constructed SQL query for the given filter definition
+         401:
+           description: Error describing issue in your SQL query
+  '/debug/expand-filter-query':
+    post:
+       tags: [Debug]
+       operationId: bayesian_jobs.api_v1.post_expand_filter_query
+       summary: Use filter to query database and show results that matched given filter
+       parameters:
+        - name: filter_definition
+          in: body
+          required: true
+          description: JSON describing SQL query
+          schema:
+            $ref: "#/definitions/Filter"
+       responses:
+         200:
+           description: Matched records in database for the given filter definition
   '/jobs/flow-scheduling':
     post:
       tags: [Add new jobs]
@@ -272,6 +306,42 @@ definitions:
         type: boolean
         description: Run nodes that are dependent on tasks listed in task_names
         example: false
+  Filter:
+    type: object
+    required:
+      - table
+    additionalProperties: true
+    properties:
+      table:
+        type: string
+        description: table to which the given query should be applied
+        example: "versions"
+      joins:
+        type: array
+        description: List of joins that should be applied (defaults to NATURAL JOIN)
+        items:
+          $ref: "#/definitions/Any"
+        example:
+          - table: "packages"
+            'on':
+              versions.package_id: "packages.id"
+          - table: "ecosystems"
+            'on':
+              ecosystems.id: "packages.ecosystem_id"
+      where:
+        type: object
+        description: WHERE clause that should be applied
+        example:
+          packages.name: "serve-static"
+      select:
+        type: array
+        description: SELECT filtering
+        items:
+          type: string
+        example:
+          - "packages.name as name"
+          - "ecosystems.name as ecosystem"
+          - "versions.identifier as version"
 
   Any:
     type: object
