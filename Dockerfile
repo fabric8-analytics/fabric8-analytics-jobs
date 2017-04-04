@@ -1,8 +1,13 @@
-FROM docker-registry.usersys.redhat.com/bayesian/cucos-worker
+FROM registry.centos.org/centos/centos:7
 MAINTAINER Fridolin Pokorny <fridolin@redhat.com>
 
 RUN useradd coreapi
 COPY ./ /tmp/jobs_install/
+
+RUN yum install -y epel-release && \
+    yum install -y python34-devel python34-pip postgresql-devel gcc git && \
+    yum clean all
+
 RUN pushd /tmp/jobs_install &&\
   pip3 install . &&\
   # workaround for private GH repositories
