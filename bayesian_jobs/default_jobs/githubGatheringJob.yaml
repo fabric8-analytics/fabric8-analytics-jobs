@@ -1,0 +1,39 @@
+---
+  handler: SelectiveFlowScheduling
+  job_id: githubGatheringJob
+  kwargs:
+    flow_name: bayesianFlow
+    task_names:
+      - github_details
+      - GitReadmeCollectorTask
+      - ResultCollector
+    flow_arguments:
+      - {
+          "$filter": {
+            "joins": [
+              {
+                "on": {
+                  "versions.package_id": "packages.id"
+                },
+                "table": "packages"
+              },
+              {
+                "on": {
+                  "ecosystems.id": "packages.ecosystem_id"
+                },
+                "table": "ecosystems"
+              }
+            ],
+            "select": [
+              "packages.name as name",
+              "ecosystems.name as ecosystem",
+              "versions.identifier as version"
+            ],
+            "table": "versions"
+          },
+          "force": true
+        }
+  when:
+  periodically: 30 day
+  misfire_grace_time: 1 hour
+  state: running
