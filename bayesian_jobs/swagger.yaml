@@ -309,39 +309,45 @@ definitions:
   Filter:
     type: object
     required:
-      - table
+      - '$filter'
     additionalProperties: true
     properties:
-      table:
-        type: string
-        description: table to which the given query should be applied
-        example: "versions"
-      joins:
-        type: array
-        description: List of joins that should be applied (defaults to NATURAL JOIN)
-        items:
-          $ref: "#/definitions/Any"
-        example:
-          - table: "packages"
-            'on':
-              versions.package_id: "packages.id"
-          - table: "ecosystems"
-            'on':
-              ecosystems.id: "packages.ecosystem_id"
-      where:
+      '$filter':
         type: object
-        description: WHERE clause that should be applied
-        example:
-          packages.name: "serve-static"
-      select:
-        type: array
-        description: SELECT filtering
-        items:
-          type: string
-        example:
-          - "packages.name as name"
-          - "ecosystems.name as ecosystem"
-          - "versions.identifier as version"
+        required:
+          - table
+        additionalProperties: true
+        properties:
+          table:
+            type: string
+            description: table to which the given query should be applied
+            example: "versions"
+          joins:
+            type: array
+            description: List of joins that should be applied (defaults to NATURAL JOIN)
+            items:
+              $ref: "#/definitions/Any"
+            example:
+              - table: "packages"
+                'on':
+                  versions.package_id: "packages.id"
+              - table: "ecosystems"
+                'on':
+                  ecosystems.id: "packages.ecosystem_id"
+          where:
+            type: object
+            description: WHERE clause that should be applied
+            example:
+              packages.name: "serve-static"
+          select:
+            type: array
+            description: SELECT filtering
+            items:
+              type: string
+            example:
+              - "packages.name as name"
+              - "ecosystems.name as ecosystem"
+              - "versions.identifier as version"
 
   Any:
     type: object
