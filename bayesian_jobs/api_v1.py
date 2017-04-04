@@ -114,7 +114,7 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
 
 def post_show_select_query(filter_definition):
     try:
-        query = BaseHandler(job_id=None).construct_select_query(filter_definition)
+        query = BaseHandler(job_id=None).construct_select_query(filter_definition.pop(BaseHandler.DEFAULT_FILTER_KEY))
     except Exception as exc:
         logger.exception(str(exc))
         return {"error": str(exc), "traceback": traceback.format_exc()}, 401
@@ -123,7 +123,7 @@ def post_show_select_query(filter_definition):
 
 def post_expand_filter_query(filter_definition):
     try:
-        matched = BaseHandler(job_id=None).expand_filter_query({BaseHandler.DEFAULT_FILTER_KEY: filter_definition})
+        matched = BaseHandler(job_id=None).expand_filter_query(filter_definition)
     except Exception as exc:
         logger.exception(str(exc))
         return {"error": str(exc), "traceback": traceback.format_exc()}, 401

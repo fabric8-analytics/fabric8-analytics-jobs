@@ -6,6 +6,7 @@ from selinon import run_flow_selective
 from selinon import StoragePool
 from cucoslib.setup_celery import init_celery
 import mosql.query as mosql_query
+from mosql.util import raw as mosql_raw
 from mosql.query import select
 
 
@@ -19,6 +20,9 @@ class BaseHandler(object):
     def __init__(self, job_id):
         self.log = logging.getLogger(self.__class__.__name__)
         self.job_id = job_id
+        # initialize always as the assumption is that we will use it
+        self._init_celery()
+        self.postgres = StoragePool.get_connected_storage('BayesianPostgres')
 
     @staticmethod
     def _expand_join(join_definition):
@@ -27,14 +31,13 @@ class BaseHandler(object):
         join_func = getattr(mosql_query, join_definition.pop('join_type', 'join'))
         return join_func(join_table_name, **join_definition)
 
-    @classmethod
-    def construct_select_query(cls, filter_definition):
+    def construct_select_query(self, filter_definition):
         """ Return SELECT statement that will be used as a filter
 
         :param filter_definition: definition of a filter that should be used for SELECT construction
         :return:
         """
-        table_name = filter_definition.pop('table', cls._DEFAULT_FILTER_TABLE_NAME)
+        table_name = filter_definition.pop('table', self._DEFAULT_FILTER_TABLE_NAME)
 
         if 'joins' in filter_definition:
             join_definitions = filter_definition.pop('joins')
@@ -44,7 +47,16 @@ class BaseHandler(object):
 
             filter_definition['joins'] = []
             for join_def in join_definitions:
-                filter_definition['joins'].append(cls._expand_join(join_def))
+                filter_definition['joins'].append(self._expand_join(join_def))
+
+        if 'where' in filter_definition:
+            for key, value in filter_definition['where'].items():
+                if self.is_filter_query(value):
+                    # We can do it recursively here
+                    sub_query = value.pop(self.DEFAULT_FILTER_KEY)
+                    if value:
+                        self.log.warning("Ignoring sub-query parameters: %s", value)
+                    filter_definition['where'][key] = mosql_raw('( {} )'.format(self.construct_select_query(sub_query)))
 
         return select(table_name, **filter_definition)
 
@@ -61,7 +73,6 @@ class BaseHandler(object):
         :param node_args: flow arguments
         """
         self.log.debug("Scheduling Selinon flow '%s' with node_args: '%s'", flow_name, node_args)
-        self._init_celery()
 
         if self.job_id:
             node_args['job_id'] = self.job_id
@@ -78,7 +89,6 @@ class BaseHandler(object):
         :param run_subsequent: run tasks that follow after desired tasks stated in task_names
         """
         self.log.debug("Scheduling selective Selinon flow '%s' with node_args: '%s'", flow_name, node_args)
-        self._init_celery()
         return run_flow_selective(flow_name, task_names, node_args, follow_subflows, run_subsequent)
 
     def is_filter_query(self, filter_query):
@@ -94,12 +104,8 @@ class BaseHandler(object):
         :param filter_definition:
         :return: expanded filter arguments
         """
-        # we actually don't need initialized Celery, but we need Selinon to be correctly set up
-        self._init_celery()
-
         select_statement = self.construct_select_query(filter_definition.pop(self.DEFAULT_FILTER_KEY))
-        postgres = StoragePool.get_connected_storage('BayesianPostgres')
-        query_result = postgres.session.execute(select_statement).fetchall()
+        query_result = self.postgres.session.execute(select_statement).fetchall()
 
         result = []
         for r in query_result:
