@@ -153,3 +153,8 @@ def post_popular_analyses(scheduler, **kwargs):
         handler_name = handlers.NpmPopularAnalyses.__name__
     kwargs.pop('ecosystem')
     return post_schedule_job(scheduler, handler_name, **kwargs)
+
+
+@uses_scheduler
+def post_clean_postgres(scheduler, **kwargs):
+    return post_schedule_job(scheduler, handlers.CleanPostgres.__name__, **kwargs)
