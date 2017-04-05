@@ -242,8 +242,8 @@ parameters:
     name: count
     in: query
     required: false
-    description: Number of items
-    type: integer
+    description: Number (or dash-separated range) of items
+    type: string
   nversions:
     name: nversions
     in: query
