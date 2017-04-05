@@ -13,13 +13,24 @@ class NpmPopularAnalyses(BaseHandler):
     def execute(self, count=None, nversions=None, force=False):
         """ Run bayesian core analyse on TOP npm packages
 
-        :param count: number of packages to analyse
+        :param count: str, number (or dash-separated range) of packages to analyse
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
         """
+        _count = count or str(self._DEFAULT_COUNT)
+        _count = sorted(map(int, _count.split("-")))
+        if len(_count) == 1:
+            _min = 0
+            _max = _count[0]
+        elif len(_count) == 2:
+            _min = _count[0] - 1
+            _max = _count[1]
+        else:
+            raise ValueError("Bad count %r" % count)
+
         count = count or self._DEFAULT_COUNT
         scheduled = 0
-        for offset in range(0, count, self._PACKAGES_PER_PAGE):
+        for offset in range(_min, _max, self._PACKAGES_PER_PAGE):
             pop = requests.get('{url}/star?offset={offset}'.format(url=self._URL, offset=offset))
             poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
             for link in poppage.find_all('a', class_='version'):

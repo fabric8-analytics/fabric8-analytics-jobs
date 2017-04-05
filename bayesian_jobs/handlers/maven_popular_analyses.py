@@ -1,8 +1,10 @@
 import bs4
-from collections import OrderedDict
+from collections import namedtuple, OrderedDict
 import re
 import requests
 from .base import BaseHandler
+
+CountRange = namedtuple('CountRange', ['min', 'max'])
 
 
 class MavenPopularAnalyses(BaseHandler):
@@ -18,7 +20,7 @@ class MavenPopularAnalyses(BaseHandler):
         self.projects = OrderedDict()
         self.nprojects = 0
         self.nversions = self._DEFAULT_NVERSIONS
-        self.count = self._DEFAULT_COUNT
+        self.count = CountRange(min=1, max=self._DEFAULT_COUNT)
         self.force = False
 
     @staticmethod
@@ -74,8 +76,9 @@ class MavenPopularAnalyses(BaseHandler):
                                 'version': version,
                                 'force': self.force
                             }
-                        self.run_selinon_flow('bayesianFlow', node_args)
-                    if self.nprojects >= self.count:
+                        if self.count.min <= self.nprojects <= self.count.max:
+                            self.run_selinon_flow('bayesianFlow', node_args)
+                    if self.nprojects >= self.count.max:
                         return
 
     def _top_projects(self):
@@ -94,7 +97,7 @@ class MavenPopularAnalyses(BaseHandler):
             for link in catpage.find_all('a', text='more...'):
                 category = link.get('href')
                 self._projects_from(category)
-                if self.nprojects >= self.count:
+                if self.nprojects >= self.count.max:
                     return
 
     def _top_tags_projects(self):
@@ -110,31 +113,39 @@ class MavenPopularAnalyses(BaseHandler):
         for link in tags_a:
             tag = link.get('href')
             self._projects_from(tag)
-            if self.nprojects >= self.count:
+            if self.nprojects >= self.count.max:
                 return
 
     def execute(self, count=None, nversions=None, force=False):
         """ Run bayesian core analyse on TOP maven projects
 
-        :param count: number of projects to analyse
+        :param count: str, number or range of projects to analyse
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
         """
-        self.count = count or self._DEFAULT_COUNT
+        _count = count or str(self._DEFAULT_COUNT)
+        _count = sorted(map(int, _count.split("-")))
+        if len(_count) == 1:
+            self.count = CountRange(min=1, max=_count[0])
+        elif len(_count) == 2:
+            self.count = CountRange(min=_count[0], max=_count[1])
+        else:
+            raise ValueError("Bad count %r" % count)
+
         self.nversions = nversions or self._DEFAULT_NVERSIONS
         self.force = force
 
         self._top_projects()
 
-        if self.nprojects < self.count:
+        if self.nprojects < self.count.max:
             # There's only 100 projects on Top Projects page, look at top categories
             self._top_categories_projects()
 
-        if self.nprojects < self.count:
+        if self.nprojects < self.count.max:
             # Still not enough ? Ok, let's try popular tags
             self._top_tags_projects()
 
-        if self.nprojects < self.count:
+        if self.nprojects < self.count.max:
             self.log.warning("No more sources of popular projects. "
                              "%d will be scheduled instead of requested %d" % (self.nprojects,
-                                                                               self.count))
+                                                                               self.count.max))
