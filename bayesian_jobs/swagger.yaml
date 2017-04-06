@@ -165,6 +165,7 @@ paths:
         - $ref: "#/parameters/when"
         - $ref: "#/parameters/misfire_grace_time"
         - $ref: "#/parameters/state"
+        - $ref: "#/parameters/popular"
         - $ref: "#/parameters/ecosystem"
         - $ref: "#/parameters/count"
         - $ref: "#/parameters/nversions"
@@ -257,6 +258,13 @@ parameters:
        - all
        - failed
        - user
+  popular:
+    name: popular
+    in: query
+    required: false
+    description: Sorted by popularity
+    type: boolean
+    default: true
   ecosystem:
      name: ecosystem
      in: query

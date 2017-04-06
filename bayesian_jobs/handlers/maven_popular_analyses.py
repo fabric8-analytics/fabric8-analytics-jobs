@@ -1,8 +1,11 @@
 import bs4
 from collections import namedtuple, OrderedDict
+import json
+import os
 import re
 import requests
 from .base import BaseHandler
+from cucoslib.utils import cwd, TimedCommand
 
 CountRange = namedtuple('CountRange', ['min', 'max'])
 
@@ -20,6 +23,7 @@ class MavenPopularAnalyses(BaseHandler):
         self.projects = OrderedDict()
         self.nprojects = 0
         self.nversions = self._DEFAULT_NVERSIONS
+        self.popular = True
         self.count = CountRange(min=1, max=self._DEFAULT_COUNT)
         self.force = False
 
@@ -68,7 +72,6 @@ class MavenPopularAnalyses(BaseHandler):
                     versions = all_versions[:self.nversions]
                     self.projects[name] = versions
                     self.nprojects += 1
-                    self.log.debug("Scheduling %d. %s: %s" % (self.nprojects, name, versions))
                     for version in versions:
                         node_args = {
                                 'ecosystem': 'maven',
@@ -77,6 +80,8 @@ class MavenPopularAnalyses(BaseHandler):
                                 'force': self.force
                             }
                         if self.count.min <= self.nprojects <= self.count.max:
+                            self.log.debug(
+                                "Scheduling %d. %s: %s" % (self.nprojects, name, version))
                             self.run_selinon_flow('bayesianFlow', node_args)
                     if self.nprojects >= self.count.max:
                         return
@@ -116,9 +121,28 @@ class MavenPopularAnalyses(BaseHandler):
             if self.nprojects >= self.count.max:
                 return
 
-    def execute(self, count=None, nversions=None, force=False):
-        """ Run bayesian core analyse on TOP maven projects
+    def _use_maven_index_checker(self):
+        maven_index_checker_dir = os.getenv('MAVEN_INDEX_CHECKER_PATH')
+        index_range = '{}-{}'.format(self.count.min, self.count.max)
+        command = ['java', '-jar', 'maven-index-checker.jar', '-r', index_range]
+        with cwd(maven_index_checker_dir):
+            output = TimedCommand.get_command_output(command, is_json=True)
+            for release in output:
+                name = '{}:{}'.format(release['artifactId'], release['groupId'])
+                version = release['version']
+                node_args = {
+                    'ecosystem': 'maven',
+                    'name': name,
+                    'version': version,
+                    'force': self.force
+                }
+                self.log.debug("Scheduling %s/%s" % (name, version))
+                self.run_selinon_flow('bayesianFlow', node_args)
 
+    def execute(self, popular=True, count=None, nversions=None, force=False):
+        """ Run bayesian core analyse on maven projects
+
+        :param popular: boolean, sort index by popularity
         :param count: str, number or range of projects to analyse
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
@@ -134,6 +158,10 @@ class MavenPopularAnalyses(BaseHandler):
 
         self.nversions = nversions or self._DEFAULT_NVERSIONS
         self.force = force
+
+        if not popular:
+            self._use_maven_index_checker()
+            return
 
         self._top_projects()
 

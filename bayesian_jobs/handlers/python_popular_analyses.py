@@ -27,13 +27,18 @@ class PythonPopularAnalyses(BaseHandler):
 
         return sorted(result, key=lambda x: x[1], reverse=True)
 
-    def execute(self, count=None, nversions=None, force=False):
+    def execute(self, popular=True, count=None, nversions=None, force=False):
         """ Run bayesian core analyse on TOP Python packages
 
+        :param popular: boolean, sort index by popularity
         :param count: str, number (or dash-separated range) of packages to analyse
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
         """
+        if not popular:
+            self.log.warning("Not sorting by popularity has not been implemented yet. "
+                             "Will sort by popularity anyway.")
+
         _count = count or str(self._DEFAULT_COUNT)
         _count = sorted(map(int, _count.split("-")))
         if len(_count) == 1:
