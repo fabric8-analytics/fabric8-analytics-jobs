@@ -238,6 +238,7 @@ parameters:
      enum:
        - maven
        - npm
+       - python
   count:
     name: count
     in: query
