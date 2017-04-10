@@ -9,6 +9,8 @@ from flask_script import Manager
 from bayesian_jobs.scheduler import Scheduler
 import bayesian_jobs.defaults as defaults
 
+logger = logging.getLogger(__name__)
+
 
 class SafeJSONEncoder(json.JSONEncoder):
     """ Convert objects to JSON, safely """
@@ -21,22 +23,26 @@ class SafeJSONEncoder(json.JSONEncoder):
             return repr(o)
 
 
-logger = logging.getLogger(__name__)
+def init_logging():
+    """ Initialize application logging """
+    # Initialize flask logging
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.WARNING)
+    # Use flask App instead of Connexion's one
+    app.app.logger.addHandler(handler)
+    # API logger
+    logger.setLevel(logging.DEBUG)
+    # lib logger
+    logging.getLogger('bayesian_jobs').setLevel(logging.DEBUG)
+
+
 app = connexion.App(__name__)
+init_logging()
 app.add_api(defaults.SWAGGER_YAML_PATH)
 # Expose for uWSGI
 application = app.app
 application.json_encoder = SafeJSONEncoder
 manager = Manager(app.app)
-
-
-def init_logger():
-    if not app.app.debug:
-        """ Initialize Flask logging """
-        handler = logging.StreamHandler()
-        handler.setLevel(logging.WARNING)
-        # Use flask App instead of Connexion's one
-        app.app.logger.addHandler(handler)
 
 
 @app.route('/')
@@ -74,5 +80,4 @@ def runserver():
     )
 
 if __name__ == '__main__':
-    init_logger()
     manager.run()
