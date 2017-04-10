@@ -18,7 +18,7 @@ class BaseHandler(object):
     _initialized_celery = False
 
     def __init__(self, job_id):
-        self.log = logging.getLogger(self.__class__.__name__)
+        self.log = logging.getLogger(__name__)
         self.job_id = job_id
         # initialize always as the assumption is that we will use it
         self._init_celery()
