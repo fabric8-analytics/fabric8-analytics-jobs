@@ -24,6 +24,11 @@ class CleanPostgres(BaseHandler):
                                                                      entry.package.name,
                                                                      entry.version.identifier,
                                                                      entry.worker)
-            entry.task_result = {'VersionId': s3.retrieve_latest_version_id(result_object_key)}
+
+            if s3.object_exists(result_object_key):
+                entry.task_result = {'VersionId': s3.retrieve_latest_version_id(result_object_key)}
+            else:
+                entry.task_result = None
+                entry.error = True
 
         self.postgres.session.commit()
