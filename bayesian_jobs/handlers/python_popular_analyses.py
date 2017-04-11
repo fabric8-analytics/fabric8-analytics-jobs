@@ -10,6 +10,23 @@ class PythonPopularAnalyses(BaseHandler):
     _PACKAGES_PER_PAGE = 50
     _DEFAULT_COUNT = 1000
 
+    @staticmethod
+    def _parse_version_stats(html_version_stats):
+        """ Parse version statistics from HTML definition and return ordered versions based on downloads
+
+        :param html_version_stats: tr-like representation of version statistics
+        :return: sorted versions based on downloads
+        """
+        result = []
+        for version_definition in html_version_stats:
+            # Access nested td
+            version_name = version_definition.text.split('\n')[1]
+            version_downloads = version_definition.text.split('\n')[4]
+            # There are numbers with comma, get rid of it
+            result.append((version_name, int(version_downloads.replace(',', ''))))
+
+        return sorted(result, key=lambda x: x[1], reverse=True)
+
     def execute(self, count=None, nversions=None, force=False):
         """ Run bayesian core analyse on TOP Python packages
 
@@ -38,6 +55,8 @@ class PythonPopularAnalyses(BaseHandler):
 
         while True:
             pop = requests.get('{url}/alltime?page={page}'.format(url=self._URL, page=page))
+            pop.raise_for_status()
+
             poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
             page += 1
 
@@ -52,12 +71,12 @@ class PythonPopularAnalyses(BaseHandler):
 
                 pop = requests.get('{url}/module/{pkg}'.format(url=self._URL, pkg=package_name.text))
                 poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
-                for version_definition in poppage.find('table', id='release_list').find_all('tr')[:nversions]:
-                    # Access nested td
-                    version = version_definition.text.split('\n')[1]
+                versions = self._parse_version_stats(poppage.find('table', id='release_list').find_all('tr'))
+
+                for version in versions[:nversions]:
                     self.run_selinon_flow('bayesianFlow', {
                         'ecosystem': 'python',
                         'name': package_name.text,
-                        'version': version,
+                        'version': version[0],
                         'force': force
                     })
