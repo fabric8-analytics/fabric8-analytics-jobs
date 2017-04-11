@@ -7,6 +7,6 @@
       - only_already_scanned: true
         ignore_modification_time: false
   when:
-  periodically: 5 day
+  periodically: 1 day
   misfire_grace_time: 1 hour
   state: running
