@@ -172,6 +172,20 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+  '/jobs/clean-postgres':
+    post:
+      tags: [Add new jobs]
+      operationId: bayesian_jobs.api_v1.post_clean_postgres
+      summary: Analyse TOP packages
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+      responses:
+        201:
+          description: New analyses job scheduled
 
 parameters:
   job_id_path:
