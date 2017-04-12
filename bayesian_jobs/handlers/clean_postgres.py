@@ -29,7 +29,7 @@ class CleanPostgres(BaseHandler):
                 if entry.worker[0].isupper() or entry.worker in ('recommendation', 'stack_aggregator'):
                     continue
 
-                if 'VersionId' in entry.task_result:
+                if not entry.task_result or 'VersionId' in entry.task_result:
                     continue
 
                 result_object_key = s3._construct_task_result_object_key(entry.ecosystem.name,
