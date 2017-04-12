@@ -31,4 +31,4 @@ class CleanPostgres(BaseHandler):
                 entry.task_result = None
                 entry.error = True
 
-        self.postgres.session.commit()
+            self.postgres.session.commit()
