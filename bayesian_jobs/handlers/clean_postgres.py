@@ -1,3 +1,4 @@
+import datetime
 from selinon import StoragePool
 from cucoslib.models import WorkerResult, Analysis
 
@@ -12,7 +13,8 @@ class CleanPostgres(BaseHandler):
         start = 0
         while True:
             results = self.postgres.session.query(WorkerResult).\
-                join(Analysis).\
+                join(Analysis). \
+                filter(Analysis.started_at < datetime.datetime(2017, 4, 12, 7, 0, 0, 0)).\
                 filter(Analysis.finished_at != None).\
                 filter(WorkerResult.external_request_id == None).\
                 order_by(WorkerResult.id).\
