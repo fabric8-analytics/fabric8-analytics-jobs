@@ -33,7 +33,9 @@ def init_logging():
     # API logger
     logger.setLevel(logging.DEBUG)
     # lib logger
-    logging.getLogger('bayesian_jobs').setLevel(logging.DEBUG)
+    liblog = logging.getLogger('bayesian_jobs')
+    liblog.setLevel(logging.DEBUG)
+    liblog.addHandler(logging.StreamHandler())
 
 
 app = connexion.App(__name__)
