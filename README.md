@@ -87,6 +87,177 @@ In order to implement a job, follow these steps:
   
   
 Note: Do not try to automatize/remove step 3. It is not possible to do something like `partial` or `__call__` to class as Connexion is checking file existence. Function for each API endpoint has to be unique and it *really has to be* a function. 
+
+
+# Prepared queries that might be useful
+
+The list bellow states examples of filter queries not specific to any flow. An example of usage could be an HTTP POST request to `/api/v1/jobs/flow-scheduling` for flow scheduling with appropriate parameters (see the `curl` example above):
+
+```json
+{
+  "flow_arguments": [
+    { 
+      "$filter": "YOUR-FILTER-QUERY-GOES-HERE"
+    }
+  ],
+  "flow_name": "bayesianFlow"
+}
+```
+
+If you wish to schedule only certain tasks in flows, feel free to post your HTTP POST request to `/api/v1/jobs/flow-scheduling` endpoint:
+```json
+{
+  "flow_arguments": [
+    { 
+      "$filter": "YOUR-FILTER-QUERY-GOES-HERE"
+    }
+  ],
+  "flow_name": "bayesianFlow",
+  "run_subsequent": false,
+  "task_names": [
+    "github_details",
+    "ResultCollector"
+  ]
+}
+````
+
+## Force run all analyses which failed
+
+```json
+{
+  "$filter": {
+    "joins": [
+      {
+        "on": {
+          "worker_results.analysis_id": "analyses.id"
+        },
+        "table": "analyses"
+      },
+      {
+        "on": {
+          "analyses.id": "versions.id"
+        },
+        "table": "versions"
+      },
+      {
+        "on": {
+          "versions.package_id": "packages.id"
+        },
+        "table": "packages"
+      },
+      {
+        "on": {
+          "ecosystems.id": "packages.ecosystem_id"
+        },
+        "table": "ecosystems"
+      }
+    ],
+    "select": [
+      "packages.name as name",
+      "ecosystems.name as ecosystem",
+      "versions.identifier as version"
+    ],
+    "table": "worker_results",
+    "where": {
+      "worker_results.error": true
+    }
+  },
+  "force": true
+}
+```
+
+## Force analyses that started at some date
+
+```json
+{
+  "$filter": {
+    "joins": [
+      {
+        "on": {
+          "analyses.id": "versions.id"
+        },
+        "table": "versions"
+      },
+      {
+        "on": {
+          "versions.package_id": "packages.id"
+        },
+        "table": "packages"
+      },
+      {
+        "on": {
+          "ecosystems.id": "packages.ecosystem_id"
+        },
+        "table": "ecosystems"
+      }
+    ],
+    "select": [
+      "packages.name as name",
+      "ecosystems.name as ecosystem",
+      "versions.identifier as version"
+    ],
+    "table": "analyses",
+    "where": {
+      "analyses.started_at >": "2017-04-01 20:00:00"
+    }
+  },
+  "force": true
+}
+```
+
+## Force analyses which did not finish:
+
+Note that this schedules analyses that are in progress.
+
+```json
+{
+  "$filter": {
+    "joins": [
+      {
+        "on": {
+          "analyses.id": "versions.id"
+        },
+        "table": "versions"
+      },
+      {
+        "on": {
+          "versions.package_id": "packages.id"
+        },
+        "table": "packages"
+      },
+      {
+        "on": {
+          "ecosystems.id": "packages.ecosystem_id"
+        },
+        "table": "ecosystems"
+      }
+    ],
+    "select": [
+      "packages.name as name",
+      "ecosystems.name as ecosystem",
+      "versions.identifier as version"
+    ],
+    "table": "analyses",
+    "where": {
+      "analyses.finished_at": null
+    }
+  },
+  "force": true
+}
+```
+
+
+## Notes to filter queries
+
+All queries listed above select ecosystem/package/version triplet as most flows expect these to be present as flow arguments. Feel free to modify the select statement if necessary.
+
+Filter queries do not support DISTINCT selects.
+
+Nested queries are supported. Just state nested "$filter".
+
+If you wish to try your query, feel free to POST your query to `/api/v1/debug-expand-filter` to see what results you get with your query or `/api/v1/debug-show-select-query` to see how the JSON is translated into an SQL expression.
+
+If you need any help, contact Fridolin. Also if you find some query useful, feel free to open a PR.
  
 ## See Also
 
