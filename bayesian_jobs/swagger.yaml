@@ -7,8 +7,39 @@ consumes:
   - application/json
 produces:
   - application/json
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "auth-token"
+    in: "header"
 
 paths:
+  /generate-token:
+    get:
+      tags: [Authentication]
+      operationId: bayesian_jobs.api_v1.generate_token
+      summary: Get authentization token for communicationg with this service
+      responses:
+        200:
+          description: Authentization token
+        401:
+          description: No suitable permissions
+  /logout:
+    get:
+      tags: [Authentication]
+      operationId: bayesian_jobs.api_v1.logout
+      summary: Clean session
+      responses:
+        201:
+          description: Successfully logged out
+  /authorized:
+    get:
+      tags: [Authentication]
+      operationId: bayesian_jobs.api_v1.authorized
+      summary: Authentication redirection
+      responses:
+        200:
+          description: Successfully authorized
   /liveness:
     get:
       tags: [Service settings]
@@ -30,6 +61,8 @@ paths:
       tags: [Service settings]
       operationId: bayesian_jobs.api_v1.get_service_state
       summary: Get job service state
+      security:
+        - api_key: []
       responses:
         200:
           description: State of the job service
@@ -39,6 +72,8 @@ paths:
       summary: Pause or resume job execution
       parameters:
         - $ref: "#/parameters/state"
+      security:
+        - api_key: []
       responses:
         201:
           description: Information about job execution
@@ -49,6 +84,8 @@ paths:
       summary: Get all pending jobs
       parameters:
         - $ref: "#/parameters/job_type"
+      security:
+        - api_key: []
       responses:
         200:
           description: All active jobs
@@ -59,6 +96,8 @@ paths:
        summary: Delete a job
        parameters:
         - $ref: "#/parameters/job_id_path"
+       security:
+        - api_key: []
        responses:
          201:
            description: Job with the given id was removed
@@ -69,6 +108,8 @@ paths:
       parameters:
         - $ref: "#/parameters/job_id_path"
         - $ref: "#/parameters/state"
+      security:
+        - api_key: []
       responses:
         201:
           description: New analyses job scheduled
@@ -77,6 +118,8 @@ paths:
        tags: [Jobs options]
        operationId: bayesian_jobs.api_v1.delete_clean_failed
        summary: Delete all failed jobs
+       security:
+         - api_key: []
        responses:
          201:
            description: All failed jobs were deleted
@@ -94,6 +137,8 @@ paths:
           description: JSON describing SQL query
           schema:
             $ref: "#/definitions/Filter"
+       security:
+        - api_key: []
        responses:
          200:
            description: Constructed SQL query for the given filter definition
@@ -111,6 +156,8 @@ paths:
           description: JSON describing SQL query
           schema:
             $ref: "#/definitions/Filter"
+       security:
+        - api_key: []
        responses:
          200:
            description: Matched records in database for the given filter definition
@@ -131,6 +178,8 @@ paths:
           description: Job keyword arguments for analyses scheduling
           schema:
             $ref: "#/definitions/FlowKwargs"
+      security:
+        - api_key: []
       responses:
         201:
           description: New analyses job scheduled
@@ -151,6 +200,8 @@ paths:
           description: Job keyword arguments for selective analyses scheduling
           schema:
             $ref: "#/definitions/SelectiveKwargs"
+      security:
+        - api_key: []
       responses:
         201:
           description: New analyses job scheduled
@@ -169,6 +220,8 @@ paths:
         - $ref: "#/parameters/count"
         - $ref: "#/parameters/nversions"
         - $ref: "#/parameters/force"
+      security:
+        - api_key: []
       responses:
         201:
           description: New analyses job scheduled
@@ -183,6 +236,8 @@ paths:
         - $ref: "#/parameters/when"
         - $ref: "#/parameters/misfire_grace_time"
         - $ref: "#/parameters/state"
+      security:
+        - api_key: []
       responses:
         201:
           description: New analyses job scheduled
@@ -199,6 +254,8 @@ paths:
         - $ref: "#/parameters/state"
         - $ref: "#/parameters/start"
         - $ref: "#/parameters/end"
+      security:
+        - api_key: []
       responses:
         201:
           description: Sync to graph scheduled

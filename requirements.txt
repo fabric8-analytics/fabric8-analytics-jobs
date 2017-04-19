@@ -9,20 +9,25 @@ apscheduler==3.3.1
 click==6.7                # via clickclick, flask
 clickclick==1.2.1         # via connexion
 connexion==1.1.5
+Flask-OAuthlib==0.9.3
 Flask-Script==2.0.5
-Flask==0.12               # via connexion, flask-script
+Flask==0.12               # via connexion, flask-oauthlib, flask-script
 itsdangerous==0.24        # via flask
 Jinja2==2.9.5             # via flask
 jsonschema==2.6.0         # via connexion, swagger-spec-validator
 MarkupSafe==0.23          # via jinja2
 mosql==0.11
+oauthlib==2.0.2           # via flask-oauthlib, requests-oauthlib
 packaging==16.8           # via setuptools
 pyparsing==2.1.10         # via packaging
 pytimeparse==1.1.6
 pytz==2016.10             # via apscheduler, tzlocal
 PyYAML==3.12              # via clickclick, connexion
-requests==2.13.0          # via connexion
-six==1.10.0               # via apscheduler, connexion, packaging, setuptools, swagger-spec-validator
+requests-oauthlib==0.8.0  # via flask-oauthlib
+requests==2.13.0          # via connexion, requests-oauthlib
+six==1.10.0               # via apscheduler, connexion, packaging, setuptools, sqlalchemy-utils, swagger-spec-validator
+SQLAlchemy-Utils==0.32.14
+SQLAlchemy==1.1.9         # via sqlalchemy-utils
 strict-rfc3339==0.7       # via connexion
 swagger-spec-validator==2.0.2  # via connexion
 tzlocal==1.3              # via apscheduler
