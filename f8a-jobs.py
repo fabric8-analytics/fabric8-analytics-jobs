@@ -10,6 +10,9 @@ from f8a_jobs.scheduler import Scheduler
 import f8a_jobs.defaults as defaults
 from cucoslib.setup_celery import init_selinon
 
+from f8a_jobs.models import create_models
+from f8a_jobs.auth import oauth
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,7 +35,7 @@ def init_logging():
     handler.setLevel(logging.WARNING)
     handler.setFormatter(formatter)
     # Use flask App instead of Connexion's one
-    app.app.logger.addHandler(handler)
+    application.logger.addHandler(handler)
     # API logger
     logger.setLevel(logging.DEBUG)
     # lib logger
@@ -45,12 +48,15 @@ def init_logging():
 
 
 app = connexion.App(__name__)
+application = app.app
 init_logging()
 app.add_api(defaults.SWAGGER_YAML_PATH)
 # Expose for uWSGI
-application = app.app
 application.json_encoder = SafeJSONEncoder
-manager = Manager(app.app)
+manager = Manager(application)
+# Needed for sesion
+application.secret_key = defaults.APP_SECRET_KEY
+oauth.init_app(application)
 
 logger.debug("Initializing Selinon")
 init_selinon()
@@ -81,6 +87,9 @@ def initjobs():
     logger.debug("Initializing default jobs")
     Scheduler.register_default_jobs(defaults.DEFAULT_JOB_DIR)
     logger.debug("Default jobs initialized")
+    logger.debug("Initializing DB for tokens")
+    create_models()
+    logger.debug("DB for tokens initialized")
 
 
 @manager.command
@@ -92,7 +101,6 @@ def runserver():
     # Make sure that you do not run the application with multiple processes since we would
     # have multiple scheduler instances. If you would like to do so, just create one scheduler
     # that would serve jobs and per-process scheduler would be in paused mode just for creating/listing jobs.
-    #
     app.run(
         port=os.environ.get('JOB_SERVICE_PORT', defaults.DEFAULT_SERVICE_PORT),
         server='flask',

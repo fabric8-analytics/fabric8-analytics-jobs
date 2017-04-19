@@ -56,6 +56,26 @@ objects:
               secretKeyRef:
                 name: aws
                 key: sync-s3
+          - name: GITHUB_CONSUMER_KEY
+            valueFrom:
+              secretKeyRef:
+                name: jobs
+                key: github-oauth-consumer-key
+          - name: GITHUB_CONSUMER_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: jobs
+                key: github-oauth-consumer-secret
+          - name: APP_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: jobs
+                key: flask-app-secret-key
+          #- name: GITHUB_ACCESS_TOKEN
+          #  valueFrom:
+          #    secretKeyRef:
+          #      name: jobs
+          #      key: github-access-token
           # this won't get used if running with SQS
           - name: RABBITMQ_SERVICE_SERVICE_HOST
             value: bayesian-broker

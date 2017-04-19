@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 import logging
+from functools import wraps
+import requests
 from datetime import timedelta
+from flask import request, abort
 from apscheduler.schedulers.base import STATE_RUNNING, STATE_STOPPED
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
-from f8a_jobs.handlers.error import ErrorHandler
+import f8a_jobs.defaults as configuration
+from f8a_jobs.models import JobToken
+from f8a_jobs.error import TokenExpired
 
 logger = logging.getLogger(__name__)
 
@@ -66,3 +71,37 @@ def job2raw_dict(job):
         result['misfire_grace_time'] = str(timedelta(seconds=job.misfire_grace_time))
 
     return result
+
+
+def requires_auth(func):
+    """ Verify authentication token sent in header
+
+    :param func: function that should be called if verification succeeds
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if configuration.DISABLE_AUTHENTICATION:
+            return func(*args, **kwargs)
+
+        auth_token = request.headers.get('auth_token')
+        try:
+            if not JobToken.verify(auth_token):
+                logger.info("Verification for token '%s' failed", auth_token)
+                abort(401)
+        except TokenExpired:
+            abort(401, "Token has expired, logout and generate a new one")
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def is_organization_member(user_data):
+    """ Check that a user is a member of organization
+
+    :param user_data: user OAuth data
+    :return: True if user is a member of organization
+    """
+    data = requests.get(user_data['organizations_url'], params={'access_token': configuration.GITHUB_ACCESS_TOKEN})
+    data.raise_for_status()
+    return any(org_def['login'] == configuration.AUTH_ORGANIZATION for org_def in data.json())
