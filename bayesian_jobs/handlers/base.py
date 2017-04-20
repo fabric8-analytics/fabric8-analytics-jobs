@@ -39,6 +39,8 @@ class BaseHandler(object):
         """
         table_name = filter_definition.pop('table', self._DEFAULT_FILTER_TABLE_NAME)
 
+        distinct = filter_definition.pop('distinct', False)
+
         if 'joins' in filter_definition:
             join_definitions = filter_definition.pop('joins')
 
@@ -58,7 +60,12 @@ class BaseHandler(object):
                         self.log.warning("Ignoring sub-query parameters: %s", value)
                     filter_definition['where'][key] = mosql_raw('( {} )'.format(self.construct_select_query(sub_query)))
 
-        return select(table_name, **filter_definition)
+        raw_select = select(table_name, **filter_definition)
+        if distinct:
+            # Note that we want to limit replace to the current SELECT, not affect nested ones
+            raw_select = raw_select.replace('SELECT', 'SELECT DISTINCT', 1)
+
+        return raw_select
 
     def _init_celery(self):
         """ Initialize celery and connect to the broker """
