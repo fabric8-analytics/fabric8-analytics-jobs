@@ -13,11 +13,5 @@ function oc_process_apply() {
 here=`dirname $0`
 template="${here}/template.yaml"
 
-if [[ $PTH_ENV ]]; then
-  deployment_prefix=$PTH_ENV
-else
-  deployment_prefix=$(oc whoami)
-fi
-
-oc_process_apply "$template" "-v DEPLOYMENT_PREFIX=${deployment_prefix}"
+oc_process_apply "$template"
 

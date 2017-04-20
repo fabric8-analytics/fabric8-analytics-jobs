@@ -25,7 +25,10 @@ objects:
         containers:
         - env:
           - name: DEPLOYMENT_PREFIX
-            value: "${DEPLOYMENT_PREFIX}"
+            valueFrom:
+              configMapKeyRef:
+                name: bayesian-config
+                key: deployment-prefix
           - name: WORKER_ADMINISTRATION_REGION
             value: "api"
           - name: AWS_SQS_ACCESS_KEY_ID
@@ -117,12 +120,6 @@ objects:
       service: bayesian-jobs
 
 parameters:
-- description: Deployment prefix used for deployment-specific AWS resources
-  displayName: Deployment prefix
-  required: true
-  name: DEPLOYMENT_PREFIX
-  value: "os"
-
 - description: Docker registry where the image is
   displayName: Docker registry
   required: true
