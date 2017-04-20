@@ -26,16 +26,21 @@ class SafeJSONEncoder(json.JSONEncoder):
 def init_logging():
     """ Initialize application logging """
     # Initialize flask logging
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
     handler = logging.StreamHandler()
     handler.setLevel(logging.WARNING)
+    handler.setFormatter(formatter)
     # Use flask App instead of Connexion's one
     app.app.logger.addHandler(handler)
     # API logger
     logger.setLevel(logging.DEBUG)
     # lib logger
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
     liblog = logging.getLogger('bayesian_jobs')
     liblog.setLevel(logging.DEBUG)
-    liblog.addHandler(logging.StreamHandler())
+    liblog.addHandler(handler)
 
 
 app = connexion.App(__name__)
