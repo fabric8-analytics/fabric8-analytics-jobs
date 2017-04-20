@@ -251,8 +251,6 @@ Note that this schedules analyses that are in progress.
 
 All queries listed above select ecosystem/package/version triplet as most flows expect these to be present as flow arguments. Feel free to modify the select statement if necessary.
 
-Filter queries do not support DISTINCT selects.
-
 Nested queries are supported. Just state nested "$filter".
 
 If you wish to try your query, feel free to POST your query to `/api/v1/debug-expand-filter` to see what results you get with your query or `/api/v1/debug-show-select-query` to see how the JSON is translated into an SQL expression.
