@@ -186,6 +186,20 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+  '/jobs/sync-to-graph':
+    post:
+      tags: [Add new jobs]
+      operationId: bayesian_jobs.api_v1.post_sync_to_graph
+      summary: Sync all finished analyses to graph
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+      responses:
+        201:
+          description: Sync to graph scheduled
 
 parameters:
   job_id_path:

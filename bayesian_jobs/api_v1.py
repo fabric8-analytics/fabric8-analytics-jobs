@@ -163,3 +163,7 @@ def post_popular_analyses(scheduler, **kwargs):
 @uses_scheduler
 def post_clean_postgres(scheduler, **kwargs):
     return post_schedule_job(scheduler, handlers.CleanPostgres.__name__, **kwargs)
+
+@uses_scheduler
+def post_sync_to_graph(scheduler, **kwargs):
+    return post_schedule_job(scheduler, handlers.SyncToGraph.__name__, **kwargs)
