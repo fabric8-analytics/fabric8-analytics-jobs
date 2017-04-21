@@ -29,7 +29,7 @@ class SyncToGraph(BaseHandler):
                              'name': entry.version.package.name,
                              'version': entry.version.identifier}
                 try:
-                    log.info('Synchronizing {ecosystem}/{name}/{version} ...'.format(**arguments))
+                    self.log.info('Synchronizing {ecosystem}/{name}/{version} ...'.format(**arguments))
                     GraphImporterTask.create_test_instance().execute(arguments)
                 except Exception as e:
                     self.log.exception('Failed to synchronize {ecosystem}/{name}/{version}'.
