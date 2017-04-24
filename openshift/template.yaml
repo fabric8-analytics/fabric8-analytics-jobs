@@ -118,8 +118,22 @@ objects:
       targetPort: 34000
     selector:
       service: bayesian-jobs
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: bayesian-jobs
+  spec:
+    host: ${BAYESIAN_JOBS_HOSTNAME}
+    to:
+      kind: Service
+      name: bayesian-jobs
 
 parameters:
+- description: A hostname where the Bayesian Jobs should be exposed (will be auto-generated if empty)
+  displayName: Bayesian Jobs hostname
+  required: false
+  name: BAYESIAN_JOBS_HOSTNAME
+
 - description: Docker registry where the image is
   displayName: Docker registry
   required: true
