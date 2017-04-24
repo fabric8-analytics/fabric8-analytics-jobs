@@ -38,8 +38,14 @@ class BaseHandler(object):
         :return:
         """
         table_name = filter_definition.pop('table', self._DEFAULT_FILTER_TABLE_NAME)
-
         distinct = filter_definition.pop('distinct', False)
+        select_count = filter_definition.pop('count', False)
+
+        if distinct and select_count:
+            raise ValueError('SELECT (DISTINCT ...) is not supported')
+
+        if select_count and 'select' in filter_definition:
+            raise ValueError('SELECT COUNT(columns) is not supported')
 
         if 'joins' in filter_definition:
             join_definitions = filter_definition.pop('joins')
@@ -61,9 +67,13 @@ class BaseHandler(object):
                     filter_definition['where'][key] = mosql_raw('( {} )'.format(self.construct_select_query(sub_query)))
 
         raw_select = select(table_name, **filter_definition)
+
         if distinct:
             # Note that we want to limit replace to the current SELECT, not affect nested ones
             raw_select = raw_select.replace('SELECT', 'SELECT DISTINCT', 1)
+        if select_count:
+            # Note that we want to limit replace to the current SELECT, not affect nested ones
+            raw_select = raw_select.replace('SELECT *', 'SELECT COUNT(*)', 1)
 
         return raw_select
 
