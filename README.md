@@ -258,6 +258,20 @@ Nested queries are supported. Just state nested "$filter".
 If you wish to try your query, feel free to POST your query to `/api/v1/debug-expand-filter` to see what results you get with your query or `/api/v1/debug-show-select-query` to see how the JSON is translated into an SQL expression.
 
 If you need any help, contact Fridolin. Also if you find some query useful, feel free to open a PR.
+
+# Authentication
+
+If the jobs service is running in production environment, there needs to be done authentication in order to manipulate with endopoints. Jobs service authenticates users against Github OAuth which provides you a token that you can use to do post requests.
+
+You can generate token by accessing `/api/v1/generate-token` endpoint. It will redirect you to Github, which will ask for access to your account info in order to verify that you are a member of Github organization. Once you grant the access, you will be redirected back to Jobs service, which gives you information about your current token.
+
+Note that if you are using Swagger UI, you cannot use this UI for generating endpoints as Swagger does not follow redirects.
+
+Once you are authorized, use your token to access application endpoints - it is expected to state token in `AUTH-TOKEN` header. If you are using Swagger UI, press the `Authorize` button in the header bar and place your token there. After that Swagger UI will transparently use your token for authorization. Note that Swagger UI is client-side application - it constructs requests in your browser so you have to do these steps manually.
+
+If you want to logout, just access `/api/v1/logout` endpoint, which will remove active token from the current session.
+
+To get info about the current session, access `/api/v1/authorized` endpoint.
  
 ## See Also
 
