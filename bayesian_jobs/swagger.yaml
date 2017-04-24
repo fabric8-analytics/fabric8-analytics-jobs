@@ -197,6 +197,8 @@ paths:
         - $ref: "#/parameters/when"
         - $ref: "#/parameters/misfire_grace_time"
         - $ref: "#/parameters/state"
+        - $ref: "#/parameters/start"
+        - $ref: "#/parameters/end"
       responses:
         201:
           description: Sync to graph scheduled
@@ -286,6 +288,18 @@ parameters:
     description: Force analyses scheduling
     type: boolean
     default: false
+  start:
+    name: start
+    in: query
+    required: false
+    description: Analysis id to start syncing at
+    type: integer
+  end:
+    name: end
+    in: query
+    required: false
+    description: Analysis id to end syncing at
+    type: integer
 
 definitions:
   FlowKwargs:

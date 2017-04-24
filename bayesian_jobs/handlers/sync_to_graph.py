@@ -7,22 +7,27 @@ from .base import BaseHandler
 
 class SyncToGraph(BaseHandler):
     """ Sync all finished analyses to Graph DB """
-    def execute(self):
-        start = 0
+    query_slice = 100
+
+    def execute(self, start=0, end=0):
+        base_query = self.postgres.session.query(Analysis).\
+            join(Version).\
+            join(Package).\
+            join(Ecosystem).\
+            filter(Analysis.finished_at != None).\
+            filter(Analysis.id >= start).\
+            order_by(Analysis.id.asc())
+
+        if end:
+            base_query = base_query.filter(Analysis.id <= end)
+
         while True:
-            results = self.postgres.session.query(Analysis).\
-                join(Version).\
-                join(Package).\
-                join(Ecosystem).\
-                filter(Analysis.finished_at != None).\
-                slice(start, start + 100).all()
-
-            if not results:
-                self.log.info("Syncing to GraphDB finished")
-                break
-
             self.log.info("Updating results, slice offset is %s", start)
-            start += 100
+            results = base_query.slice(start, start + self.query_slice).all()
+            start += self.query_slice
+            if not results:
+                self.log.info("No more finished analyses => syncing to GraphDB finished")
+                break
 
             for entry in results:
                 arguments = {'ecosystem': entry.version.package.ecosystem.name,
