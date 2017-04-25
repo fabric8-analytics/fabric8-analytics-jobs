@@ -75,7 +75,7 @@ class PythonPopularAnalyses(BaseHandler):
 
                 for version in versions[:nversions]:
                     self.run_selinon_flow('bayesianFlow', {
-                        'ecosystem': 'python',
+                        'ecosystem': 'pypi',
                         'name': package_name.text,
                         'version': version[0],
                         'force': force
