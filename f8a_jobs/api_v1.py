@@ -2,11 +2,11 @@
 
 import traceback
 import logging
+from flask import session, url_for, request
 from dateutil.parser import parse as parse_datetime
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
 from datetime import datetime
 from flask import session, url_for, request
-
 
 import f8a_jobs.handlers as handlers
 from f8a_jobs.handlers.base import BaseHandler
@@ -16,6 +16,7 @@ from f8a_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
 from f8a_jobs.analyses_report import construct_analyses_report
 from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
+from f8a_jobs.defaults import AUTH_ORGANIZATION
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,8 @@ def authorized():
     session['auth_token'] = (resp['access_token'], '')
     oauth_info = github.get('user')
     if not is_organization_member(oauth_info.data):
+        logger.debug("User '%s' is not member of organization '%s'", oauth_info.data['login'], AUTH_ORGANIZATION)
+        logout()
         return {'error': 'unauthorized'}, 401
 
     token_info = JobToken.store_token(oauth_info.data['login'], resp['access_token'])
