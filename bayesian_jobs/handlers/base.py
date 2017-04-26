@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import logging
 from selinon import run_flow
 from selinon import run_flow_selective
@@ -15,6 +16,7 @@ class BaseHandler(object):
 
     _DEFAULT_FILTER_TABLE_NAME = 'worker_results'
     DEFAULT_FILTER_KEY = '$filter'
+    QUERY_REFERENCE = re.compile('[a-zA-Z_.]+')
     _initialized_celery = False
 
     def __init__(self, job_id):
@@ -65,6 +67,9 @@ class BaseHandler(object):
                     if value:
                         self.log.warning("Ignoring sub-query parameters: %s", value)
                     filter_definition['where'][key] = mosql_raw('( {} )'.format(self.construct_select_query(sub_query)))
+                elif isinstance(value, str) and value.startswith('$') and self.QUERY_REFERENCE.fullmatch(value[1:]):
+                    # Make sure we construct correct query with escaped table name and escaped column for sub-queries
+                    filter_definition['where'][key] = mosql_raw('"{}"'.format('"."'.join(value[1:].split('.'))))
 
         raw_select = select(table_name, **filter_definition)
 
