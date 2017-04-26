@@ -259,7 +259,7 @@ If you wish to try your query, feel free to POST your query to `/api/v1/debug-ex
 
 If you need any help, contact Fridolin. Also if you find some query useful, feel free to open a PR.
 
-# Authentication
+# Authentication & Authorization
 
 If the jobs service is running in production environment, there needs to be done authentication in order to manipulate with endopoints. Jobs service authenticates users against Github OAuth which provides you a token that you can use to do post requests.
 
@@ -272,6 +272,8 @@ Once you are authorized, use your token to access application endpoints - it is 
 If you want to logout, just access `/api/v1/logout` endpoint, which will remove active token from the current session.
 
 To get info about the current session, access `/api/v1/authorized` endpoint.
+
+**IMPORTANT** If you want to use Github authentization, you have to be a public member of desired organization so Jobs service can verify your membership.
  
 ## See Also
 
