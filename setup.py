@@ -30,7 +30,7 @@ setup(
     description='Bayesian Core job service',
     license='MIT',
     keywords='bayesian',
-    url='https://gitlab.cee.redhat.com/bayesian/Bayesian',
+    url='https://github.com/baytemp/jobs',
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.4",
