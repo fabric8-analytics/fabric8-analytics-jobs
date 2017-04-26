@@ -58,6 +58,7 @@ manager = Manager(application)
 application.secret_key = defaults.APP_SECRET_KEY
 oauth.init_app(application)
 
+
 logger.debug("Initializing Selinon")
 init_selinon()
 logger.debug("Selinon initialized successfully")

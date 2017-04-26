@@ -18,7 +18,7 @@ paths:
     get:
       tags: [Authentication]
       operationId: f8a_jobs.api_v1.generate_token
-      summary: Get authentization token for communicationg with this service
+      summary: Get authentization token for communicating with this service
       responses:
         200:
           description: Authentization token

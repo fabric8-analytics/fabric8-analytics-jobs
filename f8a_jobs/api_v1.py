@@ -230,6 +230,7 @@ def post_analyses(scheduler, **kwargs):
     handler_name = handlers.base.AnalysesBaseHandler.ecosystem2handler_name(kwargs['ecosystem'])
     return post_schedule_job(scheduler, handler_name, **kwargs)
 
+
 @requires_auth
 @uses_scheduler
 def github_most_starred(scheduler, **kwargs):
