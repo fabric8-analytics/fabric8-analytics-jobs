@@ -2,7 +2,6 @@
 
 import traceback
 import logging
-from datetime import datetime
 from flask import session, url_for, request
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
 
@@ -13,6 +12,7 @@ from bayesian_jobs.utils import get_service_state_str, get_job_state_str, job2ra
 from bayesian_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
 from bayesian_jobs.auth import github
 from bayesian_jobs.models import JobToken
+from bayesian_jobs.configuration import AUTH_ORGANIZATION
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +47,8 @@ def authorized():
     session['auth_token'] = (resp['access_token'], '')
     oauth_info = github.get('user')
     if not is_organization_member(oauth_info.data):
+        logger.debug("User '%s' is not member of organization '%s'", oauth_info.data['login'], AUTH_ORGANIZATION)
+        logout()
         return {'error': 'unauthorized'}, 401
 
     token_info = JobToken.store_token(oauth_info.data['login'], resp['access_token'])
