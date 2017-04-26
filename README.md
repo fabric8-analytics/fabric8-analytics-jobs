@@ -246,6 +246,81 @@ Note that this schedules analyses that are in progress.
 }
 ```
 
+## Number of analyses in database
+
+```json
+{
+  "$filter": {
+    "table": "analyses",
+    "count": true
+  }
+}
+```
+
+## Schedule all analyses that have `finished_at` NULL and there is no newer successful analysis for the given EPV
+
+```json
+{
+  "force": true,
+  "$filter": {
+    "joins": [
+      {
+        "on": {
+          "A.version_id": "versions.id"
+        },
+        "type": "left",
+        "table": "versions"
+      },
+      {
+        "on": {
+          "versions.package_id": "packages.id"
+        },
+        "type": "left",
+        "table": "packages"
+      },
+      {
+        "on": {
+          "packages.ecosystem_id": "ecosystems.id"
+        },
+        "type": "left",
+        "table": "ecosystems"
+      }
+    ],
+    "select": [
+      "versions.identifier as version",
+      "packages.name as name",
+      "ecosystems.name as ecosystem",
+    ],
+    "table": "analyses AS A",
+    "distinct": true,
+    "where": {
+      "A.finished_at is": null,
+      "versions.id not in": {
+        "$filter": {
+          "joins": [
+            {
+              "on": {
+                "analyses.version_id": "versions.id"
+              },
+              "type": "left",
+              "table": "versions"
+            }
+          ],
+          "table": "analyses",
+          "select": "versions.id",
+          "where": {"analyses.finished_at is not": null, "analyses.started_at >": "$A.started_at"}
+        }
+      }
+    }
+  }
+}
+```
+
+Translated into:
+```sql
+SELECT DISTINCT "versions"."identifier" AS "version", "packages"."name" AS "name", "ecosystems"."name" AS "ecosystem", "versions"."id" AS "version_id" FROM "analyses" AS "A" LEFT JOIN "versions" ON "A"."version_id" = "versions"."id" LEFT JOIN "packages" ON "versions"."package_id" = "packages"."id" LEFT JOIN "ecosystems" ON "packages"."ecosystem_id" = "ecosystems"."id" WHERE "versions"."id" NOT IN ( SELECT "versions"."id" FROM "analyses" LEFT JOIN "versions" ON "analyses"."version_id" = "versions"."id" WHERE "analyses"."finished_at" IS NOT NULL AND "analyses"."started_at" > "A"."started_at" ) AND "A"."finished_at" IS NULL
+```
+
 
 ## Notes to filter queries
 
