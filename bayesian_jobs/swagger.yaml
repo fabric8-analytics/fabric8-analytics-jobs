@@ -8,7 +8,7 @@ consumes:
 produces:
   - application/json
 securityDefinitions:
-  api_key:
+  auth_token:
     type: "apiKey"
     name: "auth-token"
     in: "header"
@@ -62,7 +62,7 @@ paths:
       operationId: bayesian_jobs.api_v1.get_service_state
       summary: Get job service state
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         200:
           description: State of the job service
@@ -73,7 +73,7 @@ paths:
       parameters:
         - $ref: "#/parameters/state"
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         201:
           description: Information about job execution
@@ -85,7 +85,7 @@ paths:
       parameters:
         - $ref: "#/parameters/job_type"
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         200:
           description: All active jobs
@@ -97,7 +97,7 @@ paths:
        parameters:
         - $ref: "#/parameters/job_id_path"
        security:
-        - api_key: []
+        - auth_token: []
        responses:
          201:
            description: Job with the given id was removed
@@ -109,7 +109,7 @@ paths:
         - $ref: "#/parameters/job_id_path"
         - $ref: "#/parameters/state"
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         201:
           description: New analyses job scheduled
@@ -119,7 +119,7 @@ paths:
        operationId: bayesian_jobs.api_v1.delete_clean_failed
        summary: Delete all failed jobs
        security:
-         - api_key: []
+         - auth_token: []
        responses:
          201:
            description: All failed jobs were deleted
@@ -138,7 +138,7 @@ paths:
           schema:
             $ref: "#/definitions/Filter"
        security:
-        - api_key: []
+        - auth_token: []
        responses:
          200:
            description: Constructed SQL query for the given filter definition
@@ -157,7 +157,7 @@ paths:
           schema:
             $ref: "#/definitions/Filter"
        security:
-        - api_key: []
+        - auth_token: []
        responses:
          200:
            description: Matched records in database for the given filter definition
@@ -179,7 +179,7 @@ paths:
           schema:
             $ref: "#/definitions/FlowKwargs"
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         201:
           description: New analyses job scheduled
@@ -201,7 +201,7 @@ paths:
           schema:
             $ref: "#/definitions/SelectiveKwargs"
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         201:
           description: New analyses job scheduled
@@ -221,7 +221,7 @@ paths:
         - $ref: "#/parameters/nversions"
         - $ref: "#/parameters/force"
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         201:
           description: New analyses job scheduled
@@ -237,7 +237,7 @@ paths:
         - $ref: "#/parameters/misfire_grace_time"
         - $ref: "#/parameters/state"
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         201:
           description: New analyses job scheduled
@@ -255,7 +255,7 @@ paths:
         - $ref: "#/parameters/start"
         - $ref: "#/parameters/end"
       security:
-        - api_key: []
+        - auth_token: []
       responses:
         201:
           description: Sync to graph scheduled
