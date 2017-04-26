@@ -261,7 +261,7 @@ If you need any help, contact Fridolin. Also if you find some query useful, feel
 
 # Authentication & Authorization
 
-If the jobs service is running in production environment, there needs to be done authentication in order to manipulate with endopoints. Jobs service authenticates users against Github OAuth which provides you a token that you can use to do post requests.
+If the jobs service is running in production environment, there needs to be done authentication in order to manipulate with endpoints. Jobs service authenticates users against Github OAuth which provides you a token that you can use to do post requests.
 
 You can generate token by accessing `/api/v1/generate-token` endpoint. It will redirect you to Github, which will ask for access to your account info in order to verify that you are a member of Github organization. Once you grant the access, you will be redirected back to Jobs service, which gives you information about your current token.
 

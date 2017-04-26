@@ -128,7 +128,7 @@ class JobToken(_Base):
         try:
             entry = session.query(JobToken).filter(JobToken.token == token).one()
         except NoResultFound:
-            logger.info("No info for token '%s' - token was found", token)
+            logger.info("No info for token '%s' was found", token)
             return {'error': 'Unknown token'}
 
         return entry.to_dict()
