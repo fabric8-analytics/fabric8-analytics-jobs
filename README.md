@@ -1,10 +1,12 @@
-# Bayesian core Jobs service
+# Fabric8-Analytics core Jobs service
 
-The aim of this service is to provide a single configuration point for Bayesian core periodic tasks or more sophisticated analyses execution (jobs).
+*Note on naming: The Fabric8-Analytics project has evolved from 2 different projects called "cucos" and "bayesian". We're currently in process of renaming the modules and updating documentation. Until that is completed, please consider "cucos" and "bayesian" to be synonyms of "Fabric8-Analytics".*
+
+The aim of this service is to provide a single configuration point for Fabric8-Analytics core periodic tasks or more sophisticated analyses execution (jobs).
 
 ## Job
 
-A job is an abstraction in Bayesian core that allows one to manipulate with core workers with more granted semantics. An example of a job can be scheduling all analyses that failed, scheduling analyses of new releases, etc.
+A job is an abstraction in Fabric8-Analytics core that allows one to manipulate with core workers with more granted semantics. An example of a job can be scheduling all analyses that failed, scheduling analyses of new releases, etc.
 
 A job can be run periodically (periodic jobs) or once in the given time (one-shot jobs). All parameters that can be supplied to a job:
 
@@ -24,7 +26,7 @@ A job can be run periodically (periodic jobs) or once in the given time (one-sho
 
 ### Misfire grace time
 
-Bayesian job service can go down. As jobs are stored in the database (PostgreSQL), jobs are not lost. However some jobs could be possibly executed during the service unavailability. Misfire grace time is taken in account when the job service goes up again - if there would be some jobs scheduled during the service unavailability, misfire grace time tells scheduler whether these jobs should be run - if scheduled time plus misfire grace time is less then the current time.
+Fabric8-Analytics job service can go down. As jobs are stored in the database (PostgreSQL), jobs are not lost. However some jobs could be possibly executed during the service unavailability. Misfire grace time is taken in account when the job service goes up again - if there would be some jobs scheduled during the service unavailability, misfire grace time tells scheduler whether these jobs should be run - if scheduled time plus misfire grace time is less then the current time.
 
 ## Default jobs
 
