@@ -2,6 +2,10 @@
 
 The aim of this service is to provide a single configuration point for Bayesian core periodic tasks or more sophisticated analyses execution (jobs).
 
+## Contributing
+
+See our [contributing guidelines](https://github.com/fabric8-analytics/common/blob/master/CONTRIBUTING.md) for more info.
+ 
 ## Job
 
 A job is an abstraction in Bayesian core that allows one to manipulate with core workers with more granted semantics. An example of a job can be scheduling all analyses that failed, scheduling analyses of new releases, etc.
