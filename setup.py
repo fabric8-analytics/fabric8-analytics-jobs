@@ -30,7 +30,7 @@ setup(
     description='Bayesian Core job service',
     license='MIT',
     keywords='bayesian',
-    url='https://github.com/baytemp/jobs',
+    url='https://github.com/fabric8-analytics/jobs',
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.4",
