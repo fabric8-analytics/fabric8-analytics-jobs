@@ -10,9 +10,8 @@ RUN yum install -y epel-release && \
 
 RUN pushd /tmp/jobs_install &&\
   pip3 install . &&\
-  # workaround for private GH repositories
-  # run ./get-worker.sh first
-  pip3 install worker/ &&\
+  git clone https://github.com/fabric8-analytics/fabric8-analytics-worker.git &&\
+  pip3 install fabric8-analytics-worker/ &&\
   popd &&\
   rm -rf /tmp/jobs_install
 
