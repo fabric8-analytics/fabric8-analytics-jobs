@@ -8,10 +8,11 @@ RUN yum install -y epel-release && \
     yum install -y python34-devel python34-pip postgresql-devel gcc git && \
     yum clean all
 
+ENV CUCOSLIB_VERSION=64484b0
+
 RUN pushd /tmp/jobs_install &&\
   pip3 install . &&\
-  git clone https://github.com/fabric8-analytics/fabric8-analytics-worker.git &&\
-  pip3 install fabric8-analytics-worker/ &&\
+  pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${CUCOSLIB_VERSION} &&\
   popd &&\
   rm -rf /tmp/jobs_install
 
