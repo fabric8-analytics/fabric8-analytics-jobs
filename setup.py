@@ -27,9 +27,9 @@ setup(
     author_email='fridolin@redhat.com',
     maintainer='Fridolin Pokorny',
     maintainer_email='fridolin@redhat.com',
-    description='Bayesian Core job service',
-    license='MIT',
-    keywords='bayesian',
+    description='fabric8-analytics Core job service',
+    license='ASL 2.0',
+    keywords='fabric8 analytics jobs',
     url='https://github.com/fabric8-analytics/jobs',
     classifiers=[
         "Programming Language :: Python :: 3",
