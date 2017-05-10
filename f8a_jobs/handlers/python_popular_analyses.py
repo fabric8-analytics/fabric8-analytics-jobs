@@ -82,7 +82,7 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
                     self.analyses_selinon_flow(package_name.text, version[0])
 
     def do_execute(self, popular=True):
-        """Run bayesian core analyse on Python packages.
+        """Run core analyse on Python packages.
 
         :param popular: boolean, sort index by popularity
         """

@@ -10,8 +10,8 @@ from functools import wraps
 from threading import Lock
 from apscheduler.schedulers.background import BackgroundScheduler
 from cucoslib.conf import get_postgres_connection_string
-import bayesian_jobs.handlers as handlers
-from bayesian_jobs.utils import is_failed_job_handler_name
+import f8a_jobs.handlers as handlers
+from f8a_jobs.utils import is_failed_job_handler_name
 
 
 class ScheduleJobError(Exception):

@@ -5,11 +5,11 @@ import logging
 from dateutil.parser import parse as parse_datetime
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
 
-import bayesian_jobs.handlers as handlers
-from bayesian_jobs.handlers.base import BaseHandler
-from bayesian_jobs.utils import (get_service_state_str, get_job_state_str, job2raw_dict, is_failed_job)
-from bayesian_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
-from bayesian_jobs.analyses_report import construct_analyses_report
+import f8a_jobs.handlers as handlers
+from f8a_jobs.handlers.base import BaseHandler
+from f8a_jobs.utils import (get_service_state_str, get_job_state_str, job2raw_dict, is_failed_job)
+from f8a_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
+from f8a_jobs.analyses_report import construct_analyses_report
 
 logger = logging.getLogger(__name__)
 

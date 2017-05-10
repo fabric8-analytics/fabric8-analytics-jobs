@@ -3,7 +3,7 @@ recursive-include hack *
 include LICENSE
 include README.md
 include requirements.txt
-recursive-include bayesian_jobs/default_jobs/ *.yaml
+recursive-include f8a_jobs/default_jobs/ *.yaml
 
 global-exclude __pycache__
 global-exclude *.py[co]
