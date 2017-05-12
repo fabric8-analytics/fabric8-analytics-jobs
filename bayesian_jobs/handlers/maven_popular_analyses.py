@@ -1,9 +1,10 @@
 import bs4
 from collections import namedtuple, OrderedDict
-import json
 import os
 import re
 import requests
+from selinon import StoragePool
+
 from .base import BaseHandler
 from cucoslib.utils import cwd, TimedCommand
 
@@ -123,6 +124,11 @@ class MavenPopularAnalyses(BaseHandler):
 
     def _use_maven_index_checker(self):
         maven_index_checker_dir = os.getenv('MAVEN_INDEX_CHECKER_PATH')
+        target_dir = os.path.join(maven_index_checker_dir, 'target')
+
+        s3 = StoragePool.get_connected_storage('S3MavenIndex')
+        s3.retrieve_index_if_exists(target_dir)
+
         index_range = '{}-{}'.format(self.count.min, self.count.max)
         command = ['java', '-jar', 'maven-index-checker.jar', '-r', index_range]
         with cwd(maven_index_checker_dir):
@@ -138,6 +144,8 @@ class MavenPopularAnalyses(BaseHandler):
                 }
                 self.log.debug("Scheduling %s/%s" % (name, version))
                 self.run_selinon_flow('bayesianFlow', node_args)
+
+        s3.store_index(target_dir)
 
     def execute(self, popular=True, count=None, nversions=None, force=False):
         """ Run bayesian core analyse on maven projects

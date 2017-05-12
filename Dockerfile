@@ -8,7 +8,7 @@ ENV LANG=en_US.UTF-8 \
 RUN useradd coreapi
 
 RUN yum install -y epel-release && \
-    yum install -y python34-devel python34-pip postgresql-devel gcc git maven && \
+    yum install -y python34-devel python34-pip postgresql-devel gcc git maven zip unzip && \
     yum clean all
 
 # Install maven-index-checker
