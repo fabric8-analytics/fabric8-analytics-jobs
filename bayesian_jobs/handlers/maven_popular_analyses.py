@@ -28,6 +28,7 @@ class MavenPopularAnalyses(BaseHandler):
         self.count = CountRange(min=1, max=self._DEFAULT_COUNT)
         self.force = False
         self.recursive_limit = None
+        self.force_graph_sync = False
 
     @staticmethod
     def _find_versions(project_page):
@@ -82,7 +83,8 @@ class MavenPopularAnalyses(BaseHandler):
                                 'ecosystem': 'maven',
                                 'name': name,
                                 'version': version,
-                                'force': self.force
+                                'force': self.force,
+                                'force_graph_sync': self.force_graph_sync
                             }
 
                             if self.recursive_limit is not None:
@@ -148,7 +150,8 @@ class MavenPopularAnalyses(BaseHandler):
                     'ecosystem': 'maven',
                     'name': name,
                     'version': version,
-                    'force': self.force
+                    'force': self.force,
+                    'force_graph_sync': self.force_graph_sync
                 }
                 if self.recursive_limit is not None:
                     node_args['recursive_limit'] = self.recursive_limit
@@ -157,7 +160,8 @@ class MavenPopularAnalyses(BaseHandler):
 
         s3.store_index(target_dir)
 
-    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None):
+    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
+                force_graph_sync=False):
         """ Run bayesian core analyse on maven projects
 
         :param popular: boolean, sort index by popularity
@@ -165,6 +169,7 @@ class MavenPopularAnalyses(BaseHandler):
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
         :param recursive_limit: number of analyses done transitively
+        :param force_graph_sync: force graph synchronization if already analysed
         """
         _count = count or str(self._DEFAULT_COUNT)
         _count = sorted(map(int, _count.split("-")))
@@ -178,6 +183,7 @@ class MavenPopularAnalyses(BaseHandler):
         self.nversions = nversions or self._DEFAULT_NVERSIONS
         self.force = force
         self.recursive_limit = recursive_limit
+        self.force_graph_sync = force_graph_sync
 
         if not popular:
             self._use_maven_index_checker()
