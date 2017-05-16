@@ -4,3 +4,5 @@ pytimeparse
 Flask-Script
 uwsgi
 mosql
+Flask-OAuthlib
+SQLAlchemy-Utils
