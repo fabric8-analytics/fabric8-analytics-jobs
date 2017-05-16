@@ -64,14 +64,14 @@ node('docker') {
 
 if (env.BRANCH_NAME == 'master') {
     node('oc') {
-        stage('Deploy - dev') {
-            unstash 'template'
-            sh "oc --context=dev process -v IMAGE_TAG=${commitId} -f template.yaml | oc --context=dev apply -f -"
-        }
+        //stage('Deploy - dev') {
+        //    unstash 'template'
+        //    sh "oc --context=dev process -v IMAGE_TAG=${commitId} -f template.yaml | oc --context=dev apply -f -"
+        //}
 
-        stage('Deploy - rh-idev') {
-            unstash 'template'
-            sh "oc --context=rh-idev process -v IMAGE_TAG=${commitId} -f template.yaml | oc --context=rh-idev apply -f -"
-        }
+        //stage('Deploy - rh-idev') {
+        //    unstash 'template'
+        //    sh "oc --context=rh-idev process -v IMAGE_TAG=${commitId} -f template.yaml | oc --context=rh-idev apply -f -"
+        //}
     }
 }
