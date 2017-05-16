@@ -31,7 +31,7 @@ class PythonPopularAnalyses(BaseHandler):
 
         return sorted(result, key=lambda x: x[1], reverse=True)
 
-    def _use_pypi_xml_rpc(self, start, end, nversions, force=False):
+    def _use_pypi_xml_rpc(self, start, end, nversions, force=False, recursive_limit=None):
         """Schedule analyses of packages based on PyPI index using XML-RPC
         
         https://wiki.python.org/moin/PyPIXmlRpc
@@ -40,6 +40,7 @@ class PythonPopularAnalyses(BaseHandler):
         :param end: last package index to be analysed
         :param nversions: how many versions of each project to schedule
         :param force: force analyses scheduling
+        :param recursive_limit: number of analyses done transitively
         """
         client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
         # get a list of package names
@@ -50,20 +51,24 @@ class PythonPopularAnalyses(BaseHandler):
             releases = client.package_releases(package, True)  # True for show_hidden arg
 
             for version in releases[:nversions]:
-                self.run_selinon_flow('bayesianFlow', {
+                node_args = {
                     'ecosystem': 'pypi',
                     'name': package,
                     'version': version,
                     'force': force
-                })
+                }
+                if recursive_limit is not None:
+                    node_args['recursive_limit'] = recursive_limit
+                self.run_selinon_flow('bayesianFlow', node_args)
 
-    def execute(self, popular=True, count=None, nversions=None, force=False):
+    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None):
         """ Run bayesian core analyse on TOP Python packages
 
         :param popular: boolean, sort index by popularity
         :param count: str, number (or dash-separated range) of packages to analyse
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
+        :param recursive_limit: number of analyses done transitively
         """
         _count = count or str(self._DEFAULT_COUNT)
         _count = sorted(map(int, _count.split("-")))
@@ -81,7 +86,7 @@ class PythonPopularAnalyses(BaseHandler):
             raise ValueError("Bad count %r" % count)
 
         if not popular:
-            self._use_pypi_xml_rpc(_min, _max, nversions, force)
+            self._use_pypi_xml_rpc(_min, _max, nversions, force, recursive_limit)
             return
 
         packages_count = 0
@@ -112,10 +117,15 @@ class PythonPopularAnalyses(BaseHandler):
                     continue
                 versions = self._parse_version_stats(table.find_all('tr'))
 
+                self.log.debug("Scheduling #%d.", packages_count + _min)
                 for version in versions[:nversions]:
-                    self.run_selinon_flow('bayesianFlow', {
+                    node_args = {
                         'ecosystem': 'pypi',
                         'name': package_name.text,
                         'version': version[0],
                         'force': force
-                    })
+                    }
+
+                    if recursive_limit is not None:
+                        node_args['recursive_limit'] = recursive_limit
+                    self.run_selinon_flow('bayesianFlow', node_args)

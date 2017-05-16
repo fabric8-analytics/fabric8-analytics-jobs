@@ -182,6 +182,7 @@ paths:
         - $ref: "#/parameters/count"
         - $ref: "#/parameters/nversions"
         - $ref: "#/parameters/force"
+        - $ref: "#/parameters/recursive_limit"
       responses:
         201:
           description: New analyses job scheduled
@@ -332,6 +333,12 @@ parameters:
     required: false
     description: Limit by date and time
     type: string
+  recursive_limit:
+    name: recursive_limit
+    in: query
+    required: false
+    description: Number of recursive analyses
+    type: integer
 
 definitions:
   FlowKwargs:
@@ -354,10 +361,12 @@ definitions:
             name: "serve-static"
             version: "1.7.1"
             force: true
+            recursive_limit: 0
           - ecosystem: "maven"
             name: "net.iharder:base64"
             version: "2.3.9"
             force: true
+            recursive_limit: 1
   SelectiveKwargs:
     type: object
     required:
