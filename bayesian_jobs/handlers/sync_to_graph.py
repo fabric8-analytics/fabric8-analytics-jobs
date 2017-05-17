@@ -1,6 +1,6 @@
 import datetime
-from cucoslib.models import Analysis, Package, Version, Ecosystem
-from cucoslib.workers import GraphImporterTask
+from f8a_worker.models import Analysis, Package, Version, Ecosystem
+from f8a_worker.workers import GraphImporterTask
 
 from .base import BaseHandler
 

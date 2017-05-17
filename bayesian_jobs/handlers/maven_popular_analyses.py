@@ -6,7 +6,7 @@ import requests
 from selinon import StoragePool
 
 from .base import BaseHandler
-from cucoslib.utils import cwd, TimedCommand
+from f8a_worker.utils import cwd, TimedCommand
 
 CountRange = namedtuple('CountRange', ['min', 'max'])
 

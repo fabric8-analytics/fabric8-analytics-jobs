@@ -1,6 +1,6 @@
 import datetime
 from selinon import StoragePool
-from cucoslib.models import WorkerResult, Analysis
+from f8a_worker.models import WorkerResult, Analysis
 
 from .base import BaseHandler
 
