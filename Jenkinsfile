@@ -16,10 +16,6 @@ node('docker') {
 
     stage('Build') {
         dockerCleanup()
-        // hack
-        dir('worker') {
-            git url: 'https://github.com/fabric8-analytics/fabric8-analytics-worker.git', branch: 'master'
-        }
         docker.build(image.id, '--pull --no-cache .')
     }
 
