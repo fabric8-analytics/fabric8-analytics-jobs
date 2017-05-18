@@ -288,7 +288,7 @@ parameters:
      enum:
        - maven
        - npm
-       - python
+       - pypi
   count:
     name: count
     in: query
