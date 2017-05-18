@@ -169,7 +169,7 @@ def post_popular_analyses(scheduler, **kwargs):
         handler_name = handlers.MavenPopularAnalyses.__name__
     elif kwargs['ecosystem'] == 'npm':
         handler_name = handlers.NpmPopularAnalyses.__name__
-    elif kwargs['ecosystem'] == 'pipy':
+    elif kwargs['ecosystem'] == 'pypi':
         handler_name = handlers.PythonPopularAnalyses.__name__
     else:
         return {"error": "Unknown ecosystem '{}'".format(kwargs['ecosystem'])}, 401
