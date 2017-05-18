@@ -76,7 +76,11 @@ class PythonPopularAnalyses(BaseHandler):
 
                 pop = requests.get('{url}/module/{pkg}'.format(url=self._URL, pkg=package_name.text))
                 poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
-                versions = self._parse_version_stats(poppage.find('table', id='release_list').find_all('tr'))
+                table = poppage.find('table', id='release_list')
+                if table is None:
+                    self.log.warning('No releases in %s', pop.url)
+                    continue
+                versions = self._parse_version_stats(table.find_all('tr'))
 
                 for version in versions[:nversions]:
                     self.run_selinon_flow('bayesianFlow', {
