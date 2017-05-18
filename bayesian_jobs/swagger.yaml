@@ -120,6 +120,7 @@ paths:
        operationId: bayesian_jobs.api_v1.get_analyses_report
        summary: View brief report of the current system analyses status
        parameters:
+        - $ref: "#/parameters/ecosystem"
         - $ref: "#/parameters/since"
         - $ref: "#/parameters/until"
        responses:

@@ -132,7 +132,7 @@ def post_expand_filter_query(filter_definition):
     return {"matched": matched}, 200
 
 
-def get_analyses_report(since=None, until=None):
+def get_analyses_report(ecosystem, since=None, until=None):
     if since:
         try:
             since = parse_datetime(since)
@@ -145,7 +145,7 @@ def get_analyses_report(since=None, until=None):
         except Exception as exc:
             return {"error": "Cannot parse string format for 'until': %s" % str(exc)}, 400
 
-    return construct_analyses_report(since, until), 200
+    return construct_analyses_report(ecosystem, since, until), 200
 
 
 #

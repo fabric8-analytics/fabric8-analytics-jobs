@@ -17,31 +17,31 @@ def _add_query_datetime_constrains(query, since, until):
     return query
 
 
-def _get_analysis_base_query(db, ecosystem_name, since, until):
+def _get_analysis_base_query(db, ecosystem, since, until):
     query = db.session.query(Analysis) \
         .join(Version) \
         .join(Package) \
         .join(Ecosystem)\
-        .filter(Ecosystem.name == ecosystem_name)
+        .filter(Ecosystem.name == ecosystem)
     return _add_query_datetime_constrains(query, since, until)
 
 
-def _get_finished_analyses_count(db, ecosystem_name, since, until):
-    query = _get_analysis_base_query(db, ecosystem_name, since, until)
+def _get_finished_analyses_count(db, ecosystem, since, until):
+    query = _get_analysis_base_query(db, ecosystem, since, until)
     return query.filter(Analysis.finished_at.isnot(None)).count()
 
 
-def _get_unfinished_analyses_count(db, ecosystem_name, since, until):
-    query = _get_analysis_base_query(db, ecosystem_name, since, until)
+def _get_unfinished_analyses_count(db, ecosystem, since, until):
+    query = _get_analysis_base_query(db, ecosystem, since, until)
     return query.filter(Analysis.finished_at.is_(None)).count()
 
 
-def _get_unique_analyses_count(db, ecosystem_name, since, until):
-    query = _get_analysis_base_query(db, ecosystem_name, since, until)
+def _get_unique_analyses_count(db, ecosystem, since, until):
+    query = _get_analysis_base_query(db, ecosystem, since, until)
     return query.distinct(Version.id).count()
 
 
-def _get_packages_count(db, ecosystem_name, since, until):
+def _get_packages_count(db, ecosystem, since, until):
     # We need to make sure that there is at least one worker result for the given package as if the init task fails for
     # some reason, there will be created EPV entries but that package does not exist
     query = db.session.query(WorkerResult) \
@@ -50,13 +50,13 @@ def _get_packages_count(db, ecosystem_name, since, until):
         .join(Package) \
         .join(Ecosystem)\
         .distinct(Package.id) \
-        .filter(Ecosystem.name == ecosystem_name)
+        .filter(Ecosystem.name == ecosystem)
 
     query = _add_query_datetime_constrains(query, since, until)
     return query.count()
 
 
-def _get_versions_count(db, ecosystem_name, since, until):
+def _get_versions_count(db, ecosystem, since, until):
     # See _get_packages_count comment why doing this.
     query = db.session.query(WorkerResult) \
         .join(Analysis) \
@@ -64,15 +64,16 @@ def _get_versions_count(db, ecosystem_name, since, until):
         .join(Package) \
         .join(Ecosystem)\
         .distinct(Version.id) \
-        .filter(Ecosystem.name == ecosystem_name)
+        .filter(Ecosystem.name == ecosystem)
 
     query = _add_query_datetime_constrains(query, since, until)
     return query.count()
 
 
-def construct_analyses_report(since=None, until=None):
+def construct_analyses_report(ecosystem, since=None, until=None):
     """Construct analyses state report.
     
+    :param ecosystem: name of the ecosystem
     :param since: datetime limitation
     :type since: datetime.datetime
     :param until: datetime limitation
@@ -81,15 +82,7 @@ def construct_analyses_report(since=None, until=None):
     :rtype: dict
     """
     report = {
-        'ecosystems': {},
-        'total': {
-            'analyses': 0,
-            'analyses_finished': 0,
-            'analyses_unfinished': 0,
-            'analyses_unique': 0,
-            'packages': 0,
-            'versions': 0
-        },
+        'report': {},
         'since': str(since) if since else None,
         'until': str(until) if until else None,
         'now': str(datetime.now())
@@ -100,34 +93,16 @@ def construct_analyses_report(since=None, until=None):
     # but let's stick with this for now
     init_celery(result_backend=False)
     db = StoragePool.get_connected_storage('BayesianPostgres')
-    ecosystems = db.session.query(Ecosystem).all()
 
-    ecosystem_report = report['ecosystems']
-    total_report = report['total']
-    for ecosystem in ecosystems:
-        ecosystem_name = ecosystem.name
+    finished_analyses = _get_finished_analyses_count(db, ecosystem, since, until)
+    unfinished_analyses = _get_unfinished_analyses_count(db, ecosystem, since, until)
 
-        finished_analyses = _get_finished_analyses_count(db, ecosystem_name, since, until)
-        unfinished_analyses = _get_unfinished_analyses_count(db, ecosystem_name, since, until)
-        packages = _get_packages_count(db, ecosystem_name, since, until)
-        versions = _get_versions_count(db, ecosystem_name, since, until)
-        unique_analyses = _get_unique_analyses_count(db, ecosystem_name, since, until)
-
-        ecosystem_report[ecosystem_name] = {
-            'ecosystem': ecosystem_name,
-            'analyses': finished_analyses + unfinished_analyses,
-            'analyses_finished': finished_analyses,
-            'analyses_unfinished': unfinished_analyses,
-            'analyses_unique': unique_analyses,
-            'packages': packages,
-            'versions': versions
-        }
-
-        total_report['analyses'] += finished_analyses + unfinished_analyses
-        total_report['analyses_finished'] += finished_analyses
-        total_report['analyses_unfinished'] += unfinished_analyses
-        total_report['analyses_unique'] += unique_analyses
-        total_report['packages'] += packages
-        total_report['versions'] += versions
+    report['report']['ecosystem'] = ecosystem
+    report['report']['analyses'] = finished_analyses + unfinished_analyses
+    report['report']['analyses_finished'] = finished_analyses
+    report['report']['analyses_unfinished'] = unfinished_analyses
+    report['report']['analyses_unique'] = _get_unique_analyses_count(db, ecosystem, since, until)
+    report['report']['packages'] = _get_packages_count(db, ecosystem, since, until)
+    report['report']['versions'] = _get_versions_count(db, ecosystem, since, until)
 
     return report
