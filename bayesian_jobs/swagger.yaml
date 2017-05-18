@@ -114,6 +114,17 @@ paths:
        responses:
          200:
            description: Matched records in database for the given filter definition
+  '/debug/analyses-report':
+    get:
+       tags: [Debug]
+       operationId: bayesian_jobs.api_v1.get_analyses_report
+       summary: View brief report of the current system analyses status
+       parameters:
+        - $ref: "#/parameters/since"
+        - $ref: "#/parameters/until"
+       responses:
+         200:
+           description: A brief report of the analyses running
   '/jobs/flow-scheduling':
     post:
       tags: [Add new jobs]
@@ -308,6 +319,18 @@ parameters:
     required: false
     description: Analysis id to end syncing at
     type: integer
+  since:
+    name: since
+    in: query
+    required: false
+    description: Limit by date and time
+    type: string
+  until:
+    name: until
+    in: query
+    required: false
+    description: Limit by date and time
+    type: string
 
 definitions:
   FlowKwargs:
