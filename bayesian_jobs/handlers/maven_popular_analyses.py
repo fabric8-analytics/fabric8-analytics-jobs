@@ -130,7 +130,7 @@ class MavenPopularAnalyses(BaseHandler):
         s3.retrieve_index_if_exists(target_dir)
 
         index_range = '{}-{}'.format(self.count.min, self.count.max)
-        command = ['java', '-jar', 'maven-index-checker.jar', '-r', index_range]
+        command = ['java', '-Xmx768m', '-jar', 'maven-index-checker.jar', '-r', index_range]
         with cwd(maven_index_checker_dir):
             output = TimedCommand.get_command_output(command, is_json=True)
             for release in output:
