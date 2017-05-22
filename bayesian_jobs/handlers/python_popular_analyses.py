@@ -1,6 +1,10 @@
 import bs4
 import requests
 from .base import BaseHandler
+try:
+    import xmlrpclib
+except ImportError:
+    import xmlrpc.client as xmlrpclib
 
 
 class PythonPopularAnalyses(BaseHandler):
@@ -27,6 +31,32 @@ class PythonPopularAnalyses(BaseHandler):
 
         return sorted(result, key=lambda x: x[1], reverse=True)
 
+    def _use_pypi_xml_rpc(self, start, end, nversions, force=False):
+        """Schedule analyses of packages based on PyPI index using XML-RPC
+        
+        https://wiki.python.org/moin/PyPIXmlRpc
+        
+        :param start: starting index
+        :param end: last package index to be analysed
+        :param nversions: how many versions of each project to schedule
+        :param force: force analyses scheduling
+        """
+        client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+        # get a list of package names
+        packages = sorted(client.list_packages())
+
+        for idx, package in enumerate(packages[start:end]):
+            self.log.debug("Scheduling #%d. - %s", start + idx, package)
+            releases = client.package_releases(package, True)  # True for show_hidden arg
+
+            for version in releases[:nversions]:
+                self.run_selinon_flow('bayesianFlow', {
+                    'ecosystem': 'pypi',
+                    'name': package,
+                    'version': version,
+                    'force': force
+                })
+
     def execute(self, popular=True, count=None, nversions=None, force=False):
         """ Run bayesian core analyse on TOP Python packages
 
@@ -35,10 +65,6 @@ class PythonPopularAnalyses(BaseHandler):
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
         """
-        if not popular:
-            self.log.warning("Not sorting by popularity has not been implemented yet. "
-                             "Will sort by popularity anyway.")
-
         _count = count or str(self._DEFAULT_COUNT)
         _count = sorted(map(int, _count.split("-")))
         if len(_count) == 1:
@@ -53,6 +79,10 @@ class PythonPopularAnalyses(BaseHandler):
         to_schedule_count = _max - _min
         if to_schedule_count <= 0:
             raise ValueError("Bad count %r" % count)
+
+        if not popular:
+            self._use_pypi_xml_rpc(_min, _max, nversions, force)
+            return
 
         packages_count = 0
         page = int((_min / self._PACKAGES_PER_PAGE) + 1)
