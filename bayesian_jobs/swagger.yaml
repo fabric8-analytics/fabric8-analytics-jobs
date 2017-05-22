@@ -183,6 +183,7 @@ paths:
         - $ref: "#/parameters/nversions"
         - $ref: "#/parameters/force"
         - $ref: "#/parameters/recursive_limit"
+        - $ref: "#/parameters/force_graph_sync"
       responses:
         201:
           description: New analyses job scheduled
@@ -309,6 +310,13 @@ parameters:
     description: Force analyses scheduling
     type: boolean
     default: false
+  force_graph_sync:
+    name: force_graph_sync
+    in: query
+    required: false
+    description: Force graph synchronization of if already analysed
+    type: boolean
+    default: false
   start:
     name: start
     in: query
@@ -362,11 +370,13 @@ definitions:
             version: "1.7.1"
             force: true
             recursive_limit: 0
+            force_graph_sync: false
           - ecosystem: "maven"
             name: "net.iharder:base64"
             version: "2.3.9"
             force: true
             recursive_limit: 1
+            force_graph_sync: false
   SelectiveKwargs:
     type: object
     required:

@@ -12,7 +12,7 @@ class NpmPopularAnalyses(BaseHandler):
     _POPULAR_PACKAGES_PER_PAGE = 36
     _DEFAULT_COUNT = 1000
 
-    def _use_npm_registry(self, start, stop, nversions, force, recursive_limit):
+    def _use_npm_registry(self, start, stop, nversions, force, recursive_limit, force_graph_sync=False):
         """Schedule analyses for popular NPM packages
 
         :param start: start offset for popular projects
@@ -20,6 +20,7 @@ class NpmPopularAnalyses(BaseHandler):
         :param nversions: how many of each project to schedule
         :param force: force analyses scheduling
         :param recursive_limit: number of analyses done transitively
+        :param force_graph_sync: force graph synchronization if already analysed
         """
         # set offset to -2 so we skip the very first line
         offset = -2
@@ -52,7 +53,8 @@ class NpmPopularAnalyses(BaseHandler):
                         'ecosystem': 'npm',
                         'name': record['key'],
                         'version': version,
-                        'force': force
+                        'force': force,
+                        'force_graph_sync': force_graph_sync
                     }
                     if recursive_limit is not None:
                         node_args['recursive_limit'] = recursive_limit
@@ -60,7 +62,7 @@ class NpmPopularAnalyses(BaseHandler):
         finally:
             stream.close()
 
-    def _use_npm_popular(self, start, stop, nversions, force, recursive_limit):
+    def _use_npm_popular(self, start, stop, nversions, force, recursive_limit, force_graph_sync=False):
         """Schedule analyses for popular NPM packages
 
         :param start: start offset for popular projects
@@ -68,6 +70,7 @@ class NpmPopularAnalyses(BaseHandler):
         :param nversions: how many most popular versions of each project to schedule
         :param force: force analyses scheduling
         :param recursive_limit: number of analyses done transitively
+        :param force_graph_sync: force graph synchronization if already analysed
         """
         scheduled = 0
         count = stop - start
@@ -81,7 +84,8 @@ class NpmPopularAnalyses(BaseHandler):
                     'name': link.get('href')[len('/package/'):],
                     # TODO: get and schedule nversions
                     'version': link.text,
-                    'force': force
+                    'force': force,
+                    'force_graph_sync': force_graph_sync
                 }
 
                 if recursive_limit is not None:
@@ -92,7 +96,8 @@ class NpmPopularAnalyses(BaseHandler):
                 if scheduled == count:
                     return
 
-    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None):
+    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
+                force_graph_sync=False):
         """Run analyses on NPM packages
 
         :param popular: boolean, sort index by popularity
@@ -100,6 +105,7 @@ class NpmPopularAnalyses(BaseHandler):
         :param nversions: how many versions of each project to schedule
         :param force: force analyses scheduling
         :param recursive_limit: number of analyses done transitively
+        :param force_graph_sync: force graph synchronization if already analysed
         """
         _count = count or str(self._DEFAULT_COUNT)
         _count = sorted(map(int, _count.split("-")))
@@ -113,6 +119,6 @@ class NpmPopularAnalyses(BaseHandler):
             raise ValueError("Bad count %r" % count)
 
         if popular:
-            self._use_npm_popular(_min, _max, nversions, force, recursive_limit)
+            self._use_npm_popular(_min, _max, nversions, force, recursive_limit, force_graph_sync)
         else:
-            self._use_npm_registry(_min, _max, nversions, force, recursive_limit)
+            self._use_npm_registry(_min, _max, nversions, force, recursive_limit, force_graph_sync)
