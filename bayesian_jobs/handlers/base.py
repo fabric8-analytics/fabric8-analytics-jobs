@@ -2,6 +2,7 @@
 
 import re
 import logging
+from collections import namedtuple
 from selinon import run_flow
 from selinon import run_flow_selective
 from selinon import StoragePool
@@ -9,6 +10,9 @@ from cucoslib.setup_celery import init_celery
 import mosql.query as mosql_query
 from mosql.util import raw as mosql_raw
 from mosql.query import select
+
+
+CountRange = namedtuple('CountRange', ['min', 'max'])
 
 
 class BaseHandler(object):
@@ -141,4 +145,124 @@ class BaseHandler(object):
 
     def execute(self, **kwargs):
         """ User defined job handler implementation """
+        raise NotImplementedError()
+
+
+class AnalysesBaseHandler(BaseHandler):
+    """Base handler for specific analyses handlers."""
+    _DEFAULT_COUNT = 1000
+    _DEFAULT_NVERSIONS = 3
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.nversions = self._DEFAULT_NVERSIONS
+        self.popular = True
+        self.count = CountRange(min=1, max=self._DEFAULT_COUNT)
+        self.force = False
+        self.recursive_limit = None
+        self.force_graph_sync = False
+        self.ecosystem = None
+
+    @staticmethod
+    def ecosystem2handler_name(ecosystem):
+        """Convert ecosystem name to handler class name
+        
+        :param ecosystem: name ecosystem
+        :return: name of handler class
+        """
+        # avoid cyclic imports
+        from . import MavenPopularAnalyses, NpmPopularAnalyses, PythonPopularAnalyses
+
+        if ecosystem == 'maven':
+            return MavenPopularAnalyses.__name__
+        elif ecosystem == 'npm':
+            return NpmPopularAnalyses.__name__
+        elif ecosystem == 'pypi':
+            return PythonPopularAnalyses.__name__
+
+        raise ValueError("Unregistered handler for ecosystem '{}'".format(ecosystem))
+
+    def analyses_selinon_flow(self, name, version):
+        """Run Selinon flow for analyses.
+        
+        :param name: name of the package to analyse
+        :param version: package version
+        :return: dispatcher ID serving flow
+        """
+        node_args = {
+            'ecosystem': self.ecosystem,
+            'name': name,
+            'version': version,
+            'force': self.force,
+            'force_graph_sync': self.force_graph_sync
+        }
+
+        if self.recursive_limit is not None:
+            node_args['recursive_limit'] = self.recursive_limit
+
+        self.log.debug("Scheduling %s/%s" % (name, version))
+        return self.run_selinon_flow('bayesianFlow', node_args)
+
+    @classmethod
+    def _parse_count(cls, count=None):
+        """Parse count string.
+        
+        :param count: string count representation
+        :rtype: CountRange
+        :raises ValueError: bad count provided
+        """
+        count = count or str(cls._DEFAULT_COUNT)
+        count = sorted(map(int, count.split("-")))
+
+        if len(count) == 1:
+            count = CountRange(min=1, max=count[0])
+        elif len(count) == 2:
+            count = CountRange(min=count[0], max=count[1])
+            if count.min >= count.max:
+                raise ValueError("Bad count %r" % count)
+
+        if len(count) not in (1, 2) or count.min < 0 or count.max < 0:
+            raise ValueError("Bad count %r" % count)
+
+        return count
+
+    @classmethod
+    def check_arguments(cls, **kwargs):
+        """Check provided arguments
+        
+        :param kwargs: analyses keyword arguments as passed to endpoint
+        """
+        # type checks are transparently done by Swagger
+        # try to parse count
+        if kwargs.get('count') is not None:
+            cls._parse_count(kwargs['count'])
+        # is ecosystem handler registered?
+        cls.ecosystem2handler_name(kwargs.get('ecosystem'))
+        # non-negative limit
+        if kwargs.get('recursive_limit') is not None and kwargs['recursive_limit'] < 0:
+            raise ValueError("Unable to use negative recursive limit")
+
+    def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
+                force_graph_sync=False):
+        """Run analyses on maven projects.
+
+        :param ecosystem: ecosystem name
+        :param popular: boolean, sort index by popularity
+        :param count: str, number or range of projects to analyse
+        :param nversions: how many (most popular) versions of each project to schedule
+        :param force: force analyses scheduling
+        :param recursive_limit: number of analyses done transitively
+        :param force_graph_sync: force sync to graph DB
+        """
+        self.count = self._parse_count(count)
+        self.ecosystem = ecosystem
+        self.nversions = nversions
+        self.force = force
+        self.recursive_limit = recursive_limit
+        self.force_graph_sync = force_graph_sync
+
+        return self.do_execute(popular)
+
+    def do_execute(self, popular=True):
+        """Ecosystem specific analyses handler."""
         raise NotImplementedError()

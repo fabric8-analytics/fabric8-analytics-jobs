@@ -1,18 +1,17 @@
 import bs4
 import requests
-from .base import BaseHandler
+from .base import AnalysesBaseHandler
 try:
     import xmlrpclib
 except ImportError:
     import xmlrpc.client as xmlrpclib
 
 
-class PythonPopularAnalyses(BaseHandler):
+class PythonPopularAnalyses(AnalysesBaseHandler):
     """ Analyse top npm popular packages """
 
     _URL = 'http://pypi-ranking.info'
     _PACKAGES_PER_PAGE = 50
-    _DEFAULT_COUNT = 1000
 
     @staticmethod
     def _parse_version_stats(html_version_stats):
@@ -31,71 +30,28 @@ class PythonPopularAnalyses(BaseHandler):
 
         return sorted(result, key=lambda x: x[1], reverse=True)
 
-    def _use_pypi_xml_rpc(self, start, end, nversions, force=False, recursive_limit=None, force_graph_sync=False):
+    def _use_pypi_xml_rpc(self):
         """Schedule analyses of packages based on PyPI index using XML-RPC
         
         https://wiki.python.org/moin/PyPIXmlRpc
-        
-        :param start: starting index
-        :param end: last package index to be analysed
-        :param nversions: how many versions of each project to schedule
-        :param force: force analyses scheduling
-        :param recursive_limit: number of analyses done transitively
-        :param force_graph_sync: force graph synchronization if already analysed
         """
         client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
         # get a list of package names
         packages = sorted(client.list_packages())
 
-        for idx, package in enumerate(packages[start:end]):
-            self.log.debug("Scheduling #%d. - %s", start + idx, package)
+        for idx, package in enumerate(packages[self.count.min:self.count.max]):
+            self.log.debug("Scheduling #%d. (number versions: %d)", self.count.min + idx, self.nversions)
             releases = client.package_releases(package, True)  # True for show_hidden arg
 
-            for version in releases[:nversions]:
-                node_args = {
-                    'ecosystem': 'pypi',
-                    'name': package,
-                    'version': version,
-                    'force': force,
-                    'force_graph_sync': force_graph_sync
-                }
-                if recursive_limit is not None:
-                    node_args['recursive_limit'] = recursive_limit
-                self.run_selinon_flow('bayesianFlow', node_args)
+            for version in releases[:self.nversions]:
+                self.analyses_selinon_flow(package, version)
 
-    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                force_graph_sync=False):
-        """ Run bayesian core analyse on TOP Python packages
-
-        :param popular: boolean, sort index by popularity
-        :param count: str, number (or dash-separated range) of packages to analyse
-        :param nversions: how many (most popular) versions of each project to schedule
-        :param force: force analyses scheduling
-        :param recursive_limit: number of analyses done transitively
-        :param force_graph_sync: force graph synchronization if already analysed
-        """
-        _count = count or str(self._DEFAULT_COUNT)
-        _count = sorted(map(int, _count.split("-")))
-        if len(_count) == 1:
-            _min = 0
-            _max = _count[0]
-        elif len(_count) == 2:
-            _min = _count[0] - 1
-            _max = _count[1]
-        else:
-            raise ValueError("Bad count %r" % count)
-
-        to_schedule_count = _max - _min
-        if to_schedule_count <= 0:
-            raise ValueError("Bad count %r" % count)
-
-        if not popular:
-            self._use_pypi_xml_rpc(_min, _max, nversions, force, recursive_limit, force_graph_sync)
-            return
-
+    def _use_pypi_ranking(self):
+        """Schedule analyses of packages based on PyPI ranking."""
+        to_schedule_count = self.count.max - self.count.min
         packages_count = 0
-        page = int((_min / self._PACKAGES_PER_PAGE) + 1)
-        page_offset = _min % self._PACKAGES_PER_PAGE
+        page = int((self.count.min / self._PACKAGES_PER_PAGE) + 1)
+        page_offset = self.count.min % self._PACKAGES_PER_PAGE
 
         while True:
             pop = requests.get('{url}/alltime?page={page}'.format(url=self._URL, page=page))
@@ -121,16 +77,17 @@ class PythonPopularAnalyses(BaseHandler):
                     continue
                 versions = self._parse_version_stats(table.find_all('tr'))
 
-                self.log.debug("Scheduling #%d.", packages_count + _min)
-                for version in versions[:nversions]:
-                    node_args = {
-                        'ecosystem': 'pypi',
-                        'name': package_name.text,
-                        'version': version[0],
-                        'force': force,
-                        'force_graph_sync': force_graph_sync
-                    }
+                self.log.debug("Scheduling #%d. (number versions: %d)", self.count.min + packages_count, self.nversions)
+                for version in versions[:self.nversions]:
+                    self.analyses_selinon_flow(package_name.text, version[0])
 
-                    if recursive_limit is not None:
-                        node_args['recursive_limit'] = recursive_limit
-                    self.run_selinon_flow('bayesianFlow', node_args)
+    def do_execute(self, popular=True):
+        """Run bayesian core analyse on Python packages.
+
+        :param popular: boolean, sort index by popularity
+        """
+        if popular:
+            self._use_pypi_ranking()
+        else:
+            self._use_pypi_xml_rpc()
+
