@@ -88,15 +88,15 @@ objects:
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 60
-            timeoutSeconds: 2
+            timeoutSeconds: 30
           livenessProbe:
             httpGet:
               path: /api/v1/liveness
               port: 34000
               scheme: HTTP
-            initialDelaySeconds: 10
+            initialDelaySeconds: 60
             periodSeconds: 60
-            timeoutSeconds: 6
+            timeoutSeconds: 30
           resources:
             requests:
               memory: "512Mi"
