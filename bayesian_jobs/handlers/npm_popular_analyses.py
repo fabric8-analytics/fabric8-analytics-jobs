@@ -12,13 +12,14 @@ class NpmPopularAnalyses(BaseHandler):
     _POPULAR_PACKAGES_PER_PAGE = 36
     _DEFAULT_COUNT = 1000
 
-    def _use_npm_registry(self, start, stop, nversions, force):
+    def _use_npm_registry(self, start, stop, nversions, force, recursive_limit):
         """Schedule analyses for popular NPM packages
 
         :param start: start offset for popular projects
         :param stop: stop offset for popular projects
         :param nversions: how many of each project to schedule
         :param force: force analyses scheduling
+        :param recursive_limit: number of analyses done transitively
         """
         # set offset to -2 so we skip the very first line
         offset = -2
@@ -53,17 +54,20 @@ class NpmPopularAnalyses(BaseHandler):
                         'version': version,
                         'force': force
                     }
+                    if recursive_limit is not None:
+                        node_args['recursive_limit'] = recursive_limit
                     self.run_selinon_flow('bayesianFlow', node_args)
         finally:
             stream.close()
 
-    def _use_npm_popular(self, start, stop, nversions, force):
+    def _use_npm_popular(self, start, stop, nversions, force, recursive_limit):
         """Schedule analyses for popular NPM packages
 
         :param start: start offset for popular projects
         :param stop: stop offset for popular projects
         :param nversions: how many most popular versions of each project to schedule
         :param force: force analyses scheduling
+        :param recursive_limit: number of analyses done transitively
         """
         scheduled = 0
         count = stop - start
@@ -71,6 +75,7 @@ class NpmPopularAnalyses(BaseHandler):
             pop = requests.get('{url}/star?offset={offset}'.format(url=self._URL_POPULAR, offset=offset))
             poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
             for link in poppage.find_all('a', class_='version'):
+                self.log.debug("Scheduling #%d.", offset)
                 node_args = {
                     'ecosystem': 'npm',
                     'name': link.get('href')[len('/package/'):],
@@ -78,18 +83,23 @@ class NpmPopularAnalyses(BaseHandler):
                     'version': link.text,
                     'force': force
                 }
+
+                if recursive_limit is not None:
+                    node_args['recursive_limit'] = recursive_limit
                 self.run_selinon_flow('bayesianFlow', node_args)
+
                 scheduled += 1
                 if scheduled == count:
                     return
 
-    def execute(self, popular=True, count=None, nversions=None, force=False):
+    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None):
         """Run analyses on NPM packages
 
         :param popular: boolean, sort index by popularity
         :param count: str, number (or dash-separated range) of packages to analyse
         :param nversions: how many versions of each project to schedule
         :param force: force analyses scheduling
+        :param recursive_limit: number of analyses done transitively
         """
         _count = count or str(self._DEFAULT_COUNT)
         _count = sorted(map(int, _count.split("-")))
@@ -103,6 +113,6 @@ class NpmPopularAnalyses(BaseHandler):
             raise ValueError("Bad count %r" % count)
 
         if popular:
-            self._use_npm_popular(_min, _max, nversions, force)
+            self._use_npm_popular(_min, _max, nversions, force, recursive_limit)
         else:
-            self._use_npm_registry(_min, _max, nversions, force)
+            self._use_npm_registry(_min, _max, nversions, force, recursive_limit)

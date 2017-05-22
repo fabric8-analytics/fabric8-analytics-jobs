@@ -27,6 +27,7 @@ class MavenPopularAnalyses(BaseHandler):
         self.popular = True
         self.count = CountRange(min=1, max=self._DEFAULT_COUNT)
         self.force = False
+        self.recursive_limit = None
 
     @staticmethod
     def _find_versions(project_page):
@@ -74,16 +75,23 @@ class MavenPopularAnalyses(BaseHandler):
                     self.projects[name] = versions
                     self.nprojects += 1
                     for version in versions:
-                        node_args = {
+                        # TODO: this can be unrolled
+                        if self.count.min <= self.nprojects <= self.count.max:
+                            self.log.debug("Scheduling #%d.", self.nprojects)
+                            node_args = {
                                 'ecosystem': 'maven',
                                 'name': name,
                                 'version': version,
                                 'force': self.force
                             }
-                        if self.count.min <= self.nprojects <= self.count.max:
-                            self.log.debug(
-                                "Scheduling %d. %s: %s" % (self.nprojects, name, version))
+
+                            if self.recursive_limit is not None:
+                                node_args['recursive_limit'] = self.recursive_limit
                             self.run_selinon_flow('bayesianFlow', node_args)
+                        else:
+                            self.log.debug("Skipping scheduling for #%d. (min=%d, max=%d, name=%s, version=%s)",
+                                           self.nprojects, self.count.min, self.count.max, name, version)
+
                     if self.nprojects >= self.count.max:
                         return
 
@@ -142,18 +150,21 @@ class MavenPopularAnalyses(BaseHandler):
                     'version': version,
                     'force': self.force
                 }
+                if self.recursive_limit is not None:
+                    node_args['recursive_limit'] = self.recursive_limit
                 self.log.debug("Scheduling %s/%s" % (name, version))
                 self.run_selinon_flow('bayesianFlow', node_args)
 
         s3.store_index(target_dir)
 
-    def execute(self, popular=True, count=None, nversions=None, force=False):
+    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None):
         """ Run bayesian core analyse on maven projects
 
         :param popular: boolean, sort index by popularity
         :param count: str, number or range of projects to analyse
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
+        :param recursive_limit: number of analyses done transitively
         """
         _count = count or str(self._DEFAULT_COUNT)
         _count = sorted(map(int, _count.split("-")))
@@ -166,6 +177,7 @@ class MavenPopularAnalyses(BaseHandler):
 
         self.nversions = nversions or self._DEFAULT_NVERSIONS
         self.force = force
+        self.recursive_limit = recursive_limit
 
         if not popular:
             self._use_maven_index_checker()
