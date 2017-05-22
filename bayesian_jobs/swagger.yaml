@@ -170,7 +170,7 @@ paths:
     post:
       tags: [Add new jobs]
       operationId: bayesian_jobs.api_v1.post_analyses
-      summary: Analyse TOP packages
+      summary: Analyse packages from index
       parameters:
         - $ref: "#/parameters/job_id"
         - $ref: "#/parameters/periodically"
@@ -191,7 +191,7 @@ paths:
     post:
       tags: [Add new jobs]
       operationId: bayesian_jobs.api_v1.post_clean_postgres
-      summary: Analyse TOP packages
+      summary: Clean PostgreSQL results
       parameters:
         - $ref: "#/parameters/job_id"
         - $ref: "#/parameters/periodically"
