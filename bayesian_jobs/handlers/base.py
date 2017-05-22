@@ -203,9 +203,48 @@ class AnalysesBaseHandler(BaseHandler):
         self.log.debug("Scheduling %s/%s" % (name, version))
         return self.run_selinon_flow('bayesianFlow', node_args)
 
+    @classmethod
+    def _parse_count(cls, count=None):
+        """Parse count string.
+        
+        :param count: string count representation
+        :rtype: CountRange
+        :raises ValueError: bad count provided
+        """
+        count = count or str(cls._DEFAULT_COUNT)
+        count = sorted(map(int, count.split("-")))
+
+        if len(count) == 1:
+            count = CountRange(min=1, max=count[0])
+        elif len(count) == 2:
+            count = CountRange(min=count[0], max=count[1])
+            if count.min >= count.max:
+                raise ValueError("Bad count %r" % count)
+
+        if len(count) not in (1, 2) or count.min < 0 or count.max < 0:
+            raise ValueError("Bad count %r" % count)
+
+        return count
+
+    @classmethod
+    def check_arguments(cls, **kwargs):
+        """Check provided arguments
+        
+        :param kwargs: analyses keyword arguments as passed to endpoint
+        """
+        # type checks are transparently done by Swagger
+        # try to parse count
+        if kwargs.get('count'):
+            cls._parse_count(kwargs['count'])
+        # is ecosystem handler registered?
+        cls.ecosystem2handler_name(kwargs.get('ecosystem'))
+        # non-negative limit
+        if kwargs.get('recursive_limit', 0) < 0:
+            raise ValueError("Unable to use negative recursive limit")
+
     def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
                 force_graph_sync=False):
-        """Run analyses on maven projects/
+        """Run analyses on maven projects.
 
         :param ecosystem: ecosystem name
         :param popular: boolean, sort index by popularity
@@ -215,16 +254,7 @@ class AnalysesBaseHandler(BaseHandler):
         :param recursive_limit: number of analyses done transitively
         :param force_graph_sync: force sync to graph DB
         """
-        _count = count or str(self._DEFAULT_COUNT)
-        _count = sorted(map(int, _count.split("-")))
-        if len(_count) == 1:
-            self.count = CountRange(min=1, max=_count[0])
-        elif len(_count) == 2:
-            self.count = CountRange(min=_count[0], max=_count[1])
-
-        if len(self.count) not in (1, 2) or self.count.min >= self.count.max:
-            raise ValueError("Bad count %r" % count)
-
+        self.count = self._parse_count(count)
         self.ecosystem = ecosystem
         self.nversions = nversions
         self.force = force

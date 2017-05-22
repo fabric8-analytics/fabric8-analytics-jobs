@@ -165,6 +165,7 @@ def post_selective_flow_scheduling(scheduler, **kwargs):
 
 @uses_scheduler
 def post_analyses(scheduler, **kwargs):
+    handlers.base.AnalysesBaseHandler.check_arguments(**kwargs)
     handler_name = handlers.base.AnalysesBaseHandler.ecosystem2handler_name(kwargs['ecosystem'])
     return post_schedule_job(scheduler, handler_name, **kwargs)
 
