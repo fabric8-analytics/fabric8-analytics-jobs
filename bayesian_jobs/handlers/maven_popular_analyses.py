@@ -1,34 +1,24 @@
 import bs4
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict
 import os
 import re
 import requests
 from selinon import StoragePool
 
-from .base import BaseHandler
+from .base import AnalysesBaseHandler
 from cucoslib.utils import cwd, TimedCommand
 
-CountRange = namedtuple('CountRange', ['min', 'max'])
 
-
-class MavenPopularAnalyses(BaseHandler):
+class MavenPopularAnalyses(AnalysesBaseHandler):
     """ Analyse top maven popular projects """
 
     _BASE_URL = 'http://mvnrepository.com'
-    _DEFAULT_COUNT = 1000
-    _DEFAULT_NVERSIONS = 3
     _MAX_PAGES = 10
 
-    def __init__(self, job_id):
-        super(MavenPopularAnalyses, self).__init__(job_id)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.projects = OrderedDict()
         self.nprojects = 0
-        self.nversions = self._DEFAULT_NVERSIONS
-        self.popular = True
-        self.count = CountRange(min=1, max=self._DEFAULT_COUNT)
-        self.force = False
-        self.recursive_limit = None
-        self.force_graph_sync = False
 
     @staticmethod
     def _find_versions(project_page):
@@ -74,22 +64,12 @@ class MavenPopularAnalyses(BaseHandler):
                 if name not in self.projects and all_versions:
                     versions = all_versions[:self.nversions]
                     self.projects[name] = versions
+                    self.log.debug("Scheduling #%d. (number versions: %d)", self.nprojects, self.nversions)
                     self.nprojects += 1
                     for version in versions:
                         # TODO: this can be unrolled
                         if self.count.min <= self.nprojects <= self.count.max:
-                            self.log.debug("Scheduling #%d.", self.nprojects)
-                            node_args = {
-                                'ecosystem': 'maven',
-                                'name': name,
-                                'version': version,
-                                'force': self.force,
-                                'force_graph_sync': self.force_graph_sync
-                            }
-
-                            if self.recursive_limit is not None:
-                                node_args['recursive_limit'] = self.recursive_limit
-                            self.run_selinon_flow('bayesianFlow', node_args)
+                            self.analyses_selinon_flow(name, version)
                         else:
                             self.log.debug("Skipping scheduling for #%d. (min=%d, max=%d, name=%s, version=%s)",
                                            self.nprojects, self.count.min, self.count.max, name, version)
@@ -143,63 +123,33 @@ class MavenPopularAnalyses(BaseHandler):
         command = ['java', '-Xmx768m', '-jar', 'maven-index-checker.jar', '-r', index_range]
         with cwd(maven_index_checker_dir):
             output = TimedCommand.get_command_output(command, is_json=True)
-            for release in output:
+            for idx, release in enumerate(output):
                 name = '{}:{}'.format(release['artifactId'], release['groupId'])
                 version = release['version']
-                node_args = {
-                    'ecosystem': 'maven',
-                    'name': name,
-                    'version': version,
-                    'force': self.force,
-                    'force_graph_sync': self.force_graph_sync
-                }
-                if self.recursive_limit is not None:
-                    node_args['recursive_limit'] = self.recursive_limit
-                self.log.debug("Scheduling %s/%s" % (name, version))
-                self.run_selinon_flow('bayesianFlow', node_args)
+                self.log.debug("Scheduling #%d.", self.count.min + idx)
+                self.analyses_selinon_flow(name, version)
 
         s3.store_index(target_dir)
 
-    def execute(self, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                force_graph_sync=False):
-        """ Run bayesian core analyse on maven projects
+    def do_execute(self, popular=True):
+        """Run bayesian core analyse on maven projects.
 
         :param popular: boolean, sort index by popularity
-        :param count: str, number or range of projects to analyse
-        :param nversions: how many (most popular) versions of each project to schedule
-        :param force: force analyses scheduling
-        :param recursive_limit: number of analyses done transitively
-        :param force_graph_sync: force graph synchronization if already analysed
         """
-        _count = count or str(self._DEFAULT_COUNT)
-        _count = sorted(map(int, _count.split("-")))
-        if len(_count) == 1:
-            self.count = CountRange(min=1, max=_count[0])
-        elif len(_count) == 2:
-            self.count = CountRange(min=_count[0], max=_count[1])
+        if popular:
+            self._top_projects()
+
+            if self.nprojects < self.count.max:
+                # There's only 100 projects on Top Projects page, look at top categories
+                self._top_categories_projects()
+
+            if self.nprojects < self.count.max:
+                # Still not enough ? Ok, let's try popular tags
+                self._top_tags_projects()
+
+            if self.nprojects < self.count.max:
+                self.log.warning("No more sources of popular projects. "
+                                 "%d will be scheduled instead of requested %d" % (self.nprojects,
+                                                                                   self.count.max))
         else:
-            raise ValueError("Bad count %r" % count)
-
-        self.nversions = nversions or self._DEFAULT_NVERSIONS
-        self.force = force
-        self.recursive_limit = recursive_limit
-        self.force_graph_sync = force_graph_sync
-
-        if not popular:
             self._use_maven_index_checker()
-            return
-
-        self._top_projects()
-
-        if self.nprojects < self.count.max:
-            # There's only 100 projects on Top Projects page, look at top categories
-            self._top_categories_projects()
-
-        if self.nprojects < self.count.max:
-            # Still not enough ? Ok, let's try popular tags
-            self._top_tags_projects()
-
-        if self.nprojects < self.count.max:
-            self.log.warning("No more sources of popular projects. "
-                             "%d will be scheduled instead of requested %d" % (self.nprojects,
-                                                                               self.count.max))

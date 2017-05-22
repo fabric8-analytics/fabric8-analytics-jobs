@@ -166,10 +166,10 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
-  '/jobs/popular-analyses':
+  '/jobs/analyses':
     post:
       tags: [Add new jobs]
-      operationId: bayesian_jobs.api_v1.post_popular_analyses
+      operationId: bayesian_jobs.api_v1.post_analyses
       summary: Analyse TOP packages
       parameters:
         - $ref: "#/parameters/job_id"
