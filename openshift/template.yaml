@@ -98,8 +98,10 @@ objects:
             periodSeconds: 60
             timeoutSeconds: 6
           resources:
-            limits:
+            requests:
               memory: "512Mi"
+            limits:
+              memory: "1024Mi"
         restartPolicy: Always
     test: false
     triggers:
