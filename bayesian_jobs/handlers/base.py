@@ -234,12 +234,12 @@ class AnalysesBaseHandler(BaseHandler):
         """
         # type checks are transparently done by Swagger
         # try to parse count
-        if kwargs.get('count'):
+        if kwargs.get('count') is not None:
             cls._parse_count(kwargs['count'])
         # is ecosystem handler registered?
         cls.ecosystem2handler_name(kwargs.get('ecosystem'))
         # non-negative limit
-        if kwargs.get('recursive_limit', 0) < 0:
+        if kwargs.get('recursive_limit') is not None and kwargs['recursive_limit'] < 0:
             raise ValueError("Unable to use negative recursive limit")
 
     def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
