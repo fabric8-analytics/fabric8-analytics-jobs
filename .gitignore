@@ -76,7 +76,7 @@ target/
 .idea/*
 
 # Misc
-cucos-license-check-unreleased.rpm
+f8a-license-check-unreleased.rpm
 
 # workaround for private GH repositories
 worker/
