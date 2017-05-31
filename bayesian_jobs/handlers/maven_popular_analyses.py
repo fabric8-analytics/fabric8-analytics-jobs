@@ -117,12 +117,13 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         target_dir = os.path.join(maven_index_checker_dir, 'target')
 
         s3 = StoragePool.get_connected_storage('S3MavenIndex')
+        self.log.info('Fetching pre-built maven index from S3, if available.')
         s3.retrieve_index_if_exists(target_dir)
 
         index_range = '{}-{}'.format(self.count.min, self.count.max)
         command = ['java', '-Xmx768m', '-jar', 'maven-index-checker.jar', '-r', index_range]
         with cwd(maven_index_checker_dir):
-            output = TimedCommand.get_command_output(command, is_json=True)
+            output = TimedCommand.get_command_output(command, is_json=True, graceful=False, timeout=1200)
             for idx, release in enumerate(output):
                 name = '{}:{}'.format(release['artifactId'], release['groupId'])
                 version = release['version']
