@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from bayesian_jobs.handlers.base import BaseHandler
+from f8a_jobs.handlers.base import BaseHandler
 
 
 class ErrorHandler(BaseHandler):

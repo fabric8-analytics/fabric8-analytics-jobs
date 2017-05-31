@@ -34,7 +34,7 @@ Fabric8-Analytics job service can go down. As jobs are stored in the database (P
 
 ## Default jobs
 
-Default jobs can be found in `baysian_jobs/default_jobs/` directory. These jobs are described in a YAML file (one file per job definition). The configuration keys stated in YAML files conform to job options as described above. Required are `job_id` (to avoid job duplication since these jobs are added each time on start up), `kwargs` and `handler`. If some configuration options are not stated, they default to values as in section above. Browse `bayesian_jobs/default_jobs/` directory for examples.
+Default jobs can be found in `f8a_jobs/default_jobs/` directory. These jobs are described in a YAML file (one file per job definition). The configuration keys stated in YAML files conform to job options as described above. Required are `job_id` (to avoid job duplication since these jobs are added each time on start up), `kwargs` and `handler`. If some configuration options are not stated, they default to values as in section above. Browse `f8a_jobs/default_jobs/` directory for examples.
 
 ## Adding a new job
 
@@ -86,9 +86,9 @@ If a job fails, there is inserted a log entry to database. This entry is basical
  
 In order to implement a job, follow these steps:
 
-  1. Add your job handler to `bayesian_jobs/handlers/` module. This handler has to be a class that derives from `bayesian_jobs.handlers.BaseHandler`. Implement `execute()` method and give it arguments you would like to get from API calls or YAML configuration file.
-  2. Introduce API endpoint and handler-specific POST entry to `bayesian_jobs/swagger.yaml` with an example of `kwargs`. Check already existing entries as an example.
-  3. Add function (`operationId`) to `bayesian_jobs/api_v1.py` that will translate API call to `post_schedule_job`. See examples for more info (see section `Handler specific POST requests` in the source code).
+  1. Add your job handler to `f8a_jobs/handlers/` module. This handler has to be a class that derives from `f8a_jobs.handlers.BaseHandler`. Implement `execute()` method and give it arguments you would like to get from API calls or YAML configuration file.
+  2. Introduce API endpoint and handler-specific POST entry to `f8a_jobs/swagger.yaml` with an example of `kwargs`. Check already existing entries as an example.
+  3. Add function (`operationId`) to `f8a_jobs/api_v1.py` that will translate API call to `post_schedule_job`. See examples for more info (see section `Handler specific POST requests` in the source code).
   4. Use your job handler.
   
   

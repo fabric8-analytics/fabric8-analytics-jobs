@@ -6,8 +6,8 @@ import logging
 from flask import redirect
 from datetime import datetime
 from flask_script import Manager
-from bayesian_jobs.scheduler import Scheduler
-import bayesian_jobs.defaults as defaults
+from f8a_jobs.scheduler import Scheduler
+import f8a_jobs.defaults as defaults
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ def init_logging():
     formatter = logging.Formatter('%(asctime)s - %(message)s')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
-    liblog = logging.getLogger('bayesian_jobs')
+    liblog = logging.getLogger('f8a_jobs')
     liblog.setLevel(logging.DEBUG)
     liblog.addHandler(handler)
 

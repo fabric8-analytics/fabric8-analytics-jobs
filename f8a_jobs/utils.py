@@ -4,7 +4,7 @@ from datetime import timedelta
 from apscheduler.schedulers.base import STATE_RUNNING, STATE_STOPPED
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
-from bayesian_jobs.handlers.error import ErrorHandler
+from f8a_jobs.handlers.error import ErrorHandler
 
 logger = logging.getLogger(__name__)
 

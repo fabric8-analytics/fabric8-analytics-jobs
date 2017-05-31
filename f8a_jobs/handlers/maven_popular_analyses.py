@@ -133,7 +133,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         s3.store_index(target_dir)
 
     def do_execute(self, popular=True):
-        """Run bayesian core analyse on maven projects.
+        """Run core analyse on maven projects.
 
         :param popular: boolean, sort index by popularity
         """

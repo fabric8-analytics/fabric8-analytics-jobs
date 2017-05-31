@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  title: API for Bayesian Core Jobs
+  title: API for Fabric8 Analytics Core Jobs
   version: "0.1"
 basePath: "/api/v1/"
 consumes:
@@ -12,7 +12,7 @@ paths:
   /liveness:
     get:
       tags: [Service settings]
-      operationId: bayesian_jobs.api_v1.get_liveness
+      operationId: f8a_jobs.api_v1.get_liveness
       summary: Get job service liveness
       responses:
         200:
@@ -20,7 +20,7 @@ paths:
   /readiness:
     get:
       tags: [Service settings]
-      operationId: bayesian_jobs.api_v1.get_readiness
+      operationId: f8a_jobs.api_v1.get_readiness
       summary: Get job service readiness
       responses:
         200:
@@ -28,14 +28,14 @@ paths:
   /service/state:
     get:
       tags: [Service settings]
-      operationId: bayesian_jobs.api_v1.get_service_state
+      operationId: f8a_jobs.api_v1.get_service_state
       summary: Get job service state
       responses:
         200:
           description: State of the job service
     put:
       tags: [Service settings]
-      operationId: bayesian_jobs.api_v1.put_service_state
+      operationId: f8a_jobs.api_v1.put_service_state
       summary: Pause or resume job execution
       parameters:
         - $ref: "#/parameters/state"
@@ -45,7 +45,7 @@ paths:
   /jobs:
     get:
       tags: [Jobs options]
-      operationId: bayesian_jobs.api_v1.get_jobs
+      operationId: f8a_jobs.api_v1.get_jobs
       summary: Get all pending jobs
       parameters:
         - $ref: "#/parameters/job_type"
@@ -55,7 +55,7 @@ paths:
   '/jobs/{job_id}':
     delete:
        tags: [Jobs options]
-       operationId: bayesian_jobs.api_v1.delete_jobs
+       operationId: f8a_jobs.api_v1.delete_jobs
        summary: Delete a job
        parameters:
         - $ref: "#/parameters/job_id_path"
@@ -64,7 +64,7 @@ paths:
            description: Job with the given id was removed
     put:
       tags: [Jobs options]
-      operationId: bayesian_jobs.api_v1.put_jobs
+      operationId: f8a_jobs.api_v1.put_jobs
       summary: Jobs state manipulation
       parameters:
         - $ref: "#/parameters/job_id_path"
@@ -75,7 +75,7 @@ paths:
   '/jobs/clean-failed':
     delete:
        tags: [Jobs options]
-       operationId: bayesian_jobs.api_v1.delete_clean_failed
+       operationId: f8a_jobs.api_v1.delete_clean_failed
        summary: Delete all failed jobs
        responses:
          201:
@@ -85,7 +85,7 @@ paths:
   '/debug/show-select-query':
     post:
        tags: [Debug]
-       operationId: bayesian_jobs.api_v1.post_show_select_query
+       operationId: f8a_jobs.api_v1.post_show_select_query
        summary: Show SQL query that will be used in case of filter parametrized jobs
        parameters:
         - name: filter_definition
@@ -102,7 +102,7 @@ paths:
   '/debug/expand-filter-query':
     post:
        tags: [Debug]
-       operationId: bayesian_jobs.api_v1.post_expand_filter_query
+       operationId: f8a_jobs.api_v1.post_expand_filter_query
        summary: Use filter to query database and show results that matched given filter
        parameters:
         - name: filter_definition
@@ -117,7 +117,7 @@ paths:
   '/debug/analyses-report':
     get:
        tags: [Debug]
-       operationId: bayesian_jobs.api_v1.get_analyses_report
+       operationId: f8a_jobs.api_v1.get_analyses_report
        summary: View brief report of the current system analyses status
        parameters:
         - $ref: "#/parameters/ecosystem"
@@ -129,7 +129,7 @@ paths:
   '/jobs/flow-scheduling':
     post:
       tags: [Add new jobs]
-      operationId: bayesian_jobs.api_v1.post_flow_scheduling
+      operationId: f8a_jobs.api_v1.post_flow_scheduling
       summary: Schedule a new job for analyses
       parameters:
         - $ref: "#/parameters/job_id"
@@ -149,7 +149,7 @@ paths:
   '/jobs/selective-flow-scheduling':
     post:
       tags: [Add new jobs]
-      operationId: bayesian_jobs.api_v1.post_selective_flow_scheduling
+      operationId: f8a_jobs.api_v1.post_selective_flow_scheduling
       summary: Schedule a new job for analyses only with selected tasks marked for execution
       parameters:
         - $ref: "#/parameters/job_id"
@@ -169,7 +169,7 @@ paths:
   '/jobs/analyses':
     post:
       tags: [Add new jobs]
-      operationId: bayesian_jobs.api_v1.post_analyses
+      operationId: f8a_jobs.api_v1.post_analyses
       summary: Analyse packages from index
       parameters:
         - $ref: "#/parameters/job_id"
@@ -190,7 +190,7 @@ paths:
   '/jobs/clean-postgres':
     post:
       tags: [Add new jobs]
-      operationId: bayesian_jobs.api_v1.post_clean_postgres
+      operationId: f8a_jobs.api_v1.post_clean_postgres
       summary: Clean PostgreSQL results
       parameters:
         - $ref: "#/parameters/job_id"
@@ -204,7 +204,7 @@ paths:
   '/jobs/sync-to-graph':
     post:
       tags: [Add new jobs]
-      operationId: bayesian_jobs.api_v1.post_sync_to_graph
+      operationId: f8a_jobs.api_v1.post_sync_to_graph
       summary: Sync all finished analyses to graph
       parameters:
         - $ref: "#/parameters/job_id"

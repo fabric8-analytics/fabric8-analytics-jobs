@@ -10,17 +10,17 @@ def get_requirements():
         return fd.read().splitlines()
 
 setup(
-    name='bayesian_jobs',
+    name='fabric8_analytics_jobs',
     version='0.1',
     packages=find_packages(),
     package_data={
-        'bayesian_jobs': [
+        'f8a_jobs': [
             'swagger.yaml',
             os.path.join('default_jobs', '*.yaml'),
             os.path.join('default_jobs', '*.yml')
         ]
     },
-    scripts=['bayesian-jobs.py'],
+    scripts=['f8a-jobs.py'],
     install_requires=get_requirements(),
     include_package_data=True,
     author='Fridolin Pokorny',
