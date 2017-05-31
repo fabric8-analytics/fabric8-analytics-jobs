@@ -123,7 +123,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         index_range = '{}-{}'.format(self.count.min, self.count.max)
         command = ['java', '-Xmx768m', '-jar', 'maven-index-checker.jar', '-r', index_range]
         with cwd(maven_index_checker_dir):
-            output = TimedCommand.get_command_output(command, is_json=True, graceful=False)
+            output = TimedCommand.get_command_output(command, is_json=True, graceful=False, timeout=1200)
             for idx, release in enumerate(output):
                 name = '{}:{}'.format(release['artifactId'], release['groupId'])
                 version = release['version']
