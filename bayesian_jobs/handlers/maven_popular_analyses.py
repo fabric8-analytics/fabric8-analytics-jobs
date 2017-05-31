@@ -124,7 +124,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         with cwd(maven_index_checker_dir):
             output = TimedCommand.get_command_output(command, is_json=True)
             for idx, release in enumerate(output):
-                name = '{}:{}'.format(release['artifactId'], release['groupId'])
+                name = '{}:{}'.format(release['groupId'], release['artifactId'])
                 version = release['version']
                 self.log.debug("Scheduling #%d.", self.count.min + idx)
                 self.analyses_selinon_flow(name, version)
