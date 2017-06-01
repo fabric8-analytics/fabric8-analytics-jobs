@@ -61,13 +61,6 @@ def base_url():
 @manager.command
 def initjobs():
     """ initialize default jobs """""
-
-    # TODO: remove this
-    Scheduler.remove_job('bigQueryJob')
-    Scheduler.remove_job('cveCheckJob')
-    Scheduler.remove_job('cveMavenCheckJob')
-    Scheduler.remove_job('githubGatheringJob')
-
     logger.debug("Initializing default jobs")
     Scheduler.register_default_jobs(defaults.DEFAULT_JOB_DIR)
     logger.debug("Default jobs initialized")
