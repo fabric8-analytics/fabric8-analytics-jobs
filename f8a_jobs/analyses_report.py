@@ -41,6 +41,11 @@ def _get_unique_analyses_count(db, ecosystem, since, until):
     return query.distinct(Version.id).count()
 
 
+def _get_unique_finished_analyses_count(db, ecosystem, since, until):
+    query = _get_analysis_base_query(db, ecosystem, since, until)
+    return query.filter(Analysis.finished_at.isnot(None)).distinct(Version.id).count()
+
+
 def _get_packages_count(db, ecosystem, since, until):
     # We need to make sure that there is at least one worker result for the given package as if the init task fails for
     # some reason, there will be created EPV entries but that package does not exist
@@ -102,6 +107,7 @@ def construct_analyses_report(ecosystem, since=None, until=None):
     report['report']['analyses_finished'] = finished_analyses
     report['report']['analyses_unfinished'] = unfinished_analyses
     report['report']['analyses_unique'] = _get_unique_analyses_count(db, ecosystem, since, until)
+    report['report']['analyses_finished_unique'] = _get_unique_finished_analyses_count(db, ecosystem, since, until)
     report['report']['packages'] = _get_packages_count(db, ecosystem, since, until)
     report['report']['versions'] = _get_versions_count(db, ecosystem, since, until)
 
