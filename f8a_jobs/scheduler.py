@@ -174,16 +174,6 @@ class Scheduler(object):
             except ScheduleJobError as exc:
                 cls.log.error("Failed to register job from file '%s': %s", job_file, str(exc))
 
-    @classmethod
-    def remove_job(cls, job_id):
-        cls.log.error("Removing job '%s'", job_id)
-        scheduler = cls.get_paused_scheduler()
-        try:
-            scheduler.remove_job(job_id)
-        except Exception as e:
-            # non-fatal
-            cls.log.exception(e)
-
 
 def job_execute(handler_name, job_id, **handler_kwargs):
     """ Instantiate and run the handler
