@@ -206,6 +206,19 @@ paths:
       responses:
         201:
           description: Aggregate gathered topics and store them on S3
+  '/jobs/github-most-starred':
+    post:
+      tags: [Add new jobs]
+      operationId: bayesian_jobs.api_v1.github_most_starred
+      summary: GH most starred
+      parameters:
+        - $ref: "#/parameters/ecosystem"
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/recursive_limit"
+        - $ref: "#/parameters/force"
+      responses:
+        201:
+          description: New analyses job scheduled
   '/jobs/clean-postgres':
     post:
       tags: [Add new jobs]

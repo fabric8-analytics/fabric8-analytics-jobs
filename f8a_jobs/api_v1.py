@@ -175,6 +175,16 @@ def post_analyses(scheduler, **kwargs):
 
 
 @uses_scheduler
+def github_most_starred(scheduler, **kwargs):
+    try:
+        handlers.base.AnalysesBaseHandler.check_arguments(**kwargs)
+    except Exception as exc:
+        return {"error": str(exc)}, 401
+
+    return post_schedule_job(scheduler, handlers.GitHubMostStarred.__name__, **kwargs)
+
+
+@uses_scheduler
 def post_clean_postgres(scheduler, **kwargs):
     return post_schedule_job(scheduler, handlers.CleanPostgres.__name__, **kwargs)
 
