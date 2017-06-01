@@ -2,8 +2,7 @@ FROM registry.centos.org/centos/centos:7
 MAINTAINER Fridolin Pokorny <fridolin@redhat.com>
 
 ENV LANG=en_US.UTF-8 \
-    MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
-    CUCOSLIB_VERSION=2dd33c3
+    MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker'
 
 RUN useradd coreapi
 
@@ -18,7 +17,7 @@ RUN /tmp/install_deps/install_maven-index-checker.sh
 COPY ./ /tmp/jobs_install/
 RUN pushd /tmp/jobs_install &&\
   pip3 install . &&\
-  pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${CUCOSLIB_VERSION} &&\
+  pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git &&\
   popd &&\
   rm -rf /tmp/jobs_install
 
