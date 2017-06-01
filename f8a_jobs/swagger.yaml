@@ -121,8 +121,8 @@ paths:
        summary: View brief report of the current system analyses status
        parameters:
         - $ref: "#/parameters/ecosystem"
-        - $ref: "#/parameters/since"
-        - $ref: "#/parameters/until"
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
        responses:
          200:
            description: A brief report of the analyses running
@@ -329,14 +329,14 @@ parameters:
     required: false
     description: Analysis id to end syncing at
     type: integer
-  since:
-    name: since
+  from_date:
+    name: from_date
     in: query
     required: false
     description: Limit by date and time
     type: string
-  until:
-    name: until
+  to_date:
+    name: to_date
     in: query
     required: false
     description: Limit by date and time

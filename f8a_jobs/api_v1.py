@@ -132,20 +132,20 @@ def post_expand_filter_query(filter_definition):
     return {"matched": matched}, 200
 
 
-def get_analyses_report(ecosystem, since=None, until=None):
-    if since:
+def get_analyses_report(ecosystem, from_date=None, to_date=None):
+    if from_date:
         try:
-            since = parse_datetime(since)
+            from_date = parse_datetime(from_date)
         except Exception as exc:
-            return {"error": "Cannot parse string format for 'since': %s" % str(exc)}, 400
+            return {"error": "Cannot parse string format for 'from_date': %s" % str(exc)}, 400
 
-    if until:
+    if to_date:
         try:
-            until = parse_datetime(until)
+            to_date = parse_datetime(to_date)
         except Exception as exc:
-            return {"error": "Cannot parse string format for 'until': %s" % str(exc)}, 400
+            return {"error": "Cannot parse string format for 'to_date': %s" % str(exc)}, 400
 
-    return construct_analyses_report(ecosystem, since, until), 200
+    return construct_analyses_report(ecosystem, from_date, to_date), 200
 
 
 #
