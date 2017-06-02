@@ -1,9 +1,12 @@
 import bs4
 from collections import OrderedDict
+import glob
 import os
 import re
 import requests
 from selinon import StoragePool
+from shutil import rmtree
+from tempfile import gettempdir
 
 from .base import AnalysesBaseHandler
 from cucoslib.utils import cwd, TimedCommand
@@ -127,10 +130,16 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
             for idx, release in enumerate(output):
                 name = '{}:{}'.format(release['groupId'], release['artifactId'])
                 version = release['version']
-                self.log.debug("Scheduling #%d.", self.count.min + idx)
+                self.log.info("Scheduling #%d.", self.count.min + idx)
                 self.analyses_selinon_flow(name, version)
+        # index checker should clean up these dirs in /temp/ after itself, but better be sure
+        for mindexerdir in glob.glob(os.path.join(gettempdir(), 'mindexer-ctxcentral-context*')):
+            rmtree(mindexerdir)
 
+        self.log.info('Storing pre-built maven index to S3')
         s3.store_index(target_dir)
+        central_index_dir = os.path.join(target_dir, 'central-index')
+        rmtree(central_index_dir)
 
     def do_execute(self, popular=True):
         """Run core analyse on maven projects.
