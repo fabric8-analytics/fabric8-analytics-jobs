@@ -8,3 +8,4 @@ from .npm_popular_analyses import NpmPopularAnalyses
 from .python_popular_analyses import PythonPopularAnalyses
 from .selective_flow import SelectiveFlowScheduling
 from .sync_to_graph import SyncToGraph
+from .aggregate_topics import AggregateTopics
