@@ -209,7 +209,7 @@ paths:
   '/jobs/github-most-starred':
     post:
       tags: [Add new jobs]
-      operationId: bayesian_jobs.api_v1.github_most_starred
+      operationId: f8a_jobs.api_v1.github_most_starred
       summary: GH most starred
       parameters:
         - $ref: "#/parameters/ecosystem"

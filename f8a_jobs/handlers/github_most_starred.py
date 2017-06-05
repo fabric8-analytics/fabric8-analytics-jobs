@@ -15,9 +15,6 @@ class GitHubMostStarred(AnalysesBaseHandler):
                           'npm': ('javascript', 'package.json'),
                           'pypi': ('python', 'requirements.txt')}
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def get_most_starred_repositories(self, ecosystem):
         url_template = urllib.parse.urljoin(self.GITHUB_API_URL,
                                             'search/repositories?q=language:{lang}+sort:stars&page={page}')
@@ -73,11 +70,10 @@ class GitHubMostStarred(AnalysesBaseHandler):
                 ecosystem=self.ecosystem,
                 force=self.force,
                 repo_name=repo_name,
-                git_repo_url=repo_url
+                url=repo_url
             )
             if self.recursive_limit is not None:
                 node_args['recursive_limit'] = self.recursive_limit
 
-            self.log.debug("Scheduling %s", str(node_args))
             self.run_selinon_flow('githubManifestMetadataFlow', node_args)
             count += 1
