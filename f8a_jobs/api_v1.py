@@ -182,3 +182,8 @@ def post_clean_postgres(scheduler, **kwargs):
 @uses_scheduler
 def post_sync_to_graph(scheduler, **kwargs):
     return post_schedule_job(scheduler, handlers.SyncToGraph.__name__, **kwargs)
+
+
+@uses_scheduler
+def post_aggregate_topics(scheduler, **kwargs):
+    return post_schedule_job(scheduler, handlers.AggregateTopics.__name__, **kwargs)

@@ -187,6 +187,25 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+  '/jobs/aggregate-topics':
+    post:
+      tags: [Add new jobs]
+      operationId: f8a_jobs.api_v1.post_aggregate_topics
+      summary: Aggregate all topics collected from GitHub and store them on S3
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+        - $ref: "#/parameters/ecosystem"
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+        - $ref: "#/parameters/bucket_name"
+        - $ref: "#/parameters/object_key"
+      responses:
+        201:
+          description: Aggregate gathered topics and store them on S3
   '/jobs/clean-postgres':
     post:
       tags: [Add new jobs]
@@ -347,6 +366,18 @@ parameters:
     required: false
     description: Number of recursive analyses
     type: integer
+  bucket_name:
+    name: bucket_name
+    in: query
+    required: true
+    description: Name of the bucket to manipulate with
+    type: string
+  object_key:
+    name: object_key
+    in: query
+    required: true
+    description: Object key to manipulate with on S3
+    type: string
 
 definitions:
   FlowKwargs:
