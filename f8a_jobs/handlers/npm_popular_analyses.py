@@ -40,7 +40,7 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
                 record = json.loads(record)
                 package_info = requests.get(self._URL_REGISTRY + record['key']).json()
                 self.log.debug("Scheduling #%d. (number versions: %d)", self.count.min + offset, self.nversions)
-                for version in sorted(package_info['versions'].keys(), reverse=True)[:self.nversions]:
+                for version in sorted(package_info.get('versions', {}).keys(), reverse=True)[:self.nversions]:
                     self.analyses_selinon_flow(record['key'], version)
         finally:
             stream.close()
