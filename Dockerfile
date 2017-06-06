@@ -3,7 +3,7 @@ MAINTAINER Fridolin Pokorny <fridolin@redhat.com>
 
 ENV LANG=en_US.UTF-8 \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
-    CUCOSLIB_VERSION=2dd33c3
+    CUCOSLIB_VERSION=99a5121
 
 RUN useradd coreapi
 
