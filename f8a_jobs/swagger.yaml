@@ -310,7 +310,7 @@ parameters:
     required: false
     description: Sorted by popularity
     type: boolean
-    default: true
+    default: false
   ecosystem:
      name: ecosystem
      in: query
