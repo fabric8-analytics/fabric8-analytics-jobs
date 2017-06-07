@@ -54,6 +54,9 @@ def _get_packages_count(db, ecosystem, from_date, to_date):
     return query.distinct(Package.id).count()
 
 
+def _get_finished_packages_count(db, ecosystem, from_date, to_date):
+    query = _get_base_query(db, ecosystem, from_date, to_date)
+    return query.filter(Analysis.finished_at.isnot(None)).distinct(Package.id).count()
 
 
 def _get_versions_count(db, ecosystem, from_date, to_date):
@@ -95,6 +98,7 @@ def construct_analyses_report(ecosystem, from_date=None, to_date=None):
     report['report']['analyses_finished_unique'] = _get_unique_finished_analyses_count(db, ecosystem, from_date, to_date)
     report['report']['analyses_unique'] = _get_unique_analyses_count(db, ecosystem, from_date, to_date)
     report['report']['packages'] = _get_packages_count(db, ecosystem, from_date, to_date)
+    report['report']['packages_finished'] = _get_finished_packages_count(db, ecosystem, from_date, to_date)
     report['report']['versions'] = _get_versions_count(db, ecosystem, from_date, to_date)
 
     return report
