@@ -119,6 +119,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         maven_index_checker_dir = os.getenv('MAVEN_INDEX_CHECKER_PATH')
         target_dir = os.path.join(maven_index_checker_dir, 'target')
 
+        package_postgres = StoragePool.get_connected_storage('PackagePostgres')
         s3 = StoragePool.get_connected_storage('S3MavenIndex')
         self.log.info('Fetching pre-built maven index from S3, if available.')
         s3.retrieve_index_if_exists(target_dir)
@@ -126,20 +127,28 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         index_range = '{}-{}'.format(self.count.min, self.count.max)
         command = ['java', '-Xmx768m', '-jar', 'maven-index-checker.jar', '-r', index_range]
         with cwd(maven_index_checker_dir):
-            output = TimedCommand.get_command_output(command, is_json=True, graceful=False, timeout=1200)
+            output = TimedCommand.get_command_output(command,
+                                                     is_json=True, graceful=False, timeout=1200)
             for idx, release in enumerate(output):
                 name = '{}:{}'.format(release['groupId'], release['artifactId'])
                 version = release['version']
-                self.log.info("Scheduling #%d.", self.count.min + idx)
-                self.analyses_selinon_flow(name, version)
+                # For now (can change in future) we want to analyze only ONE version of each package
+                if package_postgres.get_analysis_count(self.ecosystem, name) > 0:
+                    self.log.info("Analysis of some version of %s has already been scheduled, "
+                                  "skipping version %s", name, version)
+                else:
+                    self.log.info("Scheduling #%d.", self.count.min + idx)
+                    self.analyses_selinon_flow(name, version)
         # index checker should clean up these dirs in /temp/ after itself, but better be sure
         for mindexerdir in glob.glob(os.path.join(gettempdir(), 'mindexer-ctxcentral-context*')):
             rmtree(mindexerdir)
 
         self.log.info('Storing pre-built maven index to S3')
         s3.store_index(target_dir)
+        self.log.debug('Stored')
         central_index_dir = os.path.join(target_dir, 'central-index')
         rmtree(central_index_dir)
+        self.log.debug('central-index/ deleted')
 
     def do_execute(self, popular=True):
         """Run core analyse on maven projects.
