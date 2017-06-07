@@ -17,62 +17,51 @@ def _add_query_datetime_constrains(query, from_date, to_date):
     return query
 
 
-def _get_analysis_base_query(db, ecosystem, from_date, to_date):
-    query = db.session.query(Analysis) \
-        .join(Version) \
-        .join(Package) \
-        .join(Ecosystem)\
-        .filter(Ecosystem.name == ecosystem)
-    return _add_query_datetime_constrains(query, from_date, to_date)
-
-
-def _get_finished_analyses_count(db, ecosystem, from_date, to_date):
-    query = _get_analysis_base_query(db, ecosystem, from_date, to_date)
-    return query.filter(Analysis.finished_at.isnot(None)).count()
-
-
-def _get_unfinished_analyses_count(db, ecosystem, from_date, to_date):
-    query = _get_analysis_base_query(db, ecosystem, from_date, to_date)
-    return query.filter(Analysis.finished_at.is_(None)).count()
-
-
-def _get_unique_analyses_count(db, ecosystem, from_date, to_date):
-    query = _get_analysis_base_query(db, ecosystem, from_date, to_date)
-    return query.distinct(Version.id).count()
-
-
-def _get_unique_finished_analyses_count(db, ecosystem, from_date, to_date):
-    query = _get_analysis_base_query(db, ecosystem, from_date, to_date)
-    return query.filter(Analysis.finished_at.isnot(None)).distinct(Version.id).count()
-
-
-def _get_packages_count(db, ecosystem, from_date, to_date):
+def _get_base_query(db, ecosystem, from_date, to_date):
     # We need to make sure that there is at least one worker result for the given package as if the init task fails for
     # some reason, there will be created EPV entries but that package does not exist
     query = db.session.query(WorkerResult) \
         .join(Analysis) \
         .join(Version) \
         .join(Package) \
-        .join(Ecosystem)\
-        .distinct(Package.id) \
+        .join(Ecosystem) \
         .filter(Ecosystem.name == ecosystem)
+    return _add_query_datetime_constrains(query, from_date, to_date)
 
-    query = _add_query_datetime_constrains(query, from_date, to_date)
-    return query.count()
+
+def _get_finished_analyses_count(db, ecosystem, from_date, to_date):
+    query = _get_base_query(db, ecosystem, from_date, to_date)
+    return query.filter(Analysis.finished_at.isnot(None)).count()
+
+
+def _get_unfinished_analyses_count(db, ecosystem, from_date, to_date):
+    query = _get_base_query(db, ecosystem, from_date, to_date)
+    return query.filter(Analysis.finished_at.is_(None)).count()
+
+
+def _get_unique_analyses_count(db, ecosystem, from_date, to_date):
+    query = _get_base_query(db, ecosystem, from_date, to_date)
+    return query.distinct(Version.id).count()
+
+
+def _get_unique_finished_analyses_count(db, ecosystem, from_date, to_date):
+    query = _get_base_query(db, ecosystem, from_date, to_date)
+    return query.filter(Analysis.finished_at.isnot(None)).distinct(Version.id).count()
+
+
+def _get_packages_count(db, ecosystem, from_date, to_date):
+    query = _get_base_query(db, ecosystem, from_date, to_date)
+    return query.distinct(Package.id).count()
+
+
+def _get_finished_packages_count(db, ecosystem, from_date, to_date):
+    query = _get_base_query(db, ecosystem, from_date, to_date)
+    return query.filter(Analysis.finished_at.isnot(None)).distinct(Package.id).count()
 
 
 def _get_versions_count(db, ecosystem, from_date, to_date):
-    # See _get_packages_count comment why doing this.
-    query = db.session.query(WorkerResult) \
-        .join(Analysis) \
-        .join(Version) \
-        .join(Package) \
-        .join(Ecosystem)\
-        .distinct(Version.id) \
-        .filter(Ecosystem.name == ecosystem)
-
-    query = _add_query_datetime_constrains(query, from_date, to_date)
-    return query.count()
+    query = _get_base_query(db, ecosystem, from_date, to_date)
+    return query.distinct(Version.id).count()
 
 
 def construct_analyses_report(ecosystem, from_date=None, to_date=None):
@@ -109,6 +98,7 @@ def construct_analyses_report(ecosystem, from_date=None, to_date=None):
     report['report']['analyses_finished_unique'] = _get_unique_finished_analyses_count(db, ecosystem, from_date, to_date)
     report['report']['analyses_unique'] = _get_unique_analyses_count(db, ecosystem, from_date, to_date)
     report['report']['packages'] = _get_packages_count(db, ecosystem, from_date, to_date)
+    report['report']['packages_finished'] = _get_finished_packages_count(db, ecosystem, from_date, to_date)
     report['report']['versions'] = _get_versions_count(db, ecosystem, from_date, to_date)
 
     return report
