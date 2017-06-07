@@ -6,8 +6,7 @@ if [[ -z "${MAVEN_INDEX_CHECKER_PATH}" ]]; then
     exit 1
 fi
 
-# download
-git clone https://github.com/pkajaba/maven-index-checker.git
+git clone https://github.com/fabric8-analytics/maven-index-checker.git
 cd maven-index-checker
 mvn clean package
 mkdir --mode 775 --parents "${MAVEN_INDEX_CHECKER_PATH}"
