@@ -117,6 +117,7 @@ class GitHubMostStarred(BaseHandler):
             metadata_object_name = s3.get_object_key_path(self.ecosystem, repo_name) + '/metadata.json'
             if self.skip_if_exists and s3.object_exists(metadata_object_name):
                 self.log.info('Results for repo %s already exist, skipping.', repo_name)
+                count += 1  # skipped, but still counting
                 continue
 
             repo_url = urllib.parse.urljoin(self.GITHUB_URL, repo_name + '.git')
