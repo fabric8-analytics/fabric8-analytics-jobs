@@ -1,10 +1,10 @@
 import requests
 import urllib.parse
 from selinon import StoragePool
-from .base import AnalysesBaseHandler
+from .base import BaseHandler
 
 
-class GitHubMostStarred(AnalysesBaseHandler):
+class GitHubMostStarred(BaseHandler):
     """ Store metadata of most starred <insert-your-favourite-ecosystem> projects
     on GitHub to an S3 bucket. """
 
@@ -18,6 +18,11 @@ class GitHubMostStarred(AnalysesBaseHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.nversions = 1
+        self.count = 1
+        self.force = False
+        self.recursive_limit = None
+        self.ecosystem = None
         self.min_stars = 0
         self.skip_if_exists = True
 
@@ -60,22 +65,35 @@ class GitHubMostStarred(AnalysesBaseHandler):
             yield repo_name
 
     def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                force_graph_sync=False, min_stars=0, skip_if_exists=True):
-        super().execute(ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                        force_graph_sync=False)
+                min_stars=0, skip_if_exists=True):
+        """Run analyses on the most-starred GitHub projects.
+
+        :param ecosystem: ecosystem name
+        :param popular: boolean, sort index by popularity
+        :param count: int, number of projects to analyse
+        :param nversions: how many (most popular) versions of each project to schedule
+        :param force: force analyses scheduling
+        :param recursive_limit: number of analyses done transitively
+        :param min_stars: minimum number of GitHub stars
+        :param skip_if_exists: do not process repositories for which results already exist
+        """
+        self.count = int(count)
+        self.ecosystem = ecosystem
+        self.nversions = nversions
+        self.force = force
+        self.recursive_limit = recursive_limit
         self.min_stars = min_stars
         self.skip_if_exists = skip_if_exists
 
-    def do_execute(self, popular=True):
-        """
-        :param popular: bool, not needed, not used
-        """
+        return self.do_execute()
+
+    def do_execute(self):
 
         s3 = StoragePool.get_connected_storage('S3GitHubManifestMetadata')
 
         count = 0
         most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem, min_stars=self.min_stars)
-        while count < self.count.max:
+        while count < self.count:
             try:
                 repo_name = next(most_starred)
             except StopIteration:
