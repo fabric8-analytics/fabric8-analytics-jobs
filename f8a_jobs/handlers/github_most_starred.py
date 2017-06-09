@@ -1,5 +1,6 @@
 import requests
 import urllib.parse
+from selinon import StoragePool
 from .base import AnalysesBaseHandler
 
 
@@ -18,6 +19,7 @@ class GitHubMostStarred(AnalysesBaseHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.min_stars = 0
+        self.skip_if_exists = True
 
     def get_most_starred_repositories(self, ecosystem, min_stars):
         url_path = 'search/repositories?q=language:{lang}+stars:>={stars}+sort:stars&page={page}'
@@ -58,15 +60,18 @@ class GitHubMostStarred(AnalysesBaseHandler):
             yield repo_name
 
     def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                force_graph_sync=False, min_stars=0):
+                force_graph_sync=False, min_stars=0, skip_if_exists=True):
         super().execute(ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
                         force_graph_sync=False)
         self.min_stars = min_stars
+        self.skip_if_exists = skip_if_exists
 
     def do_execute(self, popular=True):
         """
         :param popular: bool, not needed, not used
         """
+
+        s3 = StoragePool.get_connected_storage('S3GitHubManifestMetadata')
 
         count = 0
         most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem, min_stars=self.min_stars)
@@ -76,6 +81,10 @@ class GitHubMostStarred(AnalysesBaseHandler):
             except StopIteration:
                 self.log.warning('No more repositories to process')
                 break
+
+            if self.skip_if_exists and s3.object_exists(s3.get_object_key_path(self.ecosystem, repo_name)):
+                continue
+
             repo_url = urllib.parse.urljoin(self.GITHUB_URL, repo_name + '.git')
             node_args = dict(
                 ecosystem=self.ecosystem,

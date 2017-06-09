@@ -215,6 +215,7 @@ paths:
         - $ref: "#/parameters/ecosystem"
         - $ref: "#/parameters/count"
         - $ref: "#/parameters/min_stars"
+        - $ref: "#/parameters/skip_if_exists"
         - $ref: "#/parameters/recursive_limit"
         - $ref: "#/parameters/force"
       responses:
@@ -336,6 +337,13 @@ parameters:
     required: false
     description: Minimum number of GitHub stars
     type: integer
+  skip_if_exists:
+    name: skip_if_exists
+    in: query
+    required: false
+    description: Do not process repositories for which results already exist
+    type: boolean
+    default: true
   nversions:
     name: nversions
     in: query
