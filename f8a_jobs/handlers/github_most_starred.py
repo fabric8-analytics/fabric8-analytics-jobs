@@ -92,10 +92,12 @@ class GitHubMostStarred(BaseHandler):
         s3 = StoragePool.get_connected_storage('S3GitHubManifestMetadata')
 
         count = 0
+        total_count = 0
         most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem, min_stars=self.min_stars)
         while count < self.count:
             try:
                 repo_name = next(most_starred)
+                total_count += 1
             except StopIteration:
                 self.log.warning('No more repositories to process')
                 break
@@ -115,5 +117,6 @@ class GitHubMostStarred(BaseHandler):
             if self.recursive_limit is not None:
                 node_args['recursive_limit'] = self.recursive_limit
 
+            self.log.debug('Found most starred project number %s', total_count)
             self.run_selinon_flow('githubManifestMetadataFlow', node_args)
             count += 1
