@@ -15,14 +15,19 @@ class GitHubMostStarred(AnalysesBaseHandler):
                           'npm': ('javascript', 'package.json'),
                           'pypi': ('python', 'requirements.txt')}
 
-    def get_most_starred_repositories(self, ecosystem):
-        url_template = urllib.parse.urljoin(self.GITHUB_API_URL,
-                                            'search/repositories?q=language:{lang}+sort:stars&page={page}')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.min_stars = 0
+
+    def get_most_starred_repositories(self, ecosystem, min_stars):
+        url_path = 'search/repositories?q=language:{lang}+stars:>={stars}+sort:stars&page={page}'
+        url_template = urllib.parse.urljoin(self.GITHUB_API_URL, url_path)
+
         page = 1
         repos = []
 
         def get(lang, page_number):
-            url = url_template.format(lang=lang, page=page_number)
+            url = url_template.format(lang=lang, stars=min_stars, page=page_number)
             response = requests.get(url)
             result = []
             if response.status_code == 200:
@@ -52,13 +57,19 @@ class GitHubMostStarred(AnalysesBaseHandler):
                 continue
             yield repo_name
 
+    def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
+                force_graph_sync=False, min_stars=0):
+        super().execute(ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
+                        force_graph_sync=False)
+        self.min_stars = min_stars
+
     def do_execute(self, popular=True):
         """
         :param popular: bool, not needed, not used
         """
 
         count = 0
-        most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem)
+        most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem, min_stars=self.min_stars)
         while count < self.count.max:
             try:
                 repo_name = next(most_starred)

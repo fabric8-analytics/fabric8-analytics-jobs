@@ -214,6 +214,7 @@ paths:
       parameters:
         - $ref: "#/parameters/ecosystem"
         - $ref: "#/parameters/count"
+        - $ref: "#/parameters/min_stars"
         - $ref: "#/parameters/recursive_limit"
         - $ref: "#/parameters/force"
       responses:
@@ -329,6 +330,12 @@ parameters:
     required: false
     description: Number (or dash-separated range) of items
     type: string
+  min_stars:
+    name: min_stars
+    in: query
+    required: false
+    description: Minimum number of GitHub stars
+    type: integer
   nversions:
     name: nversions
     in: query
