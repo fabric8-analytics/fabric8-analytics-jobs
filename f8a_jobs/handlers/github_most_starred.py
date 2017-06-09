@@ -25,12 +25,14 @@ class GitHubMostStarred(BaseHandler):
         self.ecosystem = None
         self.min_stars = 0
         self.skip_if_exists = True
+        self.start_from = 0
 
-    def get_most_starred_repositories(self, ecosystem, min_stars):
+    def get_most_starred_repositories(self, ecosystem, min_stars, start_from):
         url_path = 'search/repositories?q=language:{lang}+stars:>={stars}+sort:stars&page={page}'
         url_template = urllib.parse.urljoin(self.GITHUB_API_URL, url_path)
 
-        page = 1
+        skip = start_from % 100
+        page = 1 + (start_from // 100)
         repos = []
 
         def get(lang, page_number):
@@ -51,6 +53,12 @@ class GitHubMostStarred(BaseHandler):
                 page += 1
                 if not repos:
                     raise StopIteration
+
+            if skip:
+                skip_slice = skip if skip < len(repos) else len(repos)
+                repos = repos[skip_slice:]
+                skip -= skip_slice
+
             repo_name = repos.pop(0)
 
             # we need to check that the repository contains manifest file that mercator can process;
@@ -65,7 +73,7 @@ class GitHubMostStarred(BaseHandler):
             yield repo_name
 
     def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                min_stars=0, skip_if_exists=True):
+                min_stars=0, skip_if_exists=True, start_from=0):
         """Run analyses on the most-starred GitHub projects.
 
         :param ecosystem: ecosystem name
@@ -76,6 +84,7 @@ class GitHubMostStarred(BaseHandler):
         :param recursive_limit: number of analyses done transitively
         :param min_stars: minimum number of GitHub stars
         :param skip_if_exists: do not process repositories for which results already exist
+        :param start_from: int, skip first <number> most starred projects
         """
         self.count = int(count)
         self.ecosystem = ecosystem
@@ -84,6 +93,7 @@ class GitHubMostStarred(BaseHandler):
         self.recursive_limit = recursive_limit
         self.min_stars = min_stars
         self.skip_if_exists = skip_if_exists
+        self.start_from = start_from or 0
 
         return self.do_execute()
 
@@ -93,7 +103,9 @@ class GitHubMostStarred(BaseHandler):
 
         count = 0
         total_count = 0
-        most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem, min_stars=self.min_stars)
+        most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem,
+                                                          min_stars=self.min_stars,
+                                                          start_from=self.start_from)
         while count < self.count:
             try:
                 repo_name = next(most_starred)

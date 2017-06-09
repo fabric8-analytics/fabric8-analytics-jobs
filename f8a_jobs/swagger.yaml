@@ -216,6 +216,7 @@ paths:
         - $ref: "#/parameters/count"
         - $ref: "#/parameters/min_stars"
         - $ref: "#/parameters/skip_if_exists"
+        - $ref: "#/parameters/start_from"
         - $ref: "#/parameters/recursive_limit"
         - $ref: "#/parameters/force"
       responses:
@@ -344,6 +345,12 @@ parameters:
     description: Do not process repositories for which results already exist
     type: boolean
     default: true
+  start_from:
+    name: start_from
+    in: query
+    required: false
+    description: Skip first <number> most starred projects
+    type: integer
   nversions:
     name: nversions
     in: query
