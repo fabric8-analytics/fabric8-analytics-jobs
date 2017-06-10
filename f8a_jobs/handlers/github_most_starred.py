@@ -16,6 +16,8 @@ class GitHubMostStarred(BaseHandler):
                           'npm': ('javascript', 'package.json'),
                           'pypi': ('python', 'requirements.txt')}
 
+    _MIN_STARS_DEFAULT = 500
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.nversions = 1
@@ -23,12 +25,21 @@ class GitHubMostStarred(BaseHandler):
         self.force = False
         self.recursive_limit = None
         self.ecosystem = None
-        self.min_stars = 0
+        self.min_stars = None
+        self.max_stars = None
         self.skip_if_exists = True
         self.start_from = 0
 
-    def get_most_starred_repositories(self, ecosystem, min_stars, start_from):
-        url_path = 'search/repositories?q=language:{lang}+stars:>={stars}+sort:stars&page={page}'
+    def _get_stars_filter(self):
+        if self.min_stars is not None and self.max_stars is not None:
+            return '{min}..{max}'.format(min=self.min_stars, max=self.max_stars)
+        elif self.max_stars is not None:
+            return '<={max}'.format(max=self.max_stars)
+        else:
+            return '>={min}'.format(min=self.min_stars or self._MIN_STARS_DEFAULT)
+
+    def get_most_starred_repositories(self, ecosystem, start_from):
+        url_path = 'search/repositories?q=language:{lang}+stars:{stars}+sort:stars&page={page}'
         url_template = urllib.parse.urljoin(self.GITHUB_API_URL, url_path)
 
         skip = start_from % 100
@@ -36,7 +47,7 @@ class GitHubMostStarred(BaseHandler):
         repos = []
 
         def get(lang, page_number):
-            url = url_template.format(lang=lang, stars=min_stars, page=page_number)
+            url = url_template.format(lang=lang, stars=self._get_stars_filter(), page=page_number)
             response = requests.get(url)
             result = []
             if response.status_code == 200:
@@ -73,7 +84,7 @@ class GitHubMostStarred(BaseHandler):
             yield repo_name
 
     def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                min_stars=0, skip_if_exists=True, start_from=0):
+                min_stars=None, max_stars=None, skip_if_exists=True, start_from=0):
         """Run analyses on the most-starred GitHub projects.
 
         :param ecosystem: ecosystem name
@@ -83,6 +94,7 @@ class GitHubMostStarred(BaseHandler):
         :param force: force analyses scheduling
         :param recursive_limit: number of analyses done transitively
         :param min_stars: minimum number of GitHub stars
+        :param max_stars: maximum number of GitHub stars
         :param skip_if_exists: do not process repositories for which results already exist
         :param start_from: int, skip first <number> most starred projects
         """
@@ -92,6 +104,7 @@ class GitHubMostStarred(BaseHandler):
         self.force = force
         self.recursive_limit = recursive_limit
         self.min_stars = min_stars
+        self.max_stars = max_stars
         self.skip_if_exists = skip_if_exists
         self.start_from = start_from or 0
 
@@ -103,9 +116,7 @@ class GitHubMostStarred(BaseHandler):
 
         count = 0
         total_count = 0
-        most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem,
-                                                          min_stars=self.min_stars,
-                                                          start_from=self.start_from)
+        most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem, start_from=self.start_from)
         while count < self.count:
             try:
                 repo_name = next(most_starred)
