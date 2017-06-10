@@ -215,6 +215,7 @@ paths:
         - $ref: "#/parameters/ecosystem"
         - $ref: "#/parameters/count"
         - $ref: "#/parameters/min_stars"
+        - $ref: "#/parameters/max_stars"
         - $ref: "#/parameters/skip_if_exists"
         - $ref: "#/parameters/start_from"
         - $ref: "#/parameters/recursive_limit"
@@ -337,6 +338,12 @@ parameters:
     in: query
     required: false
     description: Minimum number of GitHub stars
+    type: integer
+  max_stars:
+    name: max_stars
+    in: query
+    required: false
+    description: Maximum number of GitHub stars
     type: integer
   skip_if_exists:
     name: skip_if_exists
