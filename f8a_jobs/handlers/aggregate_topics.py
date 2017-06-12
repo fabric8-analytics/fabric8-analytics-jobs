@@ -65,7 +65,7 @@ class AggregateTopics(BaseHandler):
 
             for entry in results:
                 name = entry.package.name
-                version = entry.package.version
+                version = entry.version.identifier
 
                 task_result = entry.task_result
                 if not postgres.is_real_task_result(task_result):
