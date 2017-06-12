@@ -156,6 +156,7 @@ class AnalysesBaseHandler(BaseHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.nversions = self._DEFAULT_NVERSIONS
+        self.latest_version_only = False
         self.popular = True
         self.count = CountRange(min=1, max=self._DEFAULT_COUNT)
         self.force = False
@@ -166,7 +167,7 @@ class AnalysesBaseHandler(BaseHandler):
     @staticmethod
     def ecosystem2handler_name(ecosystem):
         """Convert ecosystem name to handler class name
-        
+
         :param ecosystem: name ecosystem
         :return: name of handler class
         """
@@ -184,7 +185,7 @@ class AnalysesBaseHandler(BaseHandler):
 
     def analyses_selinon_flow(self, name, version):
         """Run Selinon flow for analyses.
-        
+
         :param name: name of the package to analyse
         :param version: package version
         :return: dispatcher ID serving flow
@@ -206,7 +207,7 @@ class AnalysesBaseHandler(BaseHandler):
     @classmethod
     def _parse_count(cls, count=None):
         """Parse count string.
-        
+
         :param count: string count representation
         :rtype: CountRange
         :raises ValueError: bad count provided
@@ -229,7 +230,7 @@ class AnalysesBaseHandler(BaseHandler):
     @classmethod
     def check_arguments(cls, **kwargs):
         """Check provided arguments
-        
+
         :param kwargs: analyses keyword arguments as passed to endpoint
         """
         # type checks are transparently done by Swagger
@@ -242,13 +243,14 @@ class AnalysesBaseHandler(BaseHandler):
         if kwargs.get('recursive_limit') is not None and kwargs['recursive_limit'] < 0:
             raise ValueError("Unable to use negative recursive limit")
 
-    def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                force_graph_sync=False):
+    def execute(self, ecosystem, popular=True, count=None, nversions=None, latest_version_only=False,
+                force=False, recursive_limit=None, force_graph_sync=False):
         """Run analyses on maven projects.
 
         :param ecosystem: ecosystem name
         :param popular: boolean, sort index by popularity
         :param count: str, number or range of projects to analyse
+        :param latest_version_only: boolean, whether or not to analyse just latest version
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
         :param recursive_limit: number of analyses done transitively
@@ -257,6 +259,7 @@ class AnalysesBaseHandler(BaseHandler):
         self.count = self._parse_count(count)
         self.ecosystem = ecosystem
         self.nversions = nversions
+        self.latest_version_only = latest_version_only
         self.force = force
         self.recursive_limit = recursive_limit
         self.force_graph_sync = force_graph_sync

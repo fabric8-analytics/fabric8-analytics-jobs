@@ -180,6 +180,7 @@ paths:
         - $ref: "#/parameters/popular"
         - $ref: "#/parameters/ecosystem"
         - $ref: "#/parameters/count"
+        - $ref: "#/parameters/latest_version_only"
         - $ref: "#/parameters/nversions"
         - $ref: "#/parameters/force"
         - $ref: "#/parameters/recursive_limit"
@@ -358,6 +359,13 @@ parameters:
     required: false
     description: Skip first <number> most starred projects
     type: integer
+  latest_version_only:
+    name: latest_version_only
+    in: query
+    required: false
+    description: Scan latest version only (if true, `nversions` is ignored)
+    type: boolean
+    default: false
   nversions:
     name: nversions
     in: query
