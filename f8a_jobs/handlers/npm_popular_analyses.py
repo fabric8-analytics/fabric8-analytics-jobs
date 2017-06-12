@@ -50,10 +50,10 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
         scheduled = 0
         count = self.count.max - self.count.min
         for offset in range(self.count.min, self.count.max, self._POPULAR_PACKAGES_PER_PAGE):
-            pop = requests.get('{url}/star?offset={offset}'.format(url=self._URL_POPULAR, offset=offset))
+            pop = requests.get('{url}/depended?offset={offset}'.format(url=self._URL_POPULAR, offset=offset))
             poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
             self.log.debug("Scheduling #%d. (number versions: %d)", self.count.min + offset, self.nversions)
-            for link in poppage.find_all('a', class_='version'):
+            for link in poppage.find_all('a', class_='type-neutral-1'):
                 self.analyses_selinon_flow(link.get('href')[len('/package/'):], link.text)
 
                 scheduled += 1
