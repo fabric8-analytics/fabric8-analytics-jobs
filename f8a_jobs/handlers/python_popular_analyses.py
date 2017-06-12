@@ -14,10 +14,11 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
     _PACKAGES_PER_PAGE = 50
 
     @staticmethod
-    def _parse_version_stats(html_version_stats):
+    def _parse_version_stats(html_version_stats, sort_by_popularity=True):
         """ Parse version statistics from HTML definition and return ordered versions based on downloads
 
         :param html_version_stats: tr-like representation of version statistics
+        :param sort_by_popularity: whether or not to return versions sorted by popularity
         :return: sorted versions based on downloads
         """
         result = []
@@ -28,11 +29,13 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
             # There are numbers with comma, get rid of it
             result.append((version_name, int(version_downloads.replace(',', ''))))
 
-        return sorted(result, key=lambda x: x[1], reverse=True)
+        if sort_by_popularity:
+            return sorted(result, key=lambda x: x[1], reverse=True)
+        return result
 
     def _use_pypi_xml_rpc(self):
         """Schedule analyses of packages based on PyPI index using XML-RPC
-        
+
         https://wiki.python.org/moin/PyPIXmlRpc
         """
         client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
@@ -40,11 +43,18 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
         packages = sorted(client.list_packages())
 
         for idx, package in enumerate(packages[self.count.min:self.count.max]):
-            self.log.debug("Scheduling #%d. (number versions: %d)", self.count.min + idx, self.nversions)
             releases = client.package_releases(package, True)  # True for show_hidden arg
 
-            for version in releases[:self.nversions]:
-                self.analyses_selinon_flow(package, version)
+            if self.latest_version_only:
+                # it seems that versions are always ordered from newest to oldest
+                self.log.debug("Scheduling #%d (latest version)", self.count.min + idx)
+                if releases:
+                    self.analyses_selinon_flow(package, releases[0])
+            else:
+                self.log.debug("Scheduling #%d. (number versions: %d)",
+                               self.count.min + idx, self.nversions)
+                for version in releases[:self.nversions]:
+                    self.analyses_selinon_flow(package, version)
 
     def _use_pypi_ranking(self):
         """Schedule analyses of packages based on PyPI ranking."""
@@ -75,11 +85,18 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
                 if table is None:
                     self.log.warning('No releases in %s', pop.url)
                     continue
-                versions = self._parse_version_stats(table.find_all('tr'))
+                versions = self._parse_version_stats(table.find_all('tr'),
+                                                     sort_by_popularity=not self.latest_version_only)
 
-                self.log.debug("Scheduling #%d. (number versions: %d)", self.count.min + packages_count, self.nversions)
-                for version in versions[:self.nversions]:
-                    self.analyses_selinon_flow(package_name.text, version[0])
+                if self.latest_version_only:
+                    self.log.debug("Scheduling #%d (latest version)",
+                                   self.count.min + packages_count)
+                    self.analyses_selinon_flow(package_name.text, versions[0][0])
+                else:
+                    self.log.debug("Scheduling #%d. (number versions: %d)",
+                                   self.count.min + packages_count, self.nversions)
+                    for version in versions[:self.nversions]:
+                        self.analyses_selinon_flow(package_name.text, version[0])
 
     def do_execute(self, popular=True):
         """Run core analyse on Python packages.
