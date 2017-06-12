@@ -1,15 +1,15 @@
 import bs4
 from collections import OrderedDict
-import glob
 import os
 import re
 import requests
+import tempfile
 from selinon import StoragePool
 from shutil import rmtree
-from tempfile import gettempdir
 
 from .base import AnalysesBaseHandler
 from cucoslib.utils import cwd, TimedCommand
+from cucoslib.errors import TaskError
 
 
 class MavenPopularAnalyses(AnalysesBaseHandler):
@@ -118,17 +118,43 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
     def _use_maven_index_checker(self):
         maven_index_checker_dir = os.getenv('MAVEN_INDEX_CHECKER_PATH')
         target_dir = os.path.join(maven_index_checker_dir, 'target')
+        central_index_dir = os.path.join(target_dir, 'central-index')
+        timestamp_path = os.path.join(central_index_dir, 'timestamp')
 
         package_postgres = StoragePool.get_connected_storage('PackagePostgres')
         s3 = StoragePool.get_connected_storage('S3MavenIndex')
         self.log.info('Fetching pre-built maven index from S3, if available.')
         s3.retrieve_index_if_exists(target_dir)
 
+        old_timestamp = 0
+        try:
+            old_timestamp = int(os.stat(timestamp_path).st_mtime)
+        except OSError:
+            self.log.info('Timestamp is missing, we will probably need to build the index from scratch.')
+            pass
+
+        java_temp_dir = tempfile.mkdtemp()
+
         index_range = '{}-{}'.format(self.count.min, self.count.max)
-        command = ['java', '-Xmx768m', '-jar', 'maven-index-checker.jar', '-r', index_range]
+        command = ['java', '-Xmx768m', '-Djava.io.tmpdir={}'.format(java_temp_dir), '-jar', 'maven-index-checker.jar', '-r', index_range]
         with cwd(maven_index_checker_dir):
-            output = TimedCommand.get_command_output(command,
-                                                     is_json=True, graceful=False, timeout=1200)
+            try:
+                output = TimedCommand.get_command_output(command, is_json=True, graceful=False, timeout=1200)
+
+                new_timestamp = int(os.stat(timestamp_path).st_mtime)
+                if old_timestamp != new_timestamp:
+                    self.log.info('Storing pre-built maven index to S3...')
+                    s3.store_index(target_dir)
+                    self.log.debug('Stored. Index in S3 is up-to-date.')
+                else:
+                    self.log.info('Index in S3 is up-to-date.')
+            except TaskError as e:
+                self.log.exception(e)
+            finally:
+                rmtree(central_index_dir)
+                self.log.debug('central-index/ deleted')
+                rmtree(java_temp_dir)
+
             for idx, release in enumerate(output):
                 name = '{}:{}'.format(release['groupId'], release['artifactId'])
                 version = release['version']
@@ -139,16 +165,6 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                 else:
                     self.log.info("Scheduling #%d.", self.count.min + idx)
                     self.analyses_selinon_flow(name, version)
-        # index checker should clean up these dirs in /temp/ after itself, but better be sure
-        for mindexerdir in glob.glob(os.path.join(gettempdir(), 'mindexer-ctxcentral-context*')):
-            rmtree(mindexerdir)
-
-        self.log.info('Storing pre-built maven index to S3')
-        s3.store_index(target_dir)
-        self.log.debug('Stored')
-        central_index_dir = os.path.join(target_dir, 'central-index')
-        rmtree(central_index_dir)
-        self.log.debug('central-index/ deleted')
 
     def do_execute(self, popular=True):
         """Run core analyse on maven projects.
