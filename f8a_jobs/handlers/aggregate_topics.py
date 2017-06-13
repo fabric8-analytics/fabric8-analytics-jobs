@@ -67,9 +67,17 @@ class AggregateTopics(BaseHandler):
                 name = entry.package.name
                 version = entry.version.identifier
 
+                self.log.debug("Aggregating topics for %s/%s/%s", ecosystem, name, version)
+
                 task_result = entry.task_result
                 if not postgres.is_real_task_result(task_result):
-                    task_result = s3.retrieve_task_result(ecosystem, name, version, 'github_details')
+                    self.log.debug("Result was already stored on S3, retrieving from there")
+                    try:
+                        task_result = s3.retrieve_task_result(ecosystem, name, version, 'github_details')
+                    except:
+                        self.log.exception("Failed to retrieve result 'github_details' from S3 for %s/%s/%s",
+                                           ecosystem, name, version)
+                        continue
 
                 topics.append({
                     'topics': task_result.get('details', {}).get('topics'),
