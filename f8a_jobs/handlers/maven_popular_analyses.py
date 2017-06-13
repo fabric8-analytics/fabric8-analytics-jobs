@@ -121,7 +121,6 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         central_index_dir = os.path.join(target_dir, 'central-index')
         timestamp_path = os.path.join(central_index_dir, 'timestamp')
 
-        package_postgres = StoragePool.get_connected_storage('PackagePostgres')
         s3 = StoragePool.get_connected_storage('S3MavenIndex')
         self.log.info('Fetching pre-built maven index from S3, if available.')
         s3.retrieve_index_if_exists(target_dir)
@@ -155,14 +154,18 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                 self.log.debug('central-index/ deleted')
                 rmtree(java_temp_dir)
 
+            s3data = StoragePool.get_connected_storage('S3Data')
+            bucket = s3data._s3.Bucket(s3data.bucket_name)
             for idx, release in enumerate(output):
                 name = '{}:{}'.format(release['groupId'], release['artifactId'])
                 version = release['version']
                 # For now (can change in future) we want to analyze only ONE version of each package
-                if package_postgres.get_analysis_count(self.ecosystem, name) > 0:
+                try:
+                    next(iter(bucket.objects.filter(Prefix='{e}/{p}/'.format(e=self.ecosystem, p=name)).limit(1)))
                     self.log.info("Analysis of some version of %s has already been scheduled, "
                                   "skipping version %s", name, version)
-                else:
+                    continue
+                except StopIteration:
                     self.log.info("Scheduling #%d.", self.count.min + idx)
                     self.analyses_selinon_flow(name, version)
 
