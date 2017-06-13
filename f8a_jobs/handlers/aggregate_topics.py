@@ -1,7 +1,7 @@
 from sqlalchemy import desc
 from dateutil.parser import parse as parse_datetime
 from selinon import StoragePool
-from cucoslib.models import WorkerResult, Analysis
+from cucoslib.models import WorkerResult, Analysis, Ecosystem, Package, Version
 
 from .base import BaseHandler
 
@@ -40,9 +40,13 @@ class AggregateTopics(BaseHandler):
         postgres = StoragePool.get_connected_storage('BayesianPostgres')
 
         base_query = postgres.session.query(WorkerResult).\
-            join(Analysis).\
+            join(Analysis). \
+            join(Version).\
+            join(Package).\
+            join(Ecosystem).\
             filter(WorkerResult.error.is_(False)).\
-            filter(WorkerResult.worker == 'github_details')
+            filter(WorkerResult.worker == 'github_details').\
+            filter(Ecosystem.name == ecosystem)
 
         if from_date is not None:
             base_query = base_query.filter(Analysis.started_at > from_date).\
