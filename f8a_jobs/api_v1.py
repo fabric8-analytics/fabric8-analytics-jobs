@@ -95,12 +95,12 @@ def get_readiness():
 
 @uses_scheduler
 def get_liveness(scheduler):
-    # Ensure the scheduler is alive
-    logger.warning("Liveness probe - trying retrieve stored jobs from database using scheduler")
-    # Ensure that we are able to publish messages
-    logger.warning("Liveness probe - trying to schedule the livenessFlow")
-    handlers.FlowScheduling(job_id=None).execute('livenessFlow', flow_arguments=[None])
-    logger.warning("Liveness probe - finished")
+    # # Ensure the scheduler is alive
+    # logger.warning("Liveness probe - trying retrieve stored jobs from database using scheduler")
+    # # Ensure that we are able to publish messages
+    # logger.warning("Liveness probe - trying to schedule the livenessFlow")
+    # handlers.FlowScheduling(job_id=None).execute('livenessFlow', flow_arguments=[None])
+    # logger.warning("Liveness probe - finished")
     return {}, 200
 
 
