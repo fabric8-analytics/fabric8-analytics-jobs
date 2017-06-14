@@ -11,6 +11,24 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
     _URL_POPULAR = 'https://www.npmjs.com/browse'
     _POPULAR_PACKAGES_PER_PAGE = 36
 
+    def _schedule_from_npm_registry(self, package, offset):
+        """Schedule analyses of specific versions using skimdb.npmjs.com API"""
+        package_info = requests.get(self._URL_REGISTRY + package).json()
+
+        if self.latest_version_only:
+            self.log.debug("Scheduling #%d. (latest version)", self.count.min + offset)
+            latest = package_info.get('dist-tags', {}).get('latest', None)
+            if latest:
+                self.analyses_selinon_flow(package, latest)
+            else:
+                self.log.debug("latest version for %d not found - probably has no releases",
+                               package)
+        else:
+            self.log.debug("Scheduling #%d. (number versions: %d)",
+                            self.count.min + offset, self.nversions)
+            for version in sorted(package_info.get('versions', {}).keys(), reverse=True)[:self.nversions]:
+                self.analyses_selinon_flow(package, version)
+
     def _use_npm_registry(self):
         """Schedule analyses for popular NPM packages."""
         # set offset to -2 so we skip the very first line
@@ -38,10 +56,7 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
                     break
 
                 record = json.loads(record)
-                package_info = requests.get(self._URL_REGISTRY + record['key']).json()
-                self.log.debug("Scheduling #%d. (number versions: %d)", self.count.min + offset, self.nversions)
-                for version in sorted(package_info.get('versions', {}).keys(), reverse=True)[:self.nversions]:
-                    self.analyses_selinon_flow(record['key'], version)
+                self._schedule_from_npm_registry(record['key'], offset)
         finally:
             stream.close()
 
@@ -52,10 +67,8 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
         for offset in range(self.count.min, self.count.max, self._POPULAR_PACKAGES_PER_PAGE):
             pop = requests.get('{url}/depended?offset={offset}'.format(url=self._URL_POPULAR, offset=offset))
             poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
-            self.log.debug("Scheduling #%d. (number versions: %d)", self.count.min + offset, self.nversions)
             for link in poppage.find_all('a', class_='type-neutral-1'):
-                self.analyses_selinon_flow(link.get('href')[len('/package/'):], link.text)
-
+                self._schedule_from_npm_registry(link.get('href')[len('/package/'):], scheduled)
                 scheduled += 1
                 if scheduled == count:
                     return
