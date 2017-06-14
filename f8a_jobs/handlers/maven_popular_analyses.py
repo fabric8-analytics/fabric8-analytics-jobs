@@ -24,13 +24,13 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         self.nprojects = 0
 
     @staticmethod
-    def _find_versions(project_page):
+    def _find_versions(project_page, latest_version_only=False):
         def _has_numeric_usages(tag):
             return tag.has_attr('href') and \
                    tag.get('href').endswith('/usages') and \
                    tag.get_text().replace(',', '').isnumeric()
         usage_tags = project_page.find_all(_has_numeric_usages)
-        if usage_tags:
+        if usage_tags and not latest_version_only:
             # sort according to usage
             usage_tags = sorted(usage_tags, key=lambda u: int(u.text.replace(',', '')), reverse=True)
             # [<a href="jboss-logging-log4j/2.0.5.GA/usages">64</a>]
@@ -38,7 +38,11 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         else:  # no usage stats, get the versions other way
             versions = project_page.find_all('a', class_=re.compile('vbtn *'))
             # [<a class="vbtn release" href="common-angularjs/3.8">3.8</a>]
-            versions = sorted(versions, key=lambda v: v.text, reverse=True)
+            if latest_version_only:
+                # take the first one (always the latest version)
+                versions = versions[:1]
+            else:
+                versions = sorted(versions, key=lambda v: v.text, reverse=True)
             versions = [v.text for v in versions]
         return versions
 
@@ -63,11 +67,17 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                 art = requests.get(artifact_link)
                 artpage = bs4.BeautifulSoup(art.text, 'html.parser')
                 name = artifact[len('/artifact/'):].replace('/', ':')
-                all_versions = self._find_versions(artpage)
+                all_versions = self._find_versions(artpage, self.latest_version_only)
                 if name not in self.projects and all_versions:
-                    versions = all_versions[:self.nversions]
+                    if self.latest_version_only:
+                        # all versions is already just the latest version in this case
+                        versions = all_versions
+                        self.log.debug("Scheduling #%d. (latest version)", self.nprojects)
+                    else:
+                        versions = all_versions[:self.nversions]
+                        self.log.debug("Scheduling #%d. (number versions: %d)",
+                                       self.nprojects, self.nversions)
                     self.projects[name] = versions
-                    self.log.debug("Scheduling #%d. (number versions: %d)", self.nprojects, self.nversions)
                     self.nprojects += 1
                     for version in versions:
                         # TODO: this can be unrolled
@@ -136,6 +146,8 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
 
         index_range = '{}-{}'.format(self.count.min, self.count.max)
         command = ['java', '-Xmx768m', '-Djava.io.tmpdir={}'.format(java_temp_dir), '-jar', 'maven-index-checker.jar', '-r', index_range]
+        if self.latest_version_only:
+            command.append('-l')
         with cwd(maven_index_checker_dir):
             try:
                 output = TimedCommand.get_command_output(command, is_json=True, graceful=False, timeout=1200)
