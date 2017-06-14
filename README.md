@@ -57,22 +57,22 @@ You can use UI that will automatically create periodic jobs, do POST requests fo
 The UI will also prepare a curl command for you. Here is an example for analyses scheduling for two packages (localhost):
 
 ```bash
-curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{ \ 
-   "flow_arguments": [ \ 
-     { \ 
-       "ecosystem": "npm", \ 
-       "force": true, \ 
-       "name": "serve-static", \ 
-       "version": "1.7.1" \ 
-     }, \ 
-     { \ 
-       "ecosystem": "maven", \ 
-       "force": true, \ 
-       "name": "net.iharder:base64", \ 
-       "version": "2.3.9" \ 
-     } \ 
-   ], \ 
-   "flow_name": "bayesianFlow" \ 
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{ 
+   "flow_arguments": [ 
+     { 
+       "ecosystem": "npm", 
+       "force": true, 
+       "name": "serve-static", 
+       "version": "1.7.1" 
+     }, 
+     { 
+       "ecosystem": "maven", 
+       "force": true, 
+       "name": "net.iharder:base64", 
+       "version": "2.3.9" 
+     } 
+   ], 
+   "flow_name": "bayesianFlow" 
  }' 'http://localhost:34000/api/v1/jobs/flow-scheduling?state=running'
 ```
 
