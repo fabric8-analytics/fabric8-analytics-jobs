@@ -8,6 +8,7 @@ from datetime import datetime
 from flask_script import Manager
 from f8a_jobs.scheduler import Scheduler
 import f8a_jobs.defaults as defaults
+from cucoslib.setup_celery import init_selinon
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,10 @@ app.add_api(defaults.SWAGGER_YAML_PATH)
 application = app.app
 application.json_encoder = SafeJSONEncoder
 manager = Manager(app.app)
+
+logger.debug("Initializing Selinon")
+init_selinon()
+logger.debug("Selinon initialized successfully")
 
 
 @app.route('/')
