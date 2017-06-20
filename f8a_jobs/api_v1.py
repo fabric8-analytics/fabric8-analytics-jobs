@@ -39,7 +39,7 @@ def delete_jobs(scheduler, job_id):
     try:
         scheduler.remove_job(job_id)
     except JobLookupError:
-        return {"error": "No such job with id '%s'" % job_id}, 401
+        return {"error": "No such job with id '%s'" % job_id}, 410
     return {'removed': [job_id]}, 201
 
 
