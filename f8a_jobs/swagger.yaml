@@ -40,7 +40,7 @@ paths:
       parameters:
         - $ref: "#/parameters/state"
       responses:
-        201:
+        200:
           description: Information about job execution
   /jobs:
     get:
@@ -70,7 +70,7 @@ paths:
         - $ref: "#/parameters/job_id_path"
         - $ref: "#/parameters/state"
       responses:
-        201:
+        200:
           description: New analyses job scheduled
   '/jobs/clean-failed':
     delete:

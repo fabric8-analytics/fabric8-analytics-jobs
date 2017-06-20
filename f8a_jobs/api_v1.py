@@ -31,7 +31,7 @@ def put_service_state(scheduler, state):
     else:
         return {"error": "Unknown status provided: '%s'" % state}, 400
 
-    return {"state": get_service_state_str(scheduler)}, 201
+    return {"state": get_service_state_str(scheduler)}, 200
 
 
 @uses_scheduler
@@ -65,7 +65,7 @@ def put_jobs(scheduler, job_id, state):
     except JobLookupError:
         return {"error": "No such job with id '%s'" % job_id}, 404
 
-    return {"job_id": job.id, "state": get_job_state_str(job)}, 201
+    return {"job_id": job.id, "state": get_job_state_str(job)}, 200
 
 
 @uses_scheduler
