@@ -3,7 +3,7 @@ import os
 import json
 import connexion
 import logging
-from flask import redirect
+from flask import redirect, jsonify
 from datetime import datetime
 from flask_script import Manager
 from f8a_jobs.scheduler import Scheduler
@@ -61,6 +61,18 @@ logger.debug("Selinon initialized successfully")
 def base_url():
     # Be nice with user access
     return redirect('api/v1/ui')
+
+
+@app.route('/api/v1')
+def api_v1():
+    paths = []
+
+    for rule in application.url_map.iter_rules():
+        rule = str(rule)
+        if rule.startswith('/api/v1'):
+            paths.append(rule)
+
+    return jsonify({'paths': paths})
 
 
 @manager.command
