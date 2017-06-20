@@ -63,7 +63,7 @@ def put_jobs(scheduler, job_id, state):
         else:
             return {"error": "Unknown state '%s'" % state}, 401
     except JobLookupError:
-        return {"error": "No such job with id '%s'" % job_id}, 401
+        return {"error": "No such job with id '%s'" % job_id}, 404
 
     return {"job_id": job.id, "state": get_job_state_str(job)}, 201
 
