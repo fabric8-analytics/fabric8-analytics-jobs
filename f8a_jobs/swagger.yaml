@@ -60,7 +60,7 @@ paths:
        parameters:
         - $ref: "#/parameters/job_id_path"
        responses:
-         201:
+         200:
            description: Job with the given id was removed
     put:
       tags: [Jobs options]
@@ -78,7 +78,7 @@ paths:
        operationId: f8a_jobs.api_v1.delete_clean_failed
        summary: Delete all failed jobs
        responses:
-         201:
+         200:
            description: All failed jobs were deleted
          401:
            description: Error describing issue in your SQL query or error on querying
