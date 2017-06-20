@@ -40,7 +40,7 @@ def delete_jobs(scheduler, job_id):
         scheduler.remove_job(job_id)
     except JobLookupError:
         return {"error": "No such job with id '%s'" % job_id}, 410
-    return {'removed': [job_id]}, 201
+    return {'removed': [job_id]}, 200
 
 
 @uses_scheduler
@@ -50,7 +50,7 @@ def delete_clean_failed(scheduler):
         if is_failed_job(job):
             ret.append(job.id)
             job.remove()
-    return {'removed': ret}, 201
+    return {'removed': ret}, 200
 
 
 @uses_scheduler
