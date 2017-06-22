@@ -186,6 +186,7 @@ def post_expand_filter_query(filter_definition):
     return {"matched": matched}, 200
 
 
+@requires_auth
 def get_analyses_report(ecosystem, from_date=None, to_date=None):
     if from_date:
         try:

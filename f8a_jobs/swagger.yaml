@@ -170,6 +170,8 @@ paths:
         - $ref: "#/parameters/ecosystem"
         - $ref: "#/parameters/from_date"
         - $ref: "#/parameters/to_date"
+       security:
+        - auth_token: []
        responses:
          200:
            description: A brief report of the analyses running
