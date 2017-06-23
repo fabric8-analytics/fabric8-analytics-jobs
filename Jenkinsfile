@@ -33,6 +33,9 @@ node('docker') {
                 docker.image('bayesian/cucos-worker').pull()
                 docker.image('bayesian/coreapi-downstream-data-import').pull()
                 docker.image('bayesian/coreapi-pgbouncer').pull()
+                docker.image('bayesian/cvedb-s3-dump').pull()
+                docker.image('slavek/anitya-server').pull()
+                docker.image('bayesian/gremlin').pull()
             }
 
             dir('fabric8-analytics-common') {
