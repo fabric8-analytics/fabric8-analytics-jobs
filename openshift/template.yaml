@@ -71,11 +71,11 @@ objects:
               secretKeyRef:
                 name: jobs
                 key: flask-app-secret-key
-          #- name: GITHUB_ACCESS_TOKEN
-          #  valueFrom:
-          #    secretKeyRef:
-          #      name: jobs
-          #      key: github-access-token
+          - name: GITHUB_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: worker
+                key: github-token
           # this won't get used if running with SQS
           - name: RABBITMQ_SERVICE_SERVICE_HOST
             value: bayesian-broker
