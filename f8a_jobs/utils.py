@@ -8,6 +8,7 @@ from apscheduler.schedulers.base import STATE_RUNNING, STATE_STOPPED
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 import f8a_jobs.defaults as configuration
+from f8a_jobs.handlers.error import ErrorHandler
 from f8a_jobs.models import JobToken
 from f8a_jobs.error import TokenExpired
 
