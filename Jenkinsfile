@@ -27,8 +27,8 @@ node('docker') {
 
     stage('Integration Tests') {
         ws {
-            sh "docker tag ${image.id} docker-registry.usersys.redhat.com/${image.id}"
-            docker.withRegistry('https://docker-registry.usersys.redhat.com/') {
+            sh "docker tag ${image.id} registry.devshift.net/${image.id}"
+            docker.withRegistry('https://registry.devshift.net/') {
                 docker.image('bayesian/bayesian-api').pull()
                 docker.image('bayesian/cucos-worker').pull()
                 docker.image('bayesian/coreapi-downstream-data-import').pull()
@@ -48,10 +48,6 @@ node('docker') {
 
     if (env.BRANCH_NAME == 'master') {
         stage('Push Images') {
-            docker.withRegistry('https://docker-registry.usersys.redhat.com/') {
-                image.push('latest')
-                image.push(commitId)
-            }
             docker.withRegistry('https://registry.devshift.net/') {
                 image.push('latest')
                 image.push(commitId)
