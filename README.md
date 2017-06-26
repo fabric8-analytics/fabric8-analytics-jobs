@@ -441,8 +441,6 @@ If you want to logout, just access `/api/v1/logout` endpoint, which will remove 
 
 To get info about the current session, access `/api/v1/authorized` endpoint.
 
-**IMPORTANT** If you want to use Github authentization, you have to be a public member of desired organization so Jobs service can verify your membership.
- 
 ## See Also
 
 [Connexion](https://github.com/zalando/connexion) - framework used for YAML configuration of API endpoints for Flask
