@@ -127,6 +127,95 @@ If you wish to schedule only certain tasks in flows, feel free to post your HTTP
 }
 ````
 
+## Run graph syncs of previously analysed Ecosystem-Package-Version
+
+Note this represents the whole job arguments in which there are only first 1000 packages synced, post this to `/api/v1/jobs/selective-flow-scheduling` endpoint.
+
+```json
+{
+  "flow_arguments": [
+    {
+      "force": true,
+      "$filter": {
+        "joins": [
+          {
+            "on": {
+              "analyses.id": "versions.id"
+            },
+            "table": "versions"
+          },
+          {
+            "on": {
+              "versions.package_id": "packages.id"
+            },
+            "table": "packages"
+          },
+          {
+            "on": {
+              "ecosystems.id": "packages.ecosystem_id"
+            },
+            "table": "ecosystems"
+          }
+        ],
+        "limit": 1000,
+        "table": "analyses",
+        "order_by": "analyses.id desc",
+        "select": [
+          "versions.identifier as version",
+          "packages.name as name",
+          "ecosystems.name as ecosystem"
+        ],
+        "where": {
+          "analyses.id in": {
+            "$filter": {
+              "joins": [
+                {
+                  "on": {
+                    "worker_results.analysis_id": "analyses.id"
+                  },
+                  "table": "analyses"
+                },
+                {
+                  "on": {
+                    "analyses.id": "versions.id"
+                  },
+                  "table": "versions"
+                },
+                {
+                  "on": {
+                    "versions.package_id": "packages.id"
+                  },
+                  "table": "packages"
+                },
+                {
+                  "on": {
+                    "ecosystems.id": "packages.ecosystem_id"
+                  },
+                  "table": "ecosystems"
+                }
+              ],
+              "table": "worker_results",
+              "select": [
+                "analyses.id as analyses_id"
+              ],
+              "distinct": true,
+              "where": {
+                "analyses.finished_at is not": null
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "flow_name": "bayesianFlow",
+  "run_subsequent": false,
+  "task_names": [
+    "GraphImporterTask"
+  ]
+}
+```
+
 ## Force run all analyses which failed
 
 ```json
