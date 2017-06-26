@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, Sequence, String, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from cucoslib.conf import get_postgres_connection_string
+from f8a_worker.conf import get_postgres_connection_string
 import f8a_jobs.defaults as configuration
 from f8a_jobs.error import TokenExpired
 from sqlalchemy.orm.exc import NoResultFound

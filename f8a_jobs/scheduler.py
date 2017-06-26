@@ -9,7 +9,7 @@ from pytimeparse.timeparse import timeparse
 from functools import wraps
 from threading import Lock
 from apscheduler.schedulers.background import BackgroundScheduler
-from cucoslib.conf import get_postgres_connection_string
+from f8a_worker.conf import get_postgres_connection_string
 import f8a_jobs.handlers as handlers
 from f8a_jobs.utils import is_failed_job_handler_name
 

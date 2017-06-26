@@ -1,8 +1,8 @@
 from datetime import datetime
-from cucoslib.setup_celery import init_celery
+from f8a_worker.setup_celery import init_celery
 
 from selinon import StoragePool
-from cucoslib.models import WorkerResult, Analysis, Package, Version, Ecosystem
+from f8a_worker.models import WorkerResult, Analysis, Package, Version, Ecosystem
 
 
 def _add_query_datetime_constrains(query, from_date, to_date):
