@@ -31,6 +31,8 @@ objects:
                 key: deployment-prefix
           - name: WORKER_ADMINISTRATION_REGION
             value: "api"
+          - name: DISABLE_AUTHENTICATION
+            value: "1"
           - name: AWS_SQS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
