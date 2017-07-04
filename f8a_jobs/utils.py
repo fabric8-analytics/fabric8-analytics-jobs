@@ -2,6 +2,7 @@
 import logging
 from functools import wraps
 import requests
+import random
 from datetime import timedelta
 from flask import request, abort
 from apscheduler.schedulers.base import STATE_RUNNING, STATE_STOPPED
@@ -103,6 +104,10 @@ def is_organization_member(user_data):
     :param user_data: user OAuth data
     :return: True if user is a member of organization
     """
-    data = requests.get(user_data['organizations_url'], params={'access_token': configuration.GITHUB_ACCESS_TOKEN})
+    data = requests.get(user_data['organizations_url'], params={'access_token': get_gh_token()})
     data.raise_for_status()
     return any(org_def['login'] == configuration.AUTH_ORGANIZATION for org_def in data.json())
+
+
+def get_gh_token():
+    return random.choice(configuration.GITHUB_ACCESS_TOKEN.split(',')).strip()

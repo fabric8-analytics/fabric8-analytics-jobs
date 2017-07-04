@@ -1,9 +1,8 @@
 import requests
 import urllib.parse
 from selinon import StoragePool
-from .base import BaseHandler
-
-import f8a_jobs.defaults as configuration
+from f8a_jobs.handlers.base import BaseHandler
+from f8a_jobs.utils import get_gh_token
 
 
 class GitHubMostStarred(BaseHandler):
@@ -50,7 +49,7 @@ class GitHubMostStarred(BaseHandler):
 
         def get(lang, page_number):
             url = url_template.format(lang=lang, stars=self._get_stars_filter(), page=page_number)
-            response = requests.get(url, params={'access_token': configuration.GITHUB_ACCESS_TOKEN})
+            response = requests.get(url, params={'access_token': get_gh_token()})
             result = []
             if response.status_code == 200:
                 content = response.json()
