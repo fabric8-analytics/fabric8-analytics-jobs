@@ -8,7 +8,7 @@ from datetime import datetime
 from flask_script import Manager
 from f8a_jobs.scheduler import Scheduler
 import f8a_jobs.defaults as defaults
-from cucoslib.setup_celery import init_selinon
+from f8a_worker.setup_celery import init_selinon
 
 from f8a_jobs.models import create_models
 from f8a_jobs.auth import oauth

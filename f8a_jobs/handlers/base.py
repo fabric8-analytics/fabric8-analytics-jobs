@@ -6,7 +6,7 @@ from collections import namedtuple
 from selinon import run_flow
 from selinon import run_flow_selective
 from selinon import StoragePool
-from cucoslib.setup_celery import init_celery
+from f8a_worker.setup_celery import init_celery
 import mosql.query as mosql_query
 from mosql.util import raw as mosql_raw
 from mosql.query import select

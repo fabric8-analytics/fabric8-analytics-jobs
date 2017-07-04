@@ -8,8 +8,8 @@ from selinon import StoragePool
 from shutil import rmtree
 
 from .base import AnalysesBaseHandler
-from cucoslib.utils import cwd, TimedCommand
-from cucoslib.errors import TaskError
+from f8a_worker.utils import cwd, TimedCommand
+from f8a_worker.errors import TaskError
 
 
 class MavenPopularAnalyses(AnalysesBaseHandler):

@@ -1,7 +1,7 @@
 from sqlalchemy import desc
 from dateutil.parser import parse as parse_datetime
 from selinon import StoragePool
-from cucoslib.models import WorkerResult, Analysis, Ecosystem, Package, Version
+from f8a_worker.models import WorkerResult, Analysis, Ecosystem, Package, Version
 
 from .base import BaseHandler
 
