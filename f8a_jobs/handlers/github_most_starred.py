@@ -3,6 +3,8 @@ import urllib.parse
 from selinon import StoragePool
 from .base import BaseHandler
 
+import f8a_jobs.defaults as configuration
+
 
 class GitHubMostStarred(BaseHandler):
     """ Store metadata of most starred <insert-your-favourite-ecosystem> projects
@@ -48,7 +50,7 @@ class GitHubMostStarred(BaseHandler):
 
         def get(lang, page_number):
             url = url_template.format(lang=lang, stars=self._get_stars_filter(), page=page_number)
-            response = requests.get(url)
+            response = requests.get(url, params={'access_token': configuration.GITHUB_ACCESS_TOKEN})
             result = []
             if response.status_code == 200:
                 content = response.json()
