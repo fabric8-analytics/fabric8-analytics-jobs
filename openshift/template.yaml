@@ -73,7 +73,7 @@ objects:
               secretKeyRef:
                 name: jobs
                 key: flask-app-secret-key
-          - name: GITHUB_ACCESS_TOKEN
+          - name: GITHUB_ACCESS_TOKENS
             valueFrom:
               secretKeyRef:
                 name: worker

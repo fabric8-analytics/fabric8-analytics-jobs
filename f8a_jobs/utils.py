@@ -110,4 +110,4 @@ def is_organization_member(user_data):
 
 
 def get_gh_token():
-    return random.choice(configuration.GITHUB_ACCESS_TOKEN.split(',')).strip()
+    return random.choice(configuration.GITHUB_ACCESS_TOKENS).strip()
