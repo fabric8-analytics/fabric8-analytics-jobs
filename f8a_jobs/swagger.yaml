@@ -175,6 +175,16 @@ paths:
        responses:
          200:
            description: A brief report of the analyses running
+  '/debug/github-tokens':
+    get:
+       tags: [Debug]
+       operationId: f8a_jobs.api_v1.get_gh_tokens_rate_limits
+       summary: Show current API rate limits on GitHub tokens
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: API rate limits on GitHub tokens
   '/jobs/flow-scheduling':
     post:
       tags: [Add new jobs]

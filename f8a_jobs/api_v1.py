@@ -2,6 +2,7 @@
 
 import traceback
 import logging
+import requests
 from flask import session, url_for, request
 from dateutil.parser import parse as parse_datetime
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
@@ -17,6 +18,7 @@ from f8a_jobs.analyses_report import construct_analyses_report
 from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
+import f8a_jobs.defaults as configuration
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +204,17 @@ def get_analyses_report(ecosystem, from_date=None, to_date=None):
 
     return construct_analyses_report(ecosystem, from_date, to_date), 200
 
+
+@requires_auth
+def get_gh_tokens_rate_limits():
+    response = {'tokens': []}
+    for token in configuration.GITHUB_ACCESS_TOKENS:
+        r = requests.get('https://api.github.com/rate_limit', params={'access_token': token})
+        limits = r.json()
+        limits['token'] = '{prefix}...'.format(prefix=token[:4])
+        response['tokens'].append(limits)
+
+    return response, 200
 
 #
 # Handler specific POST requests
