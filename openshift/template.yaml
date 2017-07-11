@@ -32,7 +32,7 @@ objects:
           - name: WORKER_ADMINISTRATION_REGION
             value: "api"
           - name: DISABLE_AUTHENTICATION
-            value: "1"
+            value: ${DISABLE_AUTHENTICATION}
           - name: AWS_SQS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
@@ -157,6 +157,12 @@ parameters:
   displayName: Bayesian Jobs hostname
   required: false
   name: BAYESIAN_JOBS_HOSTNAME
+
+- description: Disable authentication for the service
+  displayName: Disable authentication
+  required: false
+  name: DISABLE_AUTHENTICATION
+  value: "1"  # bad default value, fix once auth is working
 
 - description: Docker registry where the image is
   displayName: Docker registry
