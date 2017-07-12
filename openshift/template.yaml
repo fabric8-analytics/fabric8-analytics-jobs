@@ -162,7 +162,7 @@ parameters:
   displayName: Disable authentication
   required: false
   name: DISABLE_AUTHENTICATION
-  value: "1"  # bad default value, fix once auth is working
+  value: "0" 
 
 - description: Docker registry where the image is
   displayName: Docker registry
