@@ -3,7 +3,7 @@ MAINTAINER Fridolin Pokorny <fridolin@redhat.com>
 
 ENV LANG=en_US.UTF-8 \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
-    F8A_WORKER_VERSION=5ebc25f
+    F8A_WORKER_VERSION=480eaae
 
 RUN useradd coreapi
 
