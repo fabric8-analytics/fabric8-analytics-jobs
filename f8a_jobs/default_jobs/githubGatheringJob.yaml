@@ -13,6 +13,18 @@
             "joins": [
               {
                 "on": {
+                  "worker_results.analysis_id": "analyses.id"
+                },
+                "table": "analyses"
+              },
+              {
+                "on": {
+                  "analyses.version_id": "versions.id"
+                },
+                "table": "versions"
+              },
+              {
+                "on": {
                   "versions.package_id": "packages.id"
                 },
                 "table": "packages"
@@ -29,7 +41,12 @@
               "ecosystems.name as ecosystem",
               "versions.identifier as version"
             ],
-            "table": "versions"
+            "distinct": true,
+            "where": {
+              "worker_results.worker": "InitAnalysisFlow",
+              "worker_results.error": false
+            },
+            "table": "worker_results"
           },
           "force": true
         }
