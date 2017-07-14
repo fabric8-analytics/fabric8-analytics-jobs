@@ -5,8 +5,8 @@
     flow_name: bayesianFlow
     task_names:
       - github_details
-      - GitReadmeCollectorTask
       - ResultCollector
+      - GraphImporterTask
     flow_arguments:
       - {
           "$filter": {
@@ -34,6 +34,6 @@
           "force": true
         }
   when:
-  periodically: 30 day
+  periodically: 14 day
   misfire_grace_time: 1 hour
   state: running
