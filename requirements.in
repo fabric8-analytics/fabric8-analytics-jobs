@@ -6,3 +6,6 @@ uwsgi
 mosql
 Flask-OAuthlib
 SQLAlchemy-Utils
+
+google-cloud
+joblib
