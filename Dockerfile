@@ -3,7 +3,7 @@ MAINTAINER Fridolin Pokorny <fridolin@redhat.com>
 
 ENV LANG=en_US.UTF-8 \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
-    F8A_WORKER_VERSION=480eaae
+    F8A_WORKER_VERSION=5ebc25f
 
 RUN useradd coreapi
 
@@ -29,5 +29,8 @@ RUN sh /tmp/update_selinon.sh
 COPY hack/run_jobs.sh /usr/bin/
 COPY f8a-jobs.py /usr/bin/
 
+RUN pip3 uninstall -y protobuf && pip3 install packaging appdirs && pip3 install --upgrade --no-binary :all: protobuf==3.3.0
+
 USER coreapi
 CMD ["/usr/bin/run_jobs.sh"]
+
