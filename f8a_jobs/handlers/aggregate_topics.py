@@ -36,8 +36,7 @@ class AggregateTopics(BaseHandler):
             to_date = parse_datetime(to_date)
 
         s3 = StoragePool.get_connected_storage('S3Data')
-        # TODO: this will need to be changed once we will introduce package level flows
-        postgres = StoragePool.get_connected_storage('BayesianPostgres')
+        postgres = StoragePool.get_connected_storage('PackagePostgres')
 
         base_query = postgres.session.query(WorkerResult).\
             join(Analysis). \
