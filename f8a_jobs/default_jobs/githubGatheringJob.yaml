@@ -5,12 +5,24 @@
     flow_name: bayesianFlow
     task_names:
       - github_details
-      - GitReadmeCollectorTask
       - ResultCollector
+      - GraphImporterTask
     flow_arguments:
       - {
           "$filter": {
             "joins": [
+              {
+                "on": {
+                  "worker_results.analysis_id": "analyses.id"
+                },
+                "table": "analyses"
+              },
+              {
+                "on": {
+                  "analyses.version_id": "versions.id"
+                },
+                "table": "versions"
+              },
               {
                 "on": {
                   "versions.package_id": "packages.id"
@@ -29,11 +41,16 @@
               "ecosystems.name as ecosystem",
               "versions.identifier as version"
             ],
-            "table": "versions"
+            "distinct": true,
+            "where": {
+              "worker_results.worker": "InitAnalysisFlow",
+              "worker_results.error": false
+            },
+            "table": "worker_results"
           },
           "force": true
         }
   when:
-  periodically: 30 day
+  periodically: 14 day
   misfire_grace_time: 1 hour
   state: running
