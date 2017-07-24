@@ -15,4 +15,4 @@ GITHUB_ACCESS_TOKENS = os.environ.get('GITHUB_ACCESS_TOKENS', '').split(',')
 APP_SECRET_KEY = os.environ.get('APP_SECRET_KEY', 'not-set')
 
 # keep disabled authentication by default
-DISABLE_AUTHENTICATION = os.getenv('DISABLE_AUTHENTICATION', '1') == '1'
+DISABLE_AUTHENTICATION = os.getenv('DISABLE_AUTHENTICATION', '1') in ('1', 'True', 'true')
