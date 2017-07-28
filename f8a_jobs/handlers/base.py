@@ -114,7 +114,14 @@ class BaseHandler(object):
         :param follow_subflows: follow subflows when resolving tasks to be executed
         :param run_subsequent: run tasks that follow after desired tasks stated in task_names
         """
-        self.log.debug("Scheduling selective Selinon flow '%s' with node_args: '%s'", flow_name, node_args)
+        if flow_name in ('bayesianFlow', 'bayesianAnalysisFlow'):
+            task_names = list(set(task_names) | {'FinalizeTask', 'ResultCollector', 'GraphImporterTask'})
+
+        if flow_name in ('bayesianPackageFlow', 'bayesianPackageAnalysisFlow'):
+            task_names = list(set(task_names) | {'PackageFinalizeTask', 'PackageResultCollector'})
+
+        self.log.debug("Scheduling selective Selinon flow '%s' with tasks '%s' and node_args: '%s'",
+                       flow_name, task_names, node_args)
         return run_flow_selective(flow_name, task_names, node_args, follow_subflows, run_subsequent)
 
     def is_filter_query(self, filter_query):
