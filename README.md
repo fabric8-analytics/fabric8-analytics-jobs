@@ -439,6 +439,8 @@ If you want to logout, just access `/api/v1/logout` endpoint, which will remove 
 
 To get info about the current session, access `/api/v1/authorized` endpoint.
 
+If you cannot authenticate, please make sure you are a member of fabric8-analytics organization on GitHub. If you are still getting authentication errors, try to [switch from private organization member to public organization member](https://help.github.com/articles/publicizing-or-hiding-organization-membership/).
+
 ## See Also
 
 [Connexion](https://github.com/zalando/connexion) - framework used for YAML configuration of API endpoints for Flask
