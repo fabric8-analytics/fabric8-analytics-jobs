@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from re import search
 from requests import get
 
-from .base import AnalysesBaseHandler
+from .base import AnalysesBaseHandler, CountRange
 
 
 class NugetPopularAnalyses(AnalysesBaseHandler):
@@ -10,11 +10,17 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
 
     _URL = 'https://libraries.io/search?order=desc&page={page}&platforms=NuGet&sort=rank'
     _POPULAR_PACKAGES_PER_PAGE = 30
+    _MAX_PAGES = 100  # pages higher than this return 404
+    _MAX_PACKAGES = _POPULAR_PACKAGES_PER_PAGE * _MAX_PAGES
 
     def _use_libraries_io(self):
         """Schedule analyses for popular NuGet packages."""
-        first_page = (self.count.min // self._POPULAR_PACKAGES_PER_PAGE) + 1
-        last_page = (self.count.max // self._POPULAR_PACKAGES_PER_PAGE) + 1
+        first_page = ((self.count.min-1) // self._POPULAR_PACKAGES_PER_PAGE) + 1
+        if self.count.max > self._MAX_PACKAGES:
+            self.count = CountRange(self.count.min, self._MAX_PACKAGES)
+            self.log.warning("Libraries.io provides only first %d most popular packages" %
+                             self._MAX_PACKAGES)
+        last_page = ((self.count.max-1) // self._POPULAR_PACKAGES_PER_PAGE) + 1
         for page in range(first_page, last_page + 1):
             url = self._URL.format(page=page)
             pop = get(url)
@@ -26,8 +32,12 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
             if len(projects) == self._POPULAR_PACKAGES_PER_PAGE:
                 first_package = (self.count.min % self._POPULAR_PACKAGES_PER_PAGE) \
                     if page == first_page else 1
+                if first_package == 0:
+                    first_package = self._POPULAR_PACKAGES_PER_PAGE
                 last_package = (self.count.max % self._POPULAR_PACKAGES_PER_PAGE) \
                     if page == last_page else self._POPULAR_PACKAGES_PER_PAGE
+                if last_package == 0:
+                    last_package = self._POPULAR_PACKAGES_PER_PAGE
                 projects = projects[first_package-1:last_package]
             else:
                 # Don't do any slicing here
