@@ -180,7 +180,7 @@ class AnalysesBaseHandler(BaseHandler):
         :return: name of handler class
         """
         # avoid cyclic imports
-        from . import MavenPopularAnalyses, NpmPopularAnalyses, PythonPopularAnalyses
+        from . import MavenPopularAnalyses, NpmPopularAnalyses, PythonPopularAnalyses, NugetPopularAnalyses
 
         if ecosystem == 'maven':
             return MavenPopularAnalyses.__name__
@@ -188,6 +188,8 @@ class AnalysesBaseHandler(BaseHandler):
             return NpmPopularAnalyses.__name__
         elif ecosystem == 'pypi':
             return PythonPopularAnalyses.__name__
+        elif ecosystem == 'nuget':
+            return NugetPopularAnalyses.__name__
 
         raise ValueError("Unregistered handler for ecosystem '{}'".format(ecosystem))
 

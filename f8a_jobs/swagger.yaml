@@ -401,6 +401,7 @@ parameters:
        - maven
        - npm
        - pypi
+       - nuget
   count:
     name: count
     in: query
