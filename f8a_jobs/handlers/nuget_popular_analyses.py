@@ -25,8 +25,11 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
             poppage = BeautifulSoup(pop.text, 'html.parser')
             packages = poppage.find_all('section', class_='package')
             if len(packages) == 0:
-                self.log.warning('Quitting, no packages on %r' % url)
-                break
+                # preview.nuget.org (will become nuget.org eventually) has a bit different structure
+                packages = poppage.find_all('article', class_='package')
+                if len(packages) == 0:
+                    self.log.warning('Quitting, no packages on %r' % url)
+                    break
 
             first_package = (self.count.min % self._POPULAR_PACKAGES_PER_PAGE) \
                 if page == first_page else 1
