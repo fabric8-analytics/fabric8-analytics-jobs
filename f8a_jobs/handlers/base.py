@@ -268,7 +268,7 @@ class AnalysesBaseHandler(BaseHandler):
         """
         self.count = self._parse_count(count)
         self.ecosystem = ecosystem
-        self.nversions = nversions
+        self.nversions = nversions or self._DEFAULT_NVERSIONS
         self.latest_version_only = latest_version_only
         self.force = force
         self.recursive_limit = recursive_limit
