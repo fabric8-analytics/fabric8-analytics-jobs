@@ -63,9 +63,10 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
     def _use_npm_popular(self):
         """Schedule analyses for popular NPM packages."""
         scheduled = 0
-        count = self.count.max - self.count.min
-        for offset in range(self.count.min, self.count.max, self._POPULAR_PACKAGES_PER_PAGE):
-            pop = requests.get('{url}/depended?offset={offset}'.format(url=self._URL_POPULAR, offset=offset))
+        count = self.count.max - self.count.min + 1
+        for offset in range(self.count.min-1, self.count.max, self._POPULAR_PACKAGES_PER_PAGE):
+            pop = requests.get('{url}/depended?offset={offset}'.format(url=self._URL_POPULAR,
+                                                                       offset=offset))
             poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
             for link in poppage.find_all('a', class_='type-neutral-1'):
                 self._schedule_from_npm_registry(link.get('href')[len('/package/'):], scheduled)
