@@ -15,7 +15,7 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
         """Schedule analyses of specific versions using skimdb.npmjs.com API"""
         package_info = requests.get(self._URL_REGISTRY + package).json()
 
-        if self.latest_version_only:
+        if self.nversions == 1:
             self.log.debug("Scheduling #%d. (latest version)", self.count.min + offset)
             latest = package_info.get('dist-tags', {}).get('latest', None)
             if latest:
@@ -25,7 +25,7 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
                                package)
         else:
             self.log.debug("Scheduling #%d. (number versions: %d)",
-                            self.count.min + offset, self.nversions)
+                           self.count.min + offset, self.nversions)
             for version in sorted(package_info.get('versions', {}).keys(), reverse=True)[:self.nversions]:
                 self.analyses_selinon_flow(package, version)
 

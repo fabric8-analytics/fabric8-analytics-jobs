@@ -45,16 +45,10 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
         for idx, package in enumerate(packages[self.count.min:self.count.max]):
             releases = client.package_releases(package, True)  # True for show_hidden arg
 
-            if self.latest_version_only:
-                # it seems that versions are always ordered from newest to oldest
-                self.log.debug("Scheduling #%d (latest version)", self.count.min + idx)
-                if releases:
-                    self.analyses_selinon_flow(package, releases[0])
-            else:
-                self.log.debug("Scheduling #%d. (number versions: %d)",
-                               self.count.min + idx, self.nversions)
-                for version in releases[:self.nversions]:
-                    self.analyses_selinon_flow(package, version)
+            self.log.debug("Scheduling #%d. (number versions: %d)",
+                           self.count.min + idx, self.nversions)
+            for version in releases[:self.nversions]:
+                self.analyses_selinon_flow(package, version)
 
     def _use_pypi_ranking(self):
         """Schedule analyses of packages based on PyPI ranking."""
@@ -86,17 +80,12 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
                     self.log.warning('No releases in %s', pop.url)
                     continue
                 versions = self._parse_version_stats(table.find_all('tr'),
-                                                     sort_by_popularity=not self.latest_version_only)
+                                                     sort_by_popularity=self.nversions > 1)
 
-                if self.latest_version_only:
-                    self.log.debug("Scheduling #%d (latest version)",
-                                   self.count.min + packages_count)
-                    self.analyses_selinon_flow(package_name.text, versions[0][0])
-                else:
-                    self.log.debug("Scheduling #%d. (number versions: %d)",
-                                   self.count.min + packages_count, self.nversions)
-                    for version in versions[:self.nversions]:
-                        self.analyses_selinon_flow(package_name.text, version[0])
+                self.log.debug("Scheduling #%d. (number versions: %d)",
+                               self.count.min + packages_count, self.nversions)
+                for version in versions[:self.nversions]:
+                    self.analyses_selinon_flow(package_name.text, version[0])
 
     def do_execute(self, popular=True):
         """Run core analyse on Python packages.
