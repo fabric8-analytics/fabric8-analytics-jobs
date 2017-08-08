@@ -23,8 +23,8 @@ RUN pushd /tmp/jobs_install &&\
   rm -rf /tmp/jobs_install
 
 # A temporary hack to keep Selinon up2date
-COPY hack/update_selinon.sh /tmp/
-RUN sh /tmp/update_selinon.sh
+COPY hack/install_selinon.sh /tmp/
+RUN sh /tmp/install_selinon.sh
 
 COPY hack/run_jobs.sh /usr/bin/
 
