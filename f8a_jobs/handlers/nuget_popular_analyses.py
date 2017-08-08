@@ -45,6 +45,8 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
                 url_suffix = package.find(href=compile(r'^/packages/'))['href'].split('/')
                 if len(url_suffix) == 4:
                     name, releases = NugetReleasesFetcher(None).fetch_releases(url_suffix[2])
+                    self.log.debug("Scheduling %d latest versions of %s)",
+                                   self.nversions, name)
                     for release in releases[-self.nversions:]:
                         self.analyses_selinon_flow(name, release)
 
@@ -53,7 +55,5 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
 
         :param popular: boolean, sort index by popularity
         """
-        if self.latest_version_only:
-            self.nversions = 1
         # Use nuget.org for all (popular or not)
         self._scrape_nuget_org()

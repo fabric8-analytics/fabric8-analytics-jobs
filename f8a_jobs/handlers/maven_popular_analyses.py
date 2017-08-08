@@ -67,16 +67,11 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                 art = requests.get(artifact_link)
                 artpage = bs4.BeautifulSoup(art.text, 'html.parser')
                 name = artifact[len('/artifact/'):].replace('/', ':')
-                all_versions = self._find_versions(artpage, self.latest_version_only)
+                all_versions = self._find_versions(artpage, self.nversions == 1)
                 if name not in self.projects and all_versions:
-                    if self.latest_version_only:
-                        # all versions is already just the latest version in this case
-                        versions = all_versions
-                        self.log.debug("Scheduling #%d. (latest version)", self.nprojects)
-                    else:
-                        versions = all_versions[:self.nversions]
-                        self.log.debug("Scheduling #%d. (number versions: %d)",
-                                       self.nprojects, self.nversions)
+                    versions = all_versions[:self.nversions]
+                    self.log.debug("Scheduling #%d. (number versions: %d)",
+                                   self.nprojects, self.nversions)
                     self.projects[name] = versions
                     self.nprojects += 1
                     for version in versions:
@@ -146,7 +141,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
 
         index_range = '{}-{}'.format(self.count.min, self.count.max)
         command = ['java', '-Xmx768m', '-Djava.io.tmpdir={}'.format(java_temp_dir), '-jar', 'maven-index-checker.jar', '-r', index_range]
-        if self.latest_version_only:
+        if self.nversions == 1:
             command.append('-l')
         with cwd(maven_index_checker_dir):
             try:

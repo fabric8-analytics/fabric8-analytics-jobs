@@ -164,7 +164,6 @@ class AnalysesBaseHandler(BaseHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.nversions = self._DEFAULT_NVERSIONS
-        self.latest_version_only = False
         self.popular = True
         self.count = CountRange(min=1, max=self._DEFAULT_COUNT)
         self.force = False
@@ -253,15 +252,14 @@ class AnalysesBaseHandler(BaseHandler):
         if kwargs.get('recursive_limit') is not None and kwargs['recursive_limit'] < 0:
             raise ValueError("Unable to use negative recursive limit")
 
-    def execute(self, ecosystem, popular=True, count=None, nversions=None, latest_version_only=False,
+    def execute(self, ecosystem, popular=True, count=None, nversions=None,
                 force=False, recursive_limit=None, force_graph_sync=False):
         """Run analyses on maven projects.
 
         :param ecosystem: ecosystem name
         :param popular: boolean, sort index by popularity
         :param count: str, number or range of projects to analyse
-        :param latest_version_only: boolean, whether or not to analyse just latest version
-        :param nversions: how many (most popular) versions of each project to schedule
+        :param nversions: how many latest versions of a project to schedule
         :param force: force analyses scheduling
         :param recursive_limit: number of analyses done transitively
         :param force_graph_sync: force sync to graph DB
@@ -269,7 +267,6 @@ class AnalysesBaseHandler(BaseHandler):
         self.count = self._parse_count(count)
         self.ecosystem = ecosystem
         self.nversions = nversions or self._DEFAULT_NVERSIONS
-        self.latest_version_only = latest_version_only
         self.force = force
         self.recursive_limit = recursive_limit
         self.force_graph_sync = force_graph_sync
