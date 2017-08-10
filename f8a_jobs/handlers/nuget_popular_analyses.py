@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from re import compile
+from re import compile as re_compile
 from requests import get
 
 from .base import AnalysesBaseHandler
@@ -42,7 +42,7 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
 
             for package in packages[first_package-1:last_package]:
                 # url_suffix ='/packages/ExtMongoMembership/1.7.0-beta'.split('/')
-                url_suffix = package.find(href=compile(r'^/packages/'))['href'].split('/')
+                url_suffix = package.find(href=re_compile(r'^/packages/'))['href'].split('/')
                 if len(url_suffix) == 4:
                     name, releases = NugetReleasesFetcher(None).fetch_releases(url_suffix[2])
                     self.log.debug("Scheduling %d latest versions of %s)",
