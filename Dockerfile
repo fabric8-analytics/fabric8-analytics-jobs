@@ -22,10 +22,6 @@ RUN pushd /tmp/jobs_install &&\
   popd &&\
   rm -rf /tmp/jobs_install
 
-# A temporary hack to keep Selinon up2date
-COPY hack/install_selinon.sh /tmp/
-RUN sh /tmp/install_selinon.sh
-
 COPY hack/run_jobs.sh /usr/bin/
 
 USER coreapi
