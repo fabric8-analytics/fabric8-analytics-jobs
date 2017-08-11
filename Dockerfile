@@ -3,7 +3,7 @@ MAINTAINER Fridolin Pokorny <fridolin@redhat.com>
 
 ENV LANG=en_US.UTF-8 \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
-    F8A_WORKER_VERSION=b70db7a
+    F8A_WORKER_VERSION=9734983
 
 RUN useradd coreapi
 
@@ -21,10 +21,6 @@ RUN pushd /tmp/jobs_install &&\
   pip3 install --upgrade --no-binary :all: protobuf && pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${F8A_WORKER_VERSION} &&\
   popd &&\
   rm -rf /tmp/jobs_install
-
-# A temporary hack to keep Selinon up2date
-COPY hack/install_selinon.sh /tmp/
-RUN sh /tmp/install_selinon.sh
 
 COPY hack/run_jobs.sh /usr/bin/
 
