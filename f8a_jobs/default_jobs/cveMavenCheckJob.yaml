@@ -5,6 +5,7 @@
   task_names:
     - security_issues
     - ResultCollector
+    - GraphImporterTask
   flow_arguments:
     - {
         "$filter": {
