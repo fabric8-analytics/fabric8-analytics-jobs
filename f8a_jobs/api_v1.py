@@ -47,7 +47,7 @@ def authorized():
             resp
         )
         logger.warning(msg)
-        return {'error': msg}, 401
+        return {'error': msg}, 400
 
     logger.debug("Assigning authorization token '%s' to session", resp['access_token'])
     session['auth_token'] = (resp['access_token'], '')
@@ -113,7 +113,7 @@ def put_jobs(scheduler, job_id, state):
         elif state == "running":
             job = scheduler.resume_job(job_id)
         else:
-            return {"error": "Unknown state '%s'" % state}, 401
+            return {"error": "Unknown state '%s'" % state}, 400
     except JobLookupError:
         return {"error": "No such job with id '%s'" % job_id}, 404
 
@@ -127,7 +127,7 @@ def get_jobs(scheduler, job_type=None):
 
     job_types = ('all', 'failed', 'user', None)
     if job_type not in job_types:
-        return {"error": "Unknown job type filtering supplied: '%s', should be one of %s" % (job_type, job_types)}, 401
+        return {"error": "Unknown job type filtering supplied: '%s', should be one of %s" % (job_type, job_types)}, 400
 
     job_list = []
     job_type = job_type or 'all'
@@ -165,7 +165,7 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
         job = Scheduler.schedule_job(scheduler, handler_name, **kwargs)
         return {"job": job2raw_dict(job)}, 201
     except ScheduleJobError as exc:
-        return {"error": str(exc)}, 401
+        return {"error": str(exc)}, 400
 
 
 @requires_auth
@@ -174,7 +174,7 @@ def post_show_select_query(filter_definition):
         query = BaseHandler(job_id=None).construct_select_query(filter_definition.pop(BaseHandler.DEFAULT_FILTER_KEY))
     except Exception as exc:
         logger.exception(str(exc))
-        return {"error": str(exc), "traceback": traceback.format_exc()}, 401
+        return {"error": str(exc), "traceback": traceback.format_exc()}, 400
     return {"query": query}, 200
 
 
@@ -184,7 +184,7 @@ def post_expand_filter_query(filter_definition):
         matched = BaseHandler(job_id=None).expand_filter_query(filter_definition)
     except Exception as exc:
         logger.exception(str(exc))
-        return {"error": str(exc), "traceback": traceback.format_exc()}, 401
+        return {"error": str(exc), "traceback": traceback.format_exc()}, 400
     return {"matched": matched}, 200
 
 
@@ -239,7 +239,7 @@ def post_analyses(scheduler, **kwargs):
     try:
         handlers.base.AnalysesBaseHandler.check_arguments(**kwargs)
     except Exception as exc:
-        return {"error": str(exc)}, 401
+        return {"error": str(exc)}, 400
 
     handler_name = handlers.base.AnalysesBaseHandler.ecosystem2handler_name(kwargs['ecosystem'])
     return post_schedule_job(scheduler, handler_name, **kwargs)
@@ -251,7 +251,7 @@ def github_most_starred(scheduler, **kwargs):
     try:
         handlers.base.AnalysesBaseHandler.check_arguments(**kwargs)
     except Exception as exc:
-        return {"error": str(exc)}, 401
+        return {"error": str(exc)}, 400
 
     return post_schedule_job(scheduler, handlers.GitHubMostStarred.__name__, **kwargs)
 
