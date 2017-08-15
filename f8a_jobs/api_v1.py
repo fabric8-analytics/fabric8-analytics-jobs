@@ -3,10 +3,8 @@
 import traceback
 import logging
 import requests
-from flask import session, url_for, request
 from dateutil.parser import parse as parse_datetime
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
-from datetime import datetime
 from flask import session, url_for, request
 
 import f8a_jobs.handlers as handlers

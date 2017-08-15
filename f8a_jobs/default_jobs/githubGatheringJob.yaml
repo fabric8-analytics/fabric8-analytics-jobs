@@ -1,55 +1,54 @@
 ---
   handler: SelectiveFlowScheduling
   job_id: githubGatheringJob
-  kwargs:
-    flow_name: bayesianFlow
-    task_names:
-      - github_details
-      - ResultCollector
-      - GraphImporterTask
-    flow_arguments:
-      - {
-          "$filter": {
-            "joins": [
-              {
-                "on": {
-                  "worker_results.analysis_id": "analyses.id"
-                },
-                "table": "analyses"
+  flow_name: bayesianFlow
+  task_names:
+    - github_details
+    - ResultCollector
+    - GraphImporterTask
+  flow_arguments:
+    - {
+        "$filter": {
+          "joins": [
+            {
+              "on": {
+                "worker_results.analysis_id": "analyses.id"
               },
-              {
-                "on": {
-                  "analyses.version_id": "versions.id"
-                },
-                "table": "versions"
-              },
-              {
-                "on": {
-                  "versions.package_id": "packages.id"
-                },
-                "table": "packages"
-              },
-              {
-                "on": {
-                  "ecosystems.id": "packages.ecosystem_id"
-                },
-                "table": "ecosystems"
-              }
-            ],
-            "select": [
-              "packages.name as name",
-              "ecosystems.name as ecosystem",
-              "versions.identifier as version"
-            ],
-            "distinct": true,
-            "where": {
-              "worker_results.worker": "InitAnalysisFlow",
-              "worker_results.error": false
+              "table": "analyses"
             },
-            "table": "worker_results"
+            {
+              "on": {
+                "analyses.version_id": "versions.id"
+              },
+              "table": "versions"
+            },
+            {
+              "on": {
+                "versions.package_id": "packages.id"
+              },
+              "table": "packages"
+            },
+            {
+              "on": {
+                "ecosystems.id": "packages.ecosystem_id"
+              },
+              "table": "ecosystems"
+            }
+          ],
+          "select": [
+            "packages.name as name",
+            "ecosystems.name as ecosystem",
+            "versions.identifier as version"
+          ],
+          "distinct": true,
+          "where": {
+            "worker_results.worker": "InitAnalysisFlow",
+            "worker_results.error": false
           },
-          "force": true
-        }
+          "table": "worker_results"
+        },
+        "force": true
+      }
   when:
   periodically: 14 day
   misfire_grace_time: 1 hour

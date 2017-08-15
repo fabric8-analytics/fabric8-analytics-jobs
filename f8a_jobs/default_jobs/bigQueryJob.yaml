@@ -1,11 +1,10 @@
 ---
   handler: FlowScheduling
   job_id: bigQueryJob
-  kwargs:
-    flow_name: bigQueryFlow
-    flow_arguments:
-      -
+  flow_name: bigQueryFlow
+  flow_arguments:
+    -
   when:
   periodically: 1 day
   misfire_grace_time: 1 hour
-  state: running
+  state: paused
