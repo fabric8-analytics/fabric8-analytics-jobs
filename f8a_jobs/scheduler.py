@@ -3,12 +3,15 @@ import os
 import logging
 import traceback
 import yaml
+from datetime import timedelta
 from datetime import datetime
 from dateutil.parser import parse as parse_datetime
 from pytimeparse.timeparse import timeparse
 from functools import wraps
 from threading import Lock
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.triggers.date import DateTrigger
 from f8a_worker.conf import get_postgres_connection_string
 import f8a_jobs.handlers as handlers
 from f8a_jobs.utils import is_failed_job_handler_name
@@ -62,7 +65,7 @@ class Scheduler(object):
     @classmethod
     def schedule_job(cls, scheduler, handler_name,
                      job_id=None, when=None, periodically=None, misfire_grace_time=None, state=None,
-                     **kwargs):
+                     modify_existing_job=False, **kwargs):
         """Schedule a job
 
         :param scheduler: scheduler that should be used to schedule a job
@@ -72,14 +75,10 @@ class Scheduler(object):
         :param periodically: string representation of the periodical execution (None = job will be executed only once)
         :param misfire_grace_time: time after which the given job should be thrown away because of misfire
         :param state: a string ('paused'/'running') representation of job state
+        :param modify_existing_job: if True, existing job will be modified according to new job spec
         :param kwargs: handler kwargs
         :return: scheduled apscheduler.Job instance
         """
-        if scheduler.get_job(job_id) is not None:
-            # As apscheduler does not care about job_id uniques, we need to check it on our own and pass
-            # replace_existing
-            raise ScheduleJobError("Job with the given job id '%s' already exists" % job_id)
-
         if state not in (None, "running", "paused"):
             raise ValueError("Unknown state '%s' provided, could be 'running' or 'paused'")
 
@@ -125,16 +124,45 @@ class Scheduler(object):
             trigger_kwargs['next_run_time'] = None
 
         try:
-            job = scheduler.add_job(
-                job_execute,
-                args=(handler_name, job_id),
-                kwargs=kwargs or {},
-                id=job_id,
-                replace_existing=True,
-                trigger=trigger,
-                misfire_grace_time=misfire_grace_time,
-                **trigger_kwargs
-            )
+            job = scheduler.get_job(job_id)
+            if modify_existing_job and job is not None:
+                cls.log.info("Performing job change (if any) on already existing job '%s'", job_id)
+                job.modify(
+                    kwargs=kwargs or {},
+                    misfire_grace_time=misfire_grace_time,
+                )
+                # Check for trigger configuration changes
+                old_trigger = job.trigger
+                trigger_change = (trigger == 'date' and not isinstance(old_trigger, DateTrigger)) or \
+                                 (trigger == 'interval' and not isinstance(old_trigger, IntervalTrigger))
+                if not trigger_change:
+                    if isinstance(old_trigger, DateTrigger) \
+                            and old_trigger.run_date != when:
+                        cls.log.info("Job execution has changed from %s to %s, modifying entry...",
+                                     old_trigger.run_date, when)
+                        job.reschedule(trigger=trigger, **trigger_kwargs)
+                    elif isinstance(old_trigger, IntervalTrigger) \
+                            and old_trigger.interval != timedelta(seconds=seconds):
+                        cls.log.info("Job periodic interval has changed from %s to %s, modifying entry...",
+                                     old_trigger.interval, timedelta(seconds=seconds))
+                        job.reschedule(trigger=trigger, **trigger_kwargs)
+                    else:
+                        cls.log.info("Job execution time was left untouched - no change performed")
+                else:
+                    cls.log.info("Trigger type has changed, force rescheduling job")
+                    job.reschedule(trigger, **trigger_kwargs)
+            else:
+                # force replace existing one
+                job = scheduler.add_job(
+                    job_execute,
+                    args=(handler_name, job_id),
+                    kwargs=kwargs or {},
+                    id=job_id,
+                    replace_existing=True,
+                    trigger=trigger,
+                    misfire_grace_time=misfire_grace_time,
+                    **trigger_kwargs
+                )
         except Exception as e:
             cls.log.exception(str(e))
             raise ScheduleJobError("Unable to schedule job: '%s'" % str(e))
@@ -147,11 +175,11 @@ class Scheduler(object):
 
         :param job_dir: directory in which the default jobs sit (YAML files)
         """
-        cls.log.error("Registering default jobs")
+        cls.log.info("Registering default jobs")
         scheduler = cls.get_paused_scheduler()
 
         for job_file_basename in os.listdir(job_dir):
-            cls.log.error("%s" % job_file_basename)
+            cls.log.info("Processing file '%s'" % job_file_basename)
             job_file = os.path.join(job_dir, job_file_basename)
 
             if not os.path.isfile(job_file) or job_file_basename.startswith("."):
@@ -166,13 +194,13 @@ class Scheduler(object):
             if 'job_id' not in job_info:
                 raise ValueError("Expected job ID under 'job_id' key in file '%s'", job_file)
 
-            cls.log.info("Registering new job '%s'", job_info['job_id'])
+            cls.log.info("Registering default job '%s'", job_info['job_id'])
 
             try:
-                job = cls.schedule_job(scheduler, job_info.pop('handler'), **job_info)
-                cls.log.info("Job '%s' from file '%s' successfully created", job_file, job.id)
+                job = cls.schedule_job(scheduler, job_info.pop('handler'), modify_existing_job=True, **job_info)
+                cls.log.info("Job '%s' from file '%s' successfully added", job_file, job.id)
             except ScheduleJobError as exc:
-                cls.log.error("Failed to register job from file '%s': %s", job_file, str(exc))
+                cls.log.exception("Failed to register job from file '%s': %s", job_file, str(exc))
 
 
 def job_execute(handler_name, job_id, **handler_kwargs):
