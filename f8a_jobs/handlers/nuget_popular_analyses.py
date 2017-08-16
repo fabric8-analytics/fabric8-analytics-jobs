@@ -23,10 +23,10 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
                 self.log.warning('Couldn\'t get url %r' % url)
                 continue
             poppage = BeautifulSoup(pop.text, 'html.parser')
-            packages = poppage.find_all('section', class_='package')
+            packages = poppage.find_all('article', class_='package')
             if len(packages) == 0:
-                # preview.nuget.org (will become nuget.org eventually) has a bit different structure
-                packages = poppage.find_all('article', class_='package')
+                # (probably not needed anymore) previous nuget.org version had different structure
+                packages = poppage.find_all('section', class_='package')
                 if len(packages) == 0:
                     self.log.warning('Quitting, no packages on %r' % url)
                     break
@@ -46,7 +46,7 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
                 if len(url_suffix) == 4:
                     name, releases = NugetReleasesFetcher.\
                         scrape_versions_from_nuget_org(url_suffix[2], sort_by_downloads=popular)
-                    self.log.debug("Scheduling %d most %s versions of %s)",
+                    self.log.debug("Scheduling %d most %s versions of %s",
                                    self.nversions,
                                    'popular' if popular else 'recent',
                                    name)
