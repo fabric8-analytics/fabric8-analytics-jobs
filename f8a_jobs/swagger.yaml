@@ -66,6 +66,8 @@ paths:
       responses:
         200:
           description: State of the job service
+        401:
+          description: No suitable permissions
     put:
       tags: [Service settings]
       operationId: f8a_jobs.api_v1.put_service_state
@@ -77,6 +79,8 @@ paths:
       responses:
         200:
           description: Information about job execution
+        401:
+          description: No suitable permissions
   /jobs:
     get:
       tags: [Jobs options]
@@ -89,6 +93,8 @@ paths:
       responses:
         200:
           description: All active jobs
+        401:
+          description: No suitable permissions
   '/jobs/{job_id}':
     delete:
        tags: [Jobs options]
@@ -101,6 +107,8 @@ paths:
        responses:
          200:
            description: Job with the given id was removed
+         401:
+           description: No suitable permissions
     put:
       tags: [Jobs options]
       operationId: f8a_jobs.api_v1.put_jobs
@@ -113,6 +121,8 @@ paths:
       responses:
         200:
           description: New analyses job scheduled
+        401:
+          description: No suitable permissions
   '/jobs/clean-failed':
     delete:
        tags: [Jobs options]
@@ -123,8 +133,10 @@ paths:
        responses:
          200:
            description: All failed jobs were deleted
-         401:
+         400:
            description: Error describing issue in your SQL query or error on querying
+         401:
+           description: No suitable permissions
   '/debug/show-select-query':
     post:
        tags: [Debug]
@@ -142,8 +154,10 @@ paths:
        responses:
          200:
            description: Constructed SQL query for the given filter definition
-         401:
+         400:
            description: Error describing issue in your SQL query
+         401:
+           description: No suitable permissions
   '/debug/expand-filter-query':
     post:
        tags: [Debug]
@@ -161,6 +175,8 @@ paths:
        responses:
          200:
            description: Matched records in database for the given filter definition
+         401:
+           description: No suitable permissions
   '/debug/analyses-report':
     get:
        tags: [Debug]
@@ -175,6 +191,8 @@ paths:
        responses:
          200:
            description: A brief report of the analyses running
+         401:
+           description: No suitable permissions
   '/debug/github-tokens':
     get:
        tags: [Debug]
@@ -185,6 +203,8 @@ paths:
        responses:
          200:
            description: API rate limits on GitHub tokens
+         401:
+           description: No suitable permissions
   '/jobs/flow-scheduling':
     post:
       tags: [Add new jobs]
@@ -207,6 +227,8 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+        401:
+          description: No suitable permissions
   '/jobs/selective-flow-scheduling':
     post:
       tags: [Add new jobs]
@@ -229,6 +251,8 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+        401:
+          description: No suitable permissions
   '/jobs/analyses':
     post:
       tags: [Add new jobs]
@@ -252,6 +276,8 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+        401:
+          description: No suitable permissions
   '/jobs/aggregate-topics':
     post:
       tags: [Add new jobs]
@@ -273,6 +299,8 @@ paths:
       responses:
         201:
           description: Aggregate gathered topics and store them on S3
+        401:
+          description: No suitable permissions
   '/jobs/github-most-starred':
     post:
       tags: [Add new jobs]
@@ -292,6 +320,8 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+        401:
+          description: No suitable permissions
   '/jobs/clean-postgres':
     post:
       tags: [Add new jobs]
@@ -308,6 +338,8 @@ paths:
       responses:
         201:
           description: New analyses job scheduled
+        401:
+          description: No suitable permissions
   '/jobs/sync-to-graph':
     post:
       tags: [Add new jobs]
@@ -326,6 +358,8 @@ paths:
       responses:
         201:
           description: Sync to graph scheduled
+        401:
+          description: No suitable permissions
 
 parameters:
   job_id_path:
