@@ -40,6 +40,7 @@
             "ecosystems.name as ecosystem",
             "versions.identifier as version"
           ],
+          "limit": 10,
           "distinct": true,
           "where": {
             "worker_results.worker": "InitAnalysisFlow",
@@ -50,6 +51,6 @@
         "force": true
       }
   when:
-  periodically: 14 day
+  periodically: 1 hour
   misfire_grace_time: 1 hour
   state: running
