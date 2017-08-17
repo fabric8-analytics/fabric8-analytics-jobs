@@ -18,7 +18,7 @@ RUN /tmp/install_deps/install_maven-index-checker.sh
 COPY ./ /tmp/jobs_install/
 RUN pushd /tmp/jobs_install &&\
   pip3 install . &&\
-  pip3 install --upgrade --no-binary :all: protobuf && pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${F8A_WORKER_VERSION} &&\
+  pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${F8A_WORKER_VERSION} &&\
   popd &&\
   rm -rf /tmp/jobs_install
 
