@@ -25,7 +25,7 @@ paths:
         401:
           description: No suitable permissions
   /logout:
-    get:
+    put:
       tags: [Authentication]
       operationId: f8a_jobs.api_v1.logout
       summary: Clean session
