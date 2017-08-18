@@ -37,5 +37,6 @@
       }
   when:
   periodically: 30 day
-  misfire_grace_time: 1 hour
+  # Keep this high so redeployment/downtime does not affect flow scheduling
+  misfire_grace_time: 1 year
   state: running
