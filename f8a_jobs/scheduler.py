@@ -28,6 +28,23 @@ class Scheduler(object):
     _scheduler_creation_lock = Lock()
     scheduler_lock = Lock()
     log = logging.getLogger(__name__)
+    _SCHEDULER_CONF = {
+        'apscheduler.jobstores.default': {
+            'type': 'sqlalchemy',
+            'url': get_postgres_connection_string()
+        },
+        'apscheduler.executors.default': {
+            'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+            'max_workers': '20'
+        },
+        'apscheduler.executors.processpool': {
+            'type': 'processpool',
+            'max_workers': '5'
+        },
+        'apscheduler.job_defaults.coalesce': 'true',
+        'apscheduler.job_defaults.max_instances': '1',
+        'apscheduler.timezone': 'UTC'
+    }
 
     def __init__(self):
         raise NotImplementedError()
@@ -41,8 +58,7 @@ class Scheduler(object):
         if cls._scheduler is None:
             with cls._scheduler_creation_lock:
                 if cls._scheduler is None:
-                    cls._scheduler = BackgroundScheduler()
-                    cls._scheduler.add_jobstore('sqlalchemy', url=get_postgres_connection_string())
+                    cls._scheduler = BackgroundScheduler(cls._SCHEDULER_CONF)
                     cls._scheduler.start(paused=bool(os.environ.get('JOB_SERVICE_PAUSED')))
 
         return cls._scheduler
@@ -57,8 +73,7 @@ class Scheduler(object):
         if cls._scheduler is not None:
             return cls._scheduler
         else:
-            scheduler = BackgroundScheduler()
-            scheduler.add_jobstore('sqlalchemy', url=get_postgres_connection_string())
+            scheduler = BackgroundScheduler(cls._SCHEDULER_CONF)
             scheduler.start(paused=True)
             return scheduler
 
