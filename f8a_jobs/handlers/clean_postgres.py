@@ -15,8 +15,8 @@ class CleanPostgres(BaseHandler):
             results = self.postgres.session.query(WorkerResult).\
                 join(Analysis). \
                 filter(Analysis.started_at < datetime.datetime(2017, 4, 12, 7, 0, 0, 0)).\
-                filter(Analysis.finished_at != None).\
-                filter(WorkerResult.external_request_id == None).\
+                filter(Analysis.finished_at.isnot(None)).\
+                filter(WorkerResult.external_request_id.is_(None)).\
                 order_by(WorkerResult.id).\
                 slice(start, start + 10).all()
 
