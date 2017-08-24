@@ -1,4 +1,4 @@
-import datetime
+from sqlalchemy.exc import SQLAlchemyError
 from f8a_worker.models import Analysis, Package, Version, Ecosystem
 from f8a_worker.workers import GraphImporterTask
 
@@ -23,7 +23,11 @@ class SyncToGraph(BaseHandler):
 
         while True:
             self.log.info("Updating results, slice offset is %s", start)
-            results = base_query.slice(start, start + self.query_slice).all()
+            try:
+                results = base_query.slice(start, start + self.query_slice).all()
+            except SQLAlchemyError:
+                self.postgres.session.rollback()
+                raise
             start += self.query_slice
             if not results:
                 self.log.info("No more finished analyses => syncing to GraphDB finished")
@@ -36,7 +40,7 @@ class SyncToGraph(BaseHandler):
                 try:
                     self.log.info('Synchronizing {ecosystem}/{name}/{version} ...'.format(**arguments))
                     GraphImporterTask.create_test_instance().execute(arguments)
-                except Exception as e:
+                except:
                     self.log.exception('Failed to synchronize {ecosystem}/{name}/{version}'.
                                        format(**arguments))
                 del entry

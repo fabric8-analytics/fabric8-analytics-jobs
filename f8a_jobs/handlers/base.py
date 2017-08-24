@@ -3,14 +3,15 @@
 import re
 import logging
 from collections import namedtuple
-from selinon import run_flow
-from selinon import run_flow_selective
-from selinon import StoragePool
-from f8a_worker.setup_celery import init_celery
 import mosql.query as mosql_query
 from mosql.util import raw as mosql_raw
 from mosql.query import select
+from selinon import run_flow
+from selinon import run_flow_selective
+from selinon import StoragePool
+from sqlalchemy.exc import SQLAlchemyError
 
+from f8a_worker.setup_celery import init_celery
 
 CountRange = namedtuple('CountRange', ['min', 'max'])
 
@@ -139,7 +140,11 @@ class BaseHandler(object):
         :return: expanded filter arguments
         """
         select_statement = self.construct_select_query(filter_definition.pop(self.DEFAULT_FILTER_KEY))
-        query_result = self.postgres.session.execute(select_statement).fetchall()
+        try:
+            query_result = self.postgres.session.execute(select_statement).fetchall()
+        except SQLAlchemyError:
+            self.postgres.session.rollback()
+            raise
 
         result = []
         for r in query_result:
