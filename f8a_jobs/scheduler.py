@@ -104,8 +104,9 @@ class Scheduler(object):
         if when:
             try:
                 when = parse_datetime(when)
-            except ValueError:
-                raise ScheduleJobError("Unable to parse datetime format for 'when': '%s'" % when)
+            except ValueError as exc:
+                raise ScheduleJobError("Unable to parse datetime format for 'when': '%s'" % when)\
+                    from exc
             if when < datetime.now():
                 raise ScheduleJobError("Cannot schedule event at '%s' to past" % str(when))
 
@@ -180,7 +181,7 @@ class Scheduler(object):
                 )
         except Exception as e:
             cls.log.exception(str(e))
-            raise ScheduleJobError("Unable to schedule job: '%s'" % str(e))
+            raise ScheduleJobError("Unable to schedule job: '%s'" % str(e)) from e
 
         return job
 

@@ -14,7 +14,7 @@ class SyncToGraph(BaseHandler):
             join(Version).\
             join(Package).\
             join(Ecosystem).\
-            filter(Analysis.finished_at != None).\
+            filter(Analysis.finished_at.isnot(None)).\
             filter(Analysis.id >= start).\
             order_by(Analysis.id.asc())
 
