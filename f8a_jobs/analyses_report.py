@@ -1,8 +1,8 @@
 from datetime import datetime
-from f8a_worker.setup_celery import init_celery
-
 from selinon import StoragePool
+from sqlalchemy.exc import SQLAlchemyError
 from f8a_worker.models import WorkerResult, Analysis, Package, Version, Ecosystem
+from f8a_worker.setup_celery import init_celery
 
 
 def _add_query_datetime_constrains(query, from_date, to_date):
@@ -18,8 +18,9 @@ def _add_query_datetime_constrains(query, from_date, to_date):
 
 
 def _get_base_query(db, ecosystem, from_date, to_date):
-    # We need to make sure that there is at least one worker result for the given package as if the init task fails for
-    # some reason, there will be created EPV entries but that package does not exist
+    # We need to make sure that there is at least one worker result for the given package
+    # as if the init task fails for some reason,
+    # there will be created EPV entries but that package does not exist
     query = db.session.query(WorkerResult) \
         .join(Analysis) \
         .join(Version) \
@@ -29,39 +30,47 @@ def _get_base_query(db, ecosystem, from_date, to_date):
     return _add_query_datetime_constrains(query, from_date, to_date)
 
 
+def _count(db, query):
+    try:
+        return query.count()
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
+
+
 def _get_finished_analyses_count(db, ecosystem, from_date, to_date):
     query = _get_base_query(db, ecosystem, from_date, to_date)
-    return query.filter(Analysis.finished_at.isnot(None)).count()
+    return _count(db, query.filter(Analysis.finished_at.isnot(None)))
 
 
 def _get_unfinished_analyses_count(db, ecosystem, from_date, to_date):
     query = _get_base_query(db, ecosystem, from_date, to_date)
-    return query.filter(Analysis.finished_at.is_(None)).count()
+    return _count(db, query.filter(Analysis.finished_at.is_(None)))
 
 
 def _get_unique_analyses_count(db, ecosystem, from_date, to_date):
     query = _get_base_query(db, ecosystem, from_date, to_date)
-    return query.distinct(Version.id).count()
+    return _count(db, query.distinct(Version.id))
 
 
 def _get_unique_finished_analyses_count(db, ecosystem, from_date, to_date):
     query = _get_base_query(db, ecosystem, from_date, to_date)
-    return query.filter(Analysis.finished_at.isnot(None)).distinct(Version.id).count()
+    return _count(db, query.filter(Analysis.finished_at.isnot(None)).distinct(Version.id))
 
 
 def _get_packages_count(db, ecosystem, from_date, to_date):
     query = _get_base_query(db, ecosystem, from_date, to_date)
-    return query.distinct(Package.id).count()
+    return _count(db, query.distinct(Package.id))
 
 
 def _get_finished_packages_count(db, ecosystem, from_date, to_date):
     query = _get_base_query(db, ecosystem, from_date, to_date)
-    return query.filter(Analysis.finished_at.isnot(None)).distinct(Package.id).count()
+    return _count(db, query.filter(Analysis.finished_at.isnot(None)).distinct(Package.id))
 
 
 def _get_versions_count(db, ecosystem, from_date, to_date):
     query = _get_base_query(db, ecosystem, from_date, to_date)
-    return query.distinct(Version.id).count()
+    return _count(db, query.distinct(Version.id))
 
 
 def construct_analyses_report(ecosystem, from_date=None, to_date=None):

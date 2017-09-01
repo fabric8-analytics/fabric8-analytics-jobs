@@ -1,6 +1,8 @@
-from sqlalchemy import desc
 from dateutil.parser import parse as parse_datetime
 from selinon import StoragePool
+from sqlalchemy import desc
+from sqlalchemy.exc import SQLAlchemyError
+
 from f8a_worker.models import WorkerResult, Analysis, Ecosystem, Package, Version
 
 from .base import BaseHandler
@@ -59,7 +61,11 @@ class AggregateTopics(BaseHandler):
         start = 0
         topics = []
         while True:
-            results = base_query.slice(start, start + 10).all()
+            try:
+                results = base_query.slice(start, start + 10).all()
+            except SQLAlchemyError:
+                postgres.session.rollback()
+                raise
 
             if not results:
                 break

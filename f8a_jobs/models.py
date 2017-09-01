@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, Sequence, String, DateTime, Boolean
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from f8a_worker.conf import get_postgres_connection_string
@@ -65,6 +66,9 @@ class JobToken(_Base):
         except NoResultFound:
             logger.info("No token '%s' was found", token)
             return False
+        except SQLAlchemyError:
+            session.rollback()
+            raise
 
         if entry.valid_until < datetime.now() or entry.revoked:
             logger.info("Token '%s' (revoked: %s) for user '%s' with validity until '%s' is no longer applicable",
@@ -84,10 +88,17 @@ class JobToken(_Base):
                 all()
         except NoResultFound:
             return
+        except SQLAlchemyError:
+            session.rollback()
+            raise
 
         for entry in entries:
             entry.revoked = True
-        session.commit()
+        try:
+            session.commit()
+        except SQLAlchemyError:
+            session.rollback()
+            raise
 
     @classmethod
     def store_token(cls, login, token):
@@ -107,8 +118,12 @@ class JobToken(_Base):
             valid_until=now + configuration.TOKEN_VALID_TIME,
             created_at=now
         )
-        session.add(entry)
-        session.commit()
+        try:
+            session.add(entry)
+            session.commit()
+        except SQLAlchemyError:
+            session.rollback()
+            raise
 
         return cls.get_info(token)
 
@@ -123,14 +138,14 @@ class JobToken(_Base):
             return {'error': 'No token assigned'}
 
         session = get_session()
-        session.query()
 
         try:
             entry = session.query(JobToken).filter(JobToken.token == token).one()
         except NoResultFound:
             logger.info("No info for token '%s' was found", token)
             return {'error': 'Unknown token'}
+        except SQLAlchemyError:
+            session.rollback()
+            raise
 
         return entry.to_dict()
-
-
