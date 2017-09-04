@@ -1,36 +1,25 @@
 ---
   handler: SelectiveFlowScheduling
   job_id: githubGatheringJob
-  flow_name: bayesianFlow
+  flow_name: bayesianPackageFlow
   task_names:
     - github_details
-    - ResultCollector
-    - GraphImporterTask
+    - PackageResultCollector
+    - PackageGraphImporterTask
   flow_arguments:
     - {
+        "force": true,
         "$filter": {
           "joins": [
             {
               "on": {
-                "worker_results.analysis_id": "analyses.id"
-              },
-              "table": "analyses"
-            },
-            {
-              "on": {
-                "analyses.version_id": "versions.id"
-              },
-              "table": "versions"
-            },
-            {
-              "on": {
-                "versions.package_id": "packages.id"
+                "monitored_upstreams.package_id": "packages.id"
               },
               "table": "packages"
             },
             {
               "on": {
-                "ecosystems.id": "packages.ecosystem_id"
+                "packages.ecosystem_id": "ecosystems.id"
               },
               "table": "ecosystems"
             }
@@ -38,20 +27,18 @@
           "select": [
             "packages.name as name",
             "ecosystems.name as ecosystem",
-            "versions.identifier as version"
+            "monitored_upstreams.url as url"
           ],
-          "limit": 10,
           "distinct": true,
           "where": {
-            "worker_results.worker": "InitAnalysisFlow",
-            "worker_results.error": false
+            "monitored_upstreams.active": true,
+            "monitored_upstreams.url is not": null
           },
-          "table": "worker_results"
-        },
-        "force": true
+          "table": "monitored_upstreams"
+        }
       }
   when:
-  periodically: 5 minute
+  periodically: 14 day
   # Keep this high so redeployment/downtime does not affect flow scheduling
-  misfire_grace_time: 365 days
+  misfire_grace_time: 99999 days
   state: running
