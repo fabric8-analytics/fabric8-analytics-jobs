@@ -99,7 +99,8 @@ class BaseHandler(object):
         :param flow_name: flow that should be run
         :param node_args: flow arguments
         """
-        self.log.debug("Scheduling Selinon flow '%s' with node_args: '%s'", flow_name, node_args)
+        self.log.debug("Scheduling Selinon flow '%s' with node_args: '%s', job '%s'",
+                       flow_name, node_args, self.job_id)
 
         if self.job_id:
             node_args['job_id'] = self.job_id
@@ -122,8 +123,8 @@ class BaseHandler(object):
             task_names = list(set(task_names) | {'PackageFinalizeTask', 'PackageResultCollector',
                                                  'PackageGraphImporterTask'})
 
-        self.log.debug("Scheduling selective Selinon flow '%s' with tasks '%s' and node_args: '%s'",
-                       flow_name, task_names, node_args)
+        self.log.debug("Scheduling selective Selinon flow '%s' with tasks '%s' and node_args: '%s', job '%s'",
+                       flow_name, task_names, node_args, self.job_id)
         return run_flow_selective(flow_name, task_names, node_args, follow_subflows, run_subsequent)
 
     def is_filter_query(self, filter_query):
