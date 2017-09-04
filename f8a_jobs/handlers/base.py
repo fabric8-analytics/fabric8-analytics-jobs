@@ -2,6 +2,7 @@
 
 import re
 import logging
+import copy
 from collections import namedtuple
 import mosql.query as mosql_query
 from mosql.util import raw as mosql_raw
@@ -140,6 +141,8 @@ class BaseHandler(object):
         :param filter_definition:
         :return: expanded filter arguments
         """
+        # As filters of periodic jobs are stored in memory, copy filter definition so the original is not overwritten
+        filter_definition = copy.deepcopy(filter_definition)
         select_statement = self.construct_select_query(filter_definition.pop(self.DEFAULT_FILTER_KEY))
         try:
             query_result = self.postgres.session.execute(select_statement).fetchall()
