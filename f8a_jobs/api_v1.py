@@ -27,7 +27,7 @@ def generate_token():
 
 def logout():
     if 'auth_token' not in session:
-        return {'error': 'Cannot logout - no user logged in'}, 401
+        return {}, 401
 
     session.pop('auth_token')
     return {}, 201
