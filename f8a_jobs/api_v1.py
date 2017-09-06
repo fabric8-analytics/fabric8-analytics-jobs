@@ -265,6 +265,12 @@ def github_manifests(scheduler, **kwargs):
 
 @requires_auth
 @uses_scheduler
+def aggregate_github_manifest_pkgs(scheduler, **kwargs):
+    return post_schedule_job(scheduler, handlers.AggregateGitHubManifestPackages.__name__, **kwargs)
+
+
+@requires_auth
+@uses_scheduler
 def post_clean_postgres(scheduler, **kwargs):
     return post_schedule_job(scheduler, handlers.CleanPostgres.__name__, **kwargs)
 

@@ -256,6 +256,33 @@ paths:
           description: New job successfully scheduled
         401:
           description: No suitable permissions
+  '/jobs/aggregate-github-manifest-pkgs':
+    post:
+      tags: [Add new jobs]
+      operationId: f8a_jobs.api_v1.aggregate_github_manifest_pkgs
+      summary: Aggregate package names from GitHub manifests
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+        - $ref: "#/parameters/bucket_name"
+        - $ref: "#/parameters/object_key"
+        - $ref: "#/parameters/ecosystem"
+        - name: kwargs
+          in: body
+          required: true
+          description: Keyword arguments for GitHub manifests job.
+          schema:
+            $ref: "#/definitions/GitHubAggregateManifestPkgsKwargs"
+      security:
+        - auth_token: []
+      responses:
+        201:
+          description: New job successfully scheduled
+        401:
+          description: No suitable permissions
   '/jobs/selective-flow-scheduling':
     post:
       tags: [Add new jobs]
@@ -666,6 +693,19 @@ definitions:
             force: true
             recursive_limit: 0
             force_graph_sync: false
+  GitHubAggregateManifestPkgsKwargs:
+    type: object
+    required:
+      - repositories
+    properties:
+      repositories:
+        type: array
+        description: Array of repositories from which to aggregate packages
+        items:
+          $ref: "#/definitions/Any"
+        example:
+          - ecosystem: "maven"
+            repo_name: "omalley/base64"
 
   Any:
     type: object
