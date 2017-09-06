@@ -30,6 +30,7 @@
             "monitored_upstreams.url as url"
           ],
           "distinct": true,
+          "limit": 10,
           "where": {
             "monitored_upstreams.active": true,
             "monitored_upstreams.url is not": null
@@ -38,7 +39,7 @@
         }
       }
   when:
-  periodically: 14 day
+  periodically: 1 hour
   # Keep this high so redeployment/downtime does not affect flow scheduling
   misfire_grace_time: 99999 days
   state: running
