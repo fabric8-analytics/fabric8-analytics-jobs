@@ -231,6 +231,31 @@ paths:
           description: New analyses job scheduled
         401:
           description: No suitable permissions
+  '/jobs/github-manifests':
+    post:
+      tags: [Add new jobs]
+      operationId: f8a_jobs.api_v1.github_manifests
+      summary: Collect and process manifest files from given GitHub repositories.
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+        - $ref: "#/parameters/skip_if_exists"
+        - name: kwargs
+          in: body
+          required: true
+          description: Keyword arguments for GitHub manifests job.
+          schema:
+            $ref: "#/definitions/GitHubManifestsKwargs"
+      security:
+        - auth_token: []
+      responses:
+        201:
+          description: New job successfully scheduled
+        401:
+          description: No suitable permissions
   '/jobs/selective-flow-scheduling':
     post:
       tags: [Add new jobs]
@@ -625,6 +650,22 @@ definitions:
               - "packages.name as name"
               - "ecosystems.name as ecosystem"
               - "versions.identifier as version"
+  GitHubManifestsKwargs:
+    type: object
+    required:
+      - repositories
+    properties:
+      repositories:
+        type: array
+        description: Array of keyword arguments for githubManifestMetadata flow.
+        items:
+          $ref: "#/definitions/Any"
+        example:
+          - ecosystem: "maven"
+            repo_name: "omalley/base64"
+            force: true
+            recursive_limit: 0
+            force_graph_sync: false
 
   Any:
     type: object

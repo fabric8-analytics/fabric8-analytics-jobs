@@ -259,6 +259,12 @@ def github_most_starred(scheduler, **kwargs):
 
 @requires_auth
 @uses_scheduler
+def github_manifests(scheduler, **kwargs):
+    return post_schedule_job(scheduler, handlers.GitHubManifests.__name__, **kwargs)
+
+
+@requires_auth
+@uses_scheduler
 def post_clean_postgres(scheduler, **kwargs):
     return post_schedule_job(scheduler, handlers.CleanPostgres.__name__, **kwargs)
 
