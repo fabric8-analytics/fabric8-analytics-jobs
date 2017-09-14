@@ -59,7 +59,8 @@ class AggregateGitHubManifestPackages(BaseHandler):
         s3_dest = AmazonS3(bucket_name=bucket_name)
         s3_dest.connect()
         s3_dest.store_dict(results, object_key)
-        s3_dest.store_dict(tagger_list, object_key)
+        new_object_key = self.create_newobject_key(object_key)
+        s3_dest.store_dict(tagger_list, new_object_key)
 
     def _create_tagger_list(self, ecosystem, package_version):
         """
@@ -88,3 +89,15 @@ class AggregateGitHubManifestPackages(BaseHandler):
             "version": version
         }
         return data
+
+    def create_newobject_key(self, object_key):
+        """
+        :param object_key: existing object key
+        :return: new object key
+        """
+        new_object_key = object_key
+        for key in new_object_key.keys():
+            if key == "object_key":
+                new_object_key[key] = "tagger_list.json"
+
+        return new_object_key
