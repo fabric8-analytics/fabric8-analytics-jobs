@@ -39,4 +39,4 @@
   periodically: 30 day
   # Keep this high so redeployment/downtime does not affect flow scheduling
   misfire_grace_time: 365 days
-  state: running
+  state: paused
