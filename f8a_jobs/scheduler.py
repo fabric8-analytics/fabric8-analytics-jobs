@@ -155,8 +155,8 @@ class Scheduler(object):
                 )
                 # Check for trigger configuration changes
                 old_trigger = job.trigger
-                trigger_change = (
-                    trigger == 'date' and not isinstance(old_trigger, DateTrigger)) or \
+                trigger_change = \
+                    (trigger == 'date' and not isinstance(old_trigger, DateTrigger)) or \
                     (trigger == 'interval' and not isinstance(old_trigger, IntervalTrigger))
                 if not trigger_change:
                     if isinstance(old_trigger, DateTrigger) \
