@@ -75,7 +75,7 @@ def _get_versions_count(db, ecosystem, from_date, to_date):
 
 def construct_analyses_report(ecosystem, from_date=None, to_date=None):
     """Construct analyses state report.
-    
+
     :param ecosystem: name of the ecosystem
     :param from_date: datetime limitation
     :type from_date: datetime.datetime
@@ -104,10 +104,15 @@ def construct_analyses_report(ecosystem, from_date=None, to_date=None):
     report['report']['analyses'] = finished_analyses + unfinished_analyses
     report['report']['analyses_finished'] = finished_analyses
     report['report']['analyses_unfinished'] = unfinished_analyses
-    report['report']['analyses_finished_unique'] = _get_unique_finished_analyses_count(db, ecosystem, from_date, to_date)
-    report['report']['analyses_unique'] = _get_unique_analyses_count(db, ecosystem, from_date, to_date)
+    report['report']['analyses_finished_unique'] = _get_unique_finished_analyses_count(db,
+                                                                                       ecosystem,
+                                                                                       from_date,
+                                                                                       to_date)
+    report['report']['analyses_unique'] = _get_unique_analyses_count(db, ecosystem, from_date,
+                                                                     to_date)
     report['report']['packages'] = _get_packages_count(db, ecosystem, from_date, to_date)
-    report['report']['packages_finished'] = _get_finished_packages_count(db, ecosystem, from_date, to_date)
+    report['report']['packages_finished'] = _get_finished_packages_count(db, ecosystem, from_date,
+                                                                         to_date)
     report['report']['versions'] = _get_versions_count(db, ecosystem, from_date, to_date)
 
     return report
