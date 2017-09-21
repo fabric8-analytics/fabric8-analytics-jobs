@@ -23,7 +23,7 @@ class SafeJSONEncoder(json.JSONEncoder):
             return o.isoformat()
         try:
             return json.JSONEncoder.default(self, o)
-        except:
+        except TypeError:
             return repr(o)
 
 
