@@ -9,6 +9,7 @@ def get_requirements():
     with open(requirements_txt) as fd:
         return fd.read().splitlines()
 
+
 setup(
     name='fabric8_analytics_jobs',
     version='0.1',
