@@ -24,12 +24,13 @@ class AggregateGitHubManifestPackages(BaseHandler):
                 repo_ecosystem = repo['ecosystem']
                 repo_name = repo['repo_name']
             except ValueError:
-                self.log.error('Invalid configuration, skipping: {config}'.format(config=str(repo)))
+                self.log.error('Invalid configuration, skipping: {config}'.format(
+                    config=str(repo)))
                 continue
 
             try:
-                obj = '{e}/{repo_name}/dependency_snapshot.json'.format(e=repo_ecosystem,
-                                                                        repo_name=repo_name.replace('/', ':'))
+                obj = '{e}/{repo_name}/dependency_snapshot.json'.format(
+                    e=repo_ecosystem, repo_name=repo_name.replace('/', ':'))
                 dependency_snapshot = s3.retrieve_dict(obj)
 
                 dependencies = dependency_snapshot.get('details', {}).get('runtime', [])
@@ -45,8 +46,8 @@ class AggregateGitHubManifestPackages(BaseHandler):
                             tagger_list.append(etl)
 
             except Exception as e:
-                self.log.error('Unable to collect dependencies for {repo_name}: {reason}'.format(repo_name=repo_name,
-                                                                                                 reason=str(e)))
+                self.log.error('Unable to collect dependencies for {repo_name}: {reason}'.format(
+                    repo_name=repo_name, reason=str(e)))
                 continue
 
         results = {

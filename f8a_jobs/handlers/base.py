@@ -42,7 +42,8 @@ class BaseHandler(object):
     def construct_select_query(self, filter_definition):
         """ Return SELECT statement that will be used as a filter
 
-        :param filter_definition: definition of a filter that should be used for SELECT construction
+        :param filter_definition: definition of a filter that should be used
+        for SELECT construction
         :return:
         """
         table_name = filter_definition.pop('table', self._DEFAULT_FILTER_TABLE_NAME)
@@ -72,10 +73,14 @@ class BaseHandler(object):
                     sub_query = value.pop(self.DEFAULT_FILTER_KEY)
                     if value:
                         self.log.warning("Ignoring sub-query parameters: %s", value)
-                    filter_definition['where'][key] = mosql_raw('( {} )'.format(self.construct_select_query(sub_query)))
-                elif isinstance(value, str) and value.startswith('$') and self.QUERY_REFERENCE.fullmatch(value[1:]):
-                    # Make sure we construct correct query with escaped table name and escaped column for sub-queries
-                    filter_definition['where'][key] = mosql_raw('"{}"'.format('"."'.join(value[1:].split('.'))))
+                    filter_definition['where'][key] = mosql_raw('( {} )'.format(
+                        self.construct_select_query(sub_query)))
+                elif (isinstance(value, str) and value.startswith('$') and
+                      self.QUERY_REFERENCE.fullmatch(value[1:])):
+                        # Make sure we construct correct query with escaped table
+                    # name and escaped column for sub-queries
+                    filter_definition['where'][key] = mosql_raw('"{}"'.format(
+                        '"."'.join(value[1:].split('.'))))
 
         raw_select = select(table_name, **filter_definition)
 
@@ -108,7 +113,8 @@ class BaseHandler(object):
 
         return run_flow(flow_name, node_args)
 
-    def run_selinon_flow_selective(self, flow_name, task_names, node_args, follow_subflows, run_subsequent):
+    def run_selinon_flow_selective(self, flow_name, task_names, node_args, follow_subflows,
+                                   run_subsequent):
         """Connect to broker, if not connected, and run Selinon selective flow
 
         :param flow_name: flow that should be run
@@ -118,15 +124,17 @@ class BaseHandler(object):
         :param run_subsequent: run tasks that follow after desired tasks stated in task_names
         """
         if flow_name in ('bayesianFlow', 'bayesianAnalysisFlow'):
-            task_names = list(set(task_names) | {'FinalizeTask', 'ResultCollector', 'GraphImporterTask'})
+            task_names = list(set(task_names) | {'FinalizeTask', 'ResultCollector',
+                                                 'GraphImporterTask'})
 
         if flow_name in ('bayesianPackageFlow', 'bayesianPackageAnalysisFlow'):
             task_names = list(set(task_names) | {'PackageFinalizeTask', 'PackageResultCollector',
                                                  'PackageGraphImporterTask'})
 
-        self.log.debug("Scheduling selective Selinon flow '%s' with tasks '%s' and node_args: '%s', job '%s'",
-                       flow_name, task_names, node_args, self.job_id)
-        return run_flow_selective(flow_name, task_names, node_args, follow_subflows, run_subsequent)
+        self.log.debug("Scheduling selective Selinon flow '%s' with tasks '%s' and node_args: "
+                       "'%s', job '%s'", flow_name, task_names, node_args, self.job_id)
+        return run_flow_selective(flow_name, task_names, node_args, follow_subflows,
+                                  run_subsequent)
 
     def is_filter_query(self, filter_query):
         """
@@ -141,9 +149,11 @@ class BaseHandler(object):
         :param filter_definition:
         :return: expanded filter arguments
         """
-        # As filters of periodic jobs are stored in memory, copy filter definition so the original is not overwritten
+        # As filters of periodic jobs are stored in memory, copy filter
+        # definition so the original is not overwritten
         filter_definition = copy.deepcopy(filter_definition)
-        select_statement = self.construct_select_query(filter_definition.pop(self.DEFAULT_FILTER_KEY))
+        select_statement = self.construct_select_query(
+            filter_definition.pop(self.DEFAULT_FILTER_KEY))
         try:
             query_result = self.postgres.session.execute(select_statement).fetchall()
         except SQLAlchemyError:
@@ -188,7 +198,8 @@ class AnalysesBaseHandler(BaseHandler):
         :return: name of handler class
         """
         # avoid cyclic imports
-        from . import MavenPopularAnalyses, NpmPopularAnalyses, PythonPopularAnalyses, NugetPopularAnalyses
+        from . import (MavenPopularAnalyses, NpmPopularAnalyses, PythonPopularAnalyses,
+                       NugetPopularAnalyses)
 
         if ecosystem == 'maven':
             return MavenPopularAnalyses.__name__

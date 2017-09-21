@@ -15,7 +15,8 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
 
     @staticmethod
     def _parse_version_stats(html_version_stats, sort_by_popularity=True):
-        """ Parse version statistics from HTML definition and return ordered versions based on downloads
+        """ Parse version statistics from HTML definition and return ordered
+        versions based on downloads
 
         :param html_version_stats: tr-like representation of version statistics
         :param sort_by_popularity: whether or not to return versions sorted by popularity
@@ -73,7 +74,8 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
                 if packages_count > to_schedule_count:
                     return
 
-                pop = requests.get('{url}/module/{pkg}'.format(url=self._URL, pkg=package_name.text))
+                pop = requests.get('{url}/module/{pkg}'.format(url=self._URL,
+                                                               pkg=package_name.text))
                 poppage = bs4.BeautifulSoup(pop.text, 'html.parser')
                 table = poppage.find('table', id='release_list')
                 if table is None:
@@ -96,4 +98,3 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
             self._use_pypi_ranking()
         else:
             self._use_pypi_xml_rpc()
-

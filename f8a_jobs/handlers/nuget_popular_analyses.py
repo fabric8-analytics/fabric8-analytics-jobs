@@ -14,8 +14,8 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
 
     def _scrape_nuget_org(self, popular=True):
         """Schedule analyses for popular NuGet packages."""
-        first_page = ((self.count.min-1) // self._POPULAR_PACKAGES_PER_PAGE) + 1
-        last_page = ((self.count.max-1) // self._POPULAR_PACKAGES_PER_PAGE) + 1
+        first_page = ((self.count.min - 1) // self._POPULAR_PACKAGES_PER_PAGE) + 1
+        last_page = ((self.count.max - 1) // self._POPULAR_PACKAGES_PER_PAGE) + 1
         for page in range(first_page, last_page + 1):
             url = self._URL.format(page=page)
             pop = get(url)
@@ -40,7 +40,7 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
             if last_package == 0:
                 last_package = self._POPULAR_PACKAGES_PER_PAGE
 
-            for package in packages[first_package-1:last_package]:
+            for package in packages[first_package - 1:last_package]:
                 # url_suffix ='/packages/ExtMongoMembership/1.7.0-beta'.split('/')
                 url_suffix = package.find(href=re_compile(r'^/packages/'))['href'].split('/')
                 if len(url_suffix) == 4:

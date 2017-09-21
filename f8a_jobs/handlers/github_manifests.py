@@ -26,9 +26,11 @@ class GitHubManifests(BaseHandler):
                 continue
 
             if skip_if_exists:
-                metadata_object_name = s3.get_object_key_path(ecosystem, repo_name) + '/metadata.json'
+                metadata_object_name = s3.get_object_key_path(ecosystem, repo_name) + \
+                    '/metadata.json'
                 if s3.object_exists(metadata_object_name):
-                    self.log.info('Results for repo {repo} already exist, skipping.'.format(repo=repo['repo_name']))
+                    self.log.info('Results for repo {repo} already exist, skipping.'.format(
+                        repo=repo['repo_name']))
                     continue
 
             repo_url = urllib.parse.urljoin(self.GITHUB_URL, repo['repo_name'] + '.git')
@@ -42,5 +44,6 @@ class GitHubManifests(BaseHandler):
             if repo.get('recursive_limit') is not None:
                 node_args['recursive_limit'] = repo.get('recursive_limit')
 
-            self.log.debug('Scheduling analysis for GitHub repository {repo}'.format(repo=repo['repo_name']))
+            self.log.debug('Scheduling analysis for GitHub repository {repo}'.format(
+                repo=repo['repo_name']))
             self.run_selinon_flow('githubManifestMetadataFlow', node_args)

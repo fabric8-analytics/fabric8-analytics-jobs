@@ -77,15 +77,17 @@ class GitHubMostStarred(BaseHandler):
             # for example not all "Java" repositories have pom files
             # TODO: if this is too slow, switch to BigQuery
             repo_url = urllib.parse.urljoin(self.GITHUB_URL, repo_name + '/')
-            manifest_url = urllib.parse.urljoin(repo_url, 'blob/master/' + self._ECOSYSTEM_DETAILS[ecosystem][1])
+            manifest_url = urllib.parse.urljoin(repo_url, 'blob/master/' +
+                                                self._ECOSYSTEM_DETAILS[ecosystem][1])
             head_response = requests.head(manifest_url)
             if not head_response.status_code == 200:
                 self.log.debug('Missing or unknown manifest file in GitHub repo %s', repo_name)
                 continue
             yield repo_name
 
-    def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False, recursive_limit=None,
-                min_stars=None, max_stars=None, skip_if_exists=True, start_from=0):
+    def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False,
+                recursive_limit=None, min_stars=None, max_stars=None, skip_if_exists=True,
+                start_from=0):
         """Run analyses on the most-starred GitHub projects.
 
         :param ecosystem: ecosystem name
@@ -117,7 +119,8 @@ class GitHubMostStarred(BaseHandler):
 
         count = 0
         total_count = 0
-        most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem, start_from=self.start_from)
+        most_starred = self.get_most_starred_repositories(ecosystem=self.ecosystem,
+                                                          start_from=self.start_from)
         while count < self.count:
             try:
                 repo_name = next(most_starred)
@@ -126,7 +129,8 @@ class GitHubMostStarred(BaseHandler):
                 self.log.warning('No more repositories to process')
                 break
 
-            metadata_object_name = s3.get_object_key_path(self.ecosystem, repo_name) + '/metadata.json'
+            metadata_object_name = s3.get_object_key_path(self.ecosystem, repo_name) + \
+                '/metadata.json'
             if self.skip_if_exists and s3.object_exists(metadata_object_name):
                 self.log.info('Results for repo %s already exist, skipping.', repo_name)
                 count += 1  # skipped, but still counting
