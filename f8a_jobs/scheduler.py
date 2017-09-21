@@ -69,7 +69,8 @@ class Scheduler(object):
 
         :return: scheduler instance
         """
-        # As we would like to feed default jobs, not to run any job, make sure we start scheduler in paused mode.
+        # As we would like to feed default jobs, not to run any job, make sure
+        # we start scheduler in paused mode.
         if cls._scheduler is not None:
             return cls._scheduler
         else:
@@ -79,18 +80,21 @@ class Scheduler(object):
 
     @classmethod
     def schedule_job(cls, scheduler, handler_name,
-                     job_id=None, when=None, periodically=None, misfire_grace_time=None, state=None,
-                     modify_existing_job=False, **kwargs):
+                     job_id=None, when=None, periodically=None, misfire_grace_time=None,
+                     state=None, modify_existing_job=False, **kwargs):
         """Schedule a job
 
         :param scheduler: scheduler that should be used to schedule a job
         :param handler_name: name of handler that is used to handle the given job
         :param job_id: unique job id, if None, job_id is generated
         :param when: date and time (string representation) when the given job should be fired
-        :param periodically: string representation of the periodical execution (None = job will be executed only once)
-        :param misfire_grace_time: time after which the given job should be thrown away because of misfire
+        :param periodically: string representation of the periodical execution
+        (None = job will be executed only once)
+        :param misfire_grace_time: time after which the given job should be
+        thrown away because of misfire
         :param state: a string ('paused'/'running') representation of job state
-        :param modify_existing_job: if True, existing job will be modified according to new job spec
+        :param modify_existing_job: if True, existing job will be modified
+        according to new job spec
         :param kwargs: handler kwargs
         :return: scheduled apscheduler.Job instance
         """
@@ -114,7 +118,8 @@ class Scheduler(object):
             seconds = timeparse(misfire_grace_time)
 
             if seconds is None:
-                raise ScheduleJobError("Unable to parse format for 'misfire_grace_time': '%s'" % misfire_grace_time)
+                raise ScheduleJobError("Unable to parse format for 'misfire_grace_time': '%s'" %
+                                       misfire_grace_time)
 
             misfire_grace_time = seconds
 
@@ -122,7 +127,8 @@ class Scheduler(object):
             seconds = timeparse(periodically)
 
             if seconds is None:
-                raise ScheduleJobError("Unable to parse format for 'periodically': '%s'" % periodically)
+                raise ScheduleJobError("Unable to parse format for 'periodically': '%s'" %
+                                       periodically)
 
             trigger = 'interval'
             trigger_kwargs = {
@@ -149,8 +155,9 @@ class Scheduler(object):
                 )
                 # Check for trigger configuration changes
                 old_trigger = job.trigger
-                trigger_change = (trigger == 'date' and not isinstance(old_trigger, DateTrigger)) or \
-                                 (trigger == 'interval' and not isinstance(old_trigger, IntervalTrigger))
+                trigger_change = \
+                    (trigger == 'date' and not isinstance(old_trigger, DateTrigger)) or \
+                    (trigger == 'interval' and not isinstance(old_trigger, IntervalTrigger))
                 if not trigger_change:
                     if isinstance(old_trigger, DateTrigger) \
                             and old_trigger.run_date != when:
@@ -159,7 +166,8 @@ class Scheduler(object):
                         job.reschedule(trigger=trigger, **trigger_kwargs)
                     elif isinstance(old_trigger, IntervalTrigger) \
                             and old_trigger.interval != timedelta(seconds=seconds):
-                        cls.log.info("Job periodic interval has changed from %s to %s, modifying entry...",
+                        cls.log.info("Job periodic interval has changed from %s to %s, "
+                                     "modifying entry...",
                                      old_trigger.interval, timedelta(seconds=seconds))
                         job.reschedule(trigger=trigger, **trigger_kwargs)
                     else:
@@ -213,7 +221,8 @@ class Scheduler(object):
             cls.log.info("Registering default job '%s'", job_info['job_id'])
 
             try:
-                job = cls.schedule_job(scheduler, job_info.pop('handler'), modify_existing_job=True, **job_info)
+                job = cls.schedule_job(scheduler, job_info.pop('handler'),
+                                       modify_existing_job=True, **job_info)
                 cls.log.info("Job '%s' from file '%s' successfully added", job_file, job.id)
             except ScheduleJobError as exc:
                 cls.log.exception("Failed to register job from file '%s': %s", job_file, str(exc))
@@ -254,7 +263,8 @@ def job_execute(handler_name, job_id, **handler_kwargs):
 def uses_scheduler(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        # possible bottleneck here - I'm not sure if apscheduler implementation is thread safe - suppose not
+        # possible bottleneck here - I'm not sure if apscheduler implementation
+        # is thread safe - suppose not
         with Scheduler.scheduler_lock:
             return func(Scheduler.get_scheduler(), *args, **kwargs)
     return wrapper

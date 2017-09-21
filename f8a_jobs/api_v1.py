@@ -9,8 +9,8 @@ from flask import session, url_for, request
 
 import f8a_jobs.handlers as handlers
 from f8a_jobs.handlers.base import BaseHandler
-from f8a_jobs.utils import get_service_state_str, get_job_state_str, job2raw_dict, is_failed_job, requires_auth, \
-    is_organization_member
+from f8a_jobs.utils import (get_service_state_str, get_job_state_str, job2raw_dict, is_failed_job,
+                            requires_auth, is_organization_member)
 from f8a_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
 from f8a_jobs.analyses_report import construct_analyses_report
 from f8a_jobs.auth import github
@@ -22,7 +22,8 @@ logger = logging.getLogger(__name__)
 
 
 def generate_token():
-    return github.authorize(callback=url_for('/api/v1.f8a_jobs_api_v1_authorized', _external=True))
+    return github.authorize(callback=url_for('/api/v1.f8a_jobs_api_v1_authorized',
+                            _external=True))
 
 
 def logout():
@@ -34,7 +35,8 @@ def logout():
 
 
 def authorized():
-    if 'auth_token' in session and isinstance(session['auth_token'], tuple) and session['auth_token']:
+    if ('auth_token' in session and isinstance(session['auth_token'], tuple) and
+       session['auth_token']):
         return JobToken.get_info(session.get('auth_token', (None,))[0])
 
     logger.info("Authorized redirection triggered, getting authorized response from Github")
@@ -54,7 +56,8 @@ def authorized():
     session['auth_token'] = (resp['access_token'], '')
     oauth_info = github.get('user')
     if not is_organization_member(oauth_info.data):
-        logger.debug("User '%s' is not member of organization '%s'", oauth_info.data['login'], AUTH_ORGANIZATION)
+        logger.debug("User '%s' is not member of organization '%s'", oauth_info.data['login'],
+                     AUTH_ORGANIZATION)
         logout()
         return {'error': 'unauthorized'}, 401
 
@@ -128,7 +131,8 @@ def get_jobs(scheduler, job_type=None):
 
     job_types = ('all', 'failed', 'user', None)
     if job_type not in job_types:
-        return {"error": "Unknown job type filtering supplied: '%s', should be one of %s" % (job_type, job_types)}, 400
+        return {"error": "Unknown job type filtering supplied: '%s', should be one of %s" %
+                (job_type, job_types)}, 400
 
     job_list = []
     job_type = job_type or 'all'
@@ -159,7 +163,8 @@ def get_liveness(scheduler):
 
 
 def post_schedule_job(scheduler, handler_name, **kwargs):
-    # No need to add @requires_auth for this one, assuming handler specific POST endpoints take care of it
+    # No need to add @requires_auth for this one, assuming handler specific
+    # POST endpoints take care of it
     try:
         # Translate 'kwargs' in POST to handler key-value arguments passing, if needed
         kwargs.update(kwargs.pop('kwargs', {}))
@@ -172,7 +177,8 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
 @requires_auth
 def post_show_select_query(filter_definition):
     try:
-        query = BaseHandler(job_id=None).construct_select_query(filter_definition.pop(BaseHandler.DEFAULT_FILTER_KEY))
+        query = BaseHandler(job_id=None).construct_select_query(filter_definition.pop(
+            BaseHandler.DEFAULT_FILTER_KEY))
     except Exception as exc:
         logger.exception(str(exc))
         return {"error": str(exc), "traceback": traceback.format_exc()}, 400

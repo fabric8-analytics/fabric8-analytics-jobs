@@ -71,7 +71,8 @@ class JobToken(_Base):
             raise
 
         if entry.valid_until < datetime.now() or entry.revoked:
-            logger.info("Token '%s' (revoked: %s) for user '%s' with validity until '%s' is no longer applicable",
+            logger.info("Token '%s' (revoked: %s) for user '%s' with validity until '%s' "
+                        "is no longer applicable",
                         entry.token, entry.revoked, entry.login, entry.valid_until)
             raise TokenExpired()
 
