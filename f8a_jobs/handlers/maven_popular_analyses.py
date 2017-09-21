@@ -32,7 +32,8 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         usage_tags = project_page.find_all(_has_numeric_usages)
         if usage_tags and not latest_version_only:
             # sort according to usage
-            usage_tags = sorted(usage_tags, key=lambda u: int(u.text.replace(',', '')), reverse=True)
+            usage_tags = sorted(usage_tags, key=lambda u: int(u.text.replace(',', '')),
+                                reverse=True)
             # [<a href="jboss-logging-log4j/2.0.5.GA/usages">64</a>]
             versions = [v.get('href').split('/')[-2] for v in usage_tags]
         else:  # no usage stats, get the versions other way
@@ -54,7 +55,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         """
         if not url_suffix.startswith('/'):
             url_suffix = '/' + url_suffix
-        for page in range(1, self._MAX_PAGES+1):
+        for page in range(1, self._MAX_PAGES + 1):
             page_link = '{base_url}{url_suffix}?p={page}'.format(base_url=self._BASE_URL,
                                                                  url_suffix=url_suffix,
                                                                  page=page)
@@ -79,8 +80,10 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                         if self.count.min <= self.nprojects <= self.count.max:
                             self.analyses_selinon_flow(name, version)
                         else:
-                            self.log.debug("Skipping scheduling for #%d. (min=%d, max=%d, name=%s, version=%s)",
-                                           self.nprojects, self.count.min, self.count.max, name, version)
+                            self.log.debug("Skipping scheduling for #%d. (min=%d, max=%d, "
+                                           "name=%s, version=%s)",
+                                           self.nprojects, self.count.min, self.count.max, name,
+                                           version)
 
                     if self.nprojects >= self.count.max:
                         return
@@ -92,7 +95,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
 
     def _top_categories_projects(self):
         """ Scrape Top Categories page @ http://mvnrepository.com/open-source """
-        for page in range(1, self._MAX_PAGES+1):
+        for page in range(1, self._MAX_PAGES + 1):
             page_link = '{url}/open-source?p={page}'.format(url=self._BASE_URL, page=page)
             self.log.debug('Scraping Top Categories page %s' % page_link)
             cat = requests.get(page_link)
@@ -134,18 +137,21 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         try:
             old_timestamp = int(os.stat(timestamp_path).st_mtime)
         except OSError:
-            self.log.info('Timestamp is missing, we will probably need to build the index from scratch.')
+            self.log.info('Timestamp is missing, we will probably need to build the index '
+                          'from scratch.')
             pass
 
         java_temp_dir = tempfile.mkdtemp()
 
         index_range = '{}-{}'.format(self.count.min, self.count.max)
-        command = ['java', '-Xmx768m', '-Djava.io.tmpdir={}'.format(java_temp_dir), '-jar', 'maven-index-checker.jar', '-r', index_range]
+        command = ['java', '-Xmx768m', '-Djava.io.tmpdir={}'.format(java_temp_dir), '-jar',
+                   'maven-index-checker.jar', '-r', index_range]
         if self.nversions == 1:
             command.append('-l')
         with cwd(maven_index_checker_dir):
             try:
-                output = TimedCommand.get_command_output(command, is_json=True, graceful=False, timeout=1200)
+                output = TimedCommand.get_command_output(command, is_json=True, graceful=False,
+                                                         timeout=1200)
 
                 new_timestamp = int(os.stat(timestamp_path).st_mtime)
                 if old_timestamp != new_timestamp:
@@ -168,7 +174,8 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                 version = release['version']
                 # For now (can change in future) we want to analyze only ONE version of each package
                 try:
-                    next(iter(bucket.objects.filter(Prefix='{e}/{p}/'.format(e=self.ecosystem, p=name)).limit(1)))
+                    next(iter(bucket.objects.filter(Prefix='{e}/{p}/'.format(
+                        e=self.ecosystem, p=name)).limit(1)))
                     self.log.info("Analysis of some version of %s has already been scheduled, "
                                   "skipping version %s", name, version)
                     continue

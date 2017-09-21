@@ -26,7 +26,8 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
         else:
             self.log.debug("Scheduling #%d. (number versions: %d)",
                            self.count.min + offset, self.nversions)
-            for version in sorted(package_info.get('versions', {}).keys(), reverse=True)[:self.nversions]:
+            for version in sorted(package_info.get('versions', {}).keys(),
+                                  reverse=True)[:self.nversions]:
                 self.analyses_selinon_flow(package, version)
 
     def _use_npm_registry(self):
@@ -64,7 +65,7 @@ class NpmPopularAnalyses(AnalysesBaseHandler):
         """Schedule analyses for popular NPM packages."""
         scheduled = 0
         count = self.count.max - self.count.min + 1
-        for offset in range(self.count.min-1, self.count.max, self._POPULAR_PACKAGES_PER_PAGE):
+        for offset in range(self.count.min - 1, self.count.max, self._POPULAR_PACKAGES_PER_PAGE):
             pop = requests.get('{url}/depended?offset={offset}'.format(url=self._URL_POPULAR,
                                                                        offset=offset))
             poppage = bs4.BeautifulSoup(pop.text, 'html.parser')

@@ -33,7 +33,8 @@ class CleanPostgres(BaseHandler):
             start += 10
 
             for entry in results:
-                if entry.worker[0].isupper() or entry.worker in ('recommendation', 'stack_aggregator'):
+                if entry.worker[0].isupper() or \
+                   entry.worker in ('recommendation', 'stack_aggregator'):
                     continue
 
                 if not entry.task_result or 'VersionId' in entry.task_result:
@@ -45,7 +46,8 @@ class CleanPostgres(BaseHandler):
                                                                          entry.worker)
 
                 if s3.object_exists(result_object_key):
-                    entry.task_result = {'VersionId': s3.retrieve_latest_version_id(result_object_key)}
+                    entry.task_result = {'VersionId': s3.retrieve_latest_version_id(
+                        result_object_key)}
                 else:
                     entry.task_result = None
                     entry.error = True

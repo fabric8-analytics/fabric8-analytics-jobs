@@ -23,7 +23,7 @@ class SafeJSONEncoder(json.JSONEncoder):
             return o.isoformat()
         try:
             return json.JSONEncoder.default(self, o)
-        except:
+        except TypeError:
             return repr(o)
 
 
@@ -101,7 +101,8 @@ def runserver():
     #
     # Make sure that you do not run the application with multiple processes since we would
     # have multiple scheduler instances. If you would like to do so, just create one scheduler
-    # that would serve jobs and per-process scheduler would be in paused mode just for creating/listing jobs.
+    # that would serve jobs and per-process scheduler would be in paused mode
+    # just for creating/listing jobs.
     app.run(
         port=os.environ.get('JOB_SERVICE_PORT', defaults.DEFAULT_SERVICE_PORT),
         server='flask',
@@ -111,6 +112,7 @@ def runserver():
         json_encoder=SafeJSONEncoder,
         processes=1
     )
+
 
 if __name__ == '__main__':
     manager.run()

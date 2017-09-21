@@ -25,7 +25,7 @@ class AggregateTopics(BaseHandler):
 
     def execute(self, ecosystem, bucket_name, object_key, from_date=None, to_date=None):
         """Aggregate gathered topics and store them on S3.
-        
+
         :param ecosystem: ecosystem name for which topics should be gathered
         :param bucket_name: name of the destination bucket to which topics should be stored
         :param object_key: name of the object under which aggregated topics should be stored
@@ -82,10 +82,11 @@ class AggregateTopics(BaseHandler):
                 if not postgres.is_real_task_result(task_result):
                     self.log.debug("Result was already stored on S3, retrieving from there")
                     try:
-                        task_result = s3.retrieve_task_result(ecosystem, name, version, 'github_details')
+                        task_result = s3.retrieve_task_result(ecosystem, name, version,
+                                                              'github_details')
                     except:
-                        self.log.exception("Failed to retrieve result 'github_details' from S3 for %s/%s/%s",
-                                           ecosystem, name, version)
+                        self.log.exception("Failed to retrieve result 'github_details' from S3 "
+                                           "for %s/%s/%s", ecosystem, name, version)
                         continue
 
                 topics.append({
