@@ -84,7 +84,7 @@ class AggregateTopics(BaseHandler):
                     try:
                         task_result = s3.retrieve_task_result(ecosystem, name, version,
                                                               'github_details')
-                    except:
+                    except Exception:
                         self.log.exception("Failed to retrieve result 'github_details' from S3 "
                                            "for %s/%s/%s", ecosystem, name, version)
                         continue
