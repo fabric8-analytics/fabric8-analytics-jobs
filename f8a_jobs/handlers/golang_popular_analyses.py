@@ -18,6 +18,9 @@ class GolangPopularAnalyses(AnalysesBaseHandler):
         packages_seen = 0
         scheduled = 0
         for top_category in response.json():
+            if top_category['Name'] == 'Sites':
+                # This category does not list popular packages...
+                continue
             self.log.info("Inspecting popular packages from category '%s'", top_category['Name'])
             for package in top_category['Items']:
                 packages_seen += 1
