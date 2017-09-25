@@ -80,4 +80,3 @@ class GolangPopularAnalyses(AnalysesBaseHandler):
             self._popular_packages()
         else:
             self._packages()
-
