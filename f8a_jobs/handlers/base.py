@@ -199,7 +199,7 @@ class AnalysesBaseHandler(BaseHandler):
         """
         # avoid cyclic imports
         from . import (MavenPopularAnalyses, NpmPopularAnalyses, PythonPopularAnalyses,
-                       NugetPopularAnalyses)
+                       NugetPopularAnalyses, GolangPopularAnalyses)
 
         if ecosystem == 'maven':
             return MavenPopularAnalyses.__name__
@@ -209,6 +209,8 @@ class AnalysesBaseHandler(BaseHandler):
             return PythonPopularAnalyses.__name__
         elif ecosystem == 'nuget':
             return NugetPopularAnalyses.__name__
+        elif ecosystem == 'golang':
+            return GolangPopularAnalyses.__name__
 
         raise ValueError("Unregistered handler for ecosystem '{}'".format(ecosystem))
 
