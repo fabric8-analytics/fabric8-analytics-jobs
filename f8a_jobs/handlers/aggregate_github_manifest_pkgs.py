@@ -109,18 +109,16 @@ class AggregateGitHubManifestPackages(BaseHandler):
         """
         add_manifest = {}
         add_manifest["repo_name"] = repo_name
-
         try:
             obj = '{e}/{repo_name}/github_details.json'.format(e=repo_ecosystem, repo_name=repo_name.replace('/', ':'))
             github_details = s3.retrieve_dict(obj)
-            github_stats = github_details.get("details", {})
+            github_stats = github_details.get("details", {}).get("github_stats", {})
             if github_stats:
                 github_stats_data = {
                     "stars": github_stats.get("stargazers_count"),
                     "watches": github_stats.get("subscribers_count"),
                     "forks": github_stats.get("forks_count"),
                     "contributors": github_stats.get("contributors_count")
-
                 }
                 add_manifest["github_stats"] = github_stats_data
                 pkg_list_new = {
