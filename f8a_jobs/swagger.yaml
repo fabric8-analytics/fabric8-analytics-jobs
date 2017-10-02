@@ -694,6 +694,11 @@ definitions:
             force: true
             recursive_limit: 0
             force_graph_sync: false
+          - ecosystem: "maven"
+            repo_name: "jeremyh/jBCrypt"
+            force: true
+            recursive_limit: 0
+            force_graph_sync: false
   GitHubAggregateManifestPkgsKwargs:
     type: object
     required:
@@ -707,6 +712,8 @@ definitions:
         example:
           - ecosystem: "maven"
             repo_name: "omalley/base64"
+          - ecosystem: "maven"
+            repo_name: "jeremyh/jBCrypt"
 
   Any:
     type: object

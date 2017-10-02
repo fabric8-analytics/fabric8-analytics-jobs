@@ -441,6 +441,47 @@ To get info about the current session, access `/api/v1/authorized` endpoint.
 
 If you cannot authenticate, please make sure you are a member of fabric8-analytics organization on GitHub. If you are still getting authentication errors, try to [switch from private organization member to public organization member](https://help.github.com/articles/publicizing-or-hiding-organization-membership/).
 
+
+# Collecting and processing manifest files from GitHub
+
+There are two jobs that can be used to collect and process manifest files from GitHub. The first one is called `jobs/github-manifests`. This job collects and processes manifest files from given GitHub repositories. Example usage:
+
+```shell
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'auth-token: <your-token-here>' -d '{
+   "repositories": [
+     {
+       "ecosystem": "maven",
+       "force": true,
+       "force_graph_sync": false,
+       "recursive_limit": 0,
+       "repo_name": "omalley/base64"
+     }
+   ]
+ }' 'http://bayesian-jobs-bayesian-production.09b5.dsaas.openshiftapps.com/api/v1/jobs/github-manifests?state=running&skip_if_exists=true'
+```
+
+The command above will collect manifest files from https://github.com/omalley/base64 and analyze dependencies found in those manifest files.
+
+It's possible to later aggregate package names from already analyzed manifest files. It can be achieved with a job called `jobs/aggregate-github-manifest-pkgs`. Example usage:
+
+
+```shell
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'auth-token: <your-token-here>' -d '{
+   "repositories": [
+     {
+       "ecosystem": "maven",
+       "repo_name": "omalley/base64"
+     }
+   ]
+ }' 'http://bayesian-jobs-bayesian-production.09b5.dsaas.openshiftapps.com/api/v1/jobs/aggregate-github-manifest-pkgs?state=running&bucket_name=my-bucket&object_key=packages_list.json&ecosystem=maven'
+```
+
+The command above will aggregate package names from manifest files found in given repositories and store them in `packages_list.json` object in `my-bucket` S3 bucket.
+
+
+Note both jobs require [authentication](#authentication-authorization).
+
+
 ## See Also
 
 [Connexion](https://github.com/zalando/connexion) - framework used for YAML configuration of API endpoints for Flask
