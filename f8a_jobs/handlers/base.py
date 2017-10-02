@@ -4,6 +4,7 @@ import logging
 import copy
 from collections import namedtuple
 from json2sql import select2sql
+from json2sql.select import DEFAULT_FILTER_KEY
 from selinon import run_flow
 from selinon import run_flow_selective
 from selinon import StoragePool
@@ -82,7 +83,7 @@ class BaseHandler(object):
         :param filter_query: dictionary to be checked for filter_query
         :return: True if filter_query is considered to be expanded based on database query
         """
-        return isinstance(filter_query, dict) and self.DEFAULT_FILTER_KEY in filter_query.keys()
+        return isinstance(filter_query, dict) and DEFAULT_FILTER_KEY in filter_query.keys()
 
     def expand_filter_query(self, filter_definition):
         """ Expand filter arguments and perform database query
@@ -94,7 +95,7 @@ class BaseHandler(object):
         # definition so the original is not overwritten
         filter_definition = copy.deepcopy(filter_definition)
         select_statement = self.construct_select_query(
-            filter_definition.pop(self.DEFAULT_FILTER_KEY))
+            filter_definition.pop(DEFAULT_FILTER_KEY))
         try:
             query_result = self.postgres.session.execute(select_statement).fetchall()
         except SQLAlchemyError:
