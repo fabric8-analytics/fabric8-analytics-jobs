@@ -3,6 +3,6 @@ apscheduler
 pytimeparse
 Flask-Script
 uwsgi
-mosql
+json2sql
 Flask-OAuthlib
 SQLAlchemy-Utils
