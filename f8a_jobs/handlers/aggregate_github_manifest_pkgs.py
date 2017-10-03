@@ -44,7 +44,7 @@ class AggregateGitHubManifestPackages(BaseHandler):
                 if packages_version:
                     extracted_tagger_list = self._create_tagger_list(ecosystem, packages_version)
                     for etl in extracted_tagger_list:
-                            tagger_list.append(etl)
+                        tagger_list.append(etl)
                 append_manifest = self._create_manifest_entry(
                     package_list,
                     repo_ecosystem,
