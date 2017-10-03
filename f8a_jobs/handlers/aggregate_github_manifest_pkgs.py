@@ -45,7 +45,12 @@ class AggregateGitHubManifestPackages(BaseHandler):
                     extracted_tagger_list = self._create_tagger_list(ecosystem, packages_version)
                     for etl in extracted_tagger_list:
                             tagger_list.append(etl)
-                append_manifest = self._create_manifest_entry(package_list, repo_ecosystem, repo_name, s3)
+                append_manifest = self._create_manifest_entry(
+                    package_list,
+                    repo_ecosystem,
+                    repo_name,
+                    s3
+                )
                 manifest_list.append(append_manifest)
 
             except Exception as e:
@@ -110,7 +115,8 @@ class AggregateGitHubManifestPackages(BaseHandler):
         add_manifest = {}
         add_manifest["repo_name"] = repo_name
         try:
-            obj = '{e}/{repo_name}/github_details.json'.format(e=repo_ecosystem, repo_name=repo_name.replace('/', ':'))
+            obj = '{e}/{repo_name}/github_details.json'.\
+                format(e=repo_ecosystem, repo_name=repo_name.replace('/', ':'))
             github_details = s3.retrieve_dict(obj)
             github_stats = github_details.get("details", {}).get("github_stats", {})
             if github_stats:
@@ -128,7 +134,6 @@ class AggregateGitHubManifestPackages(BaseHandler):
                 add_manifest["all_poms_found"] = pkg_list_new
 
         except Exception as e:
-            self.log.exception('Unable to collect github details for {repo_name}: {reason}'.format(repo_name=repo_name,
-                                                                                             reason=str(e)))
+            self.log.exception('Unable to collect github details for {repo_name}: {reason}'.
+                               format(repo_name=repo_name, reason=str(e)))
         return add_manifest
-
