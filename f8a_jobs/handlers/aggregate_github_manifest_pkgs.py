@@ -18,6 +18,7 @@ class AggregateGitHubManifestPackages(BaseHandler):
 
         package_list = []
         tagger_list = []
+        manifest_list = []
         for repo in repositories:
 
             try:
@@ -43,7 +44,14 @@ class AggregateGitHubManifestPackages(BaseHandler):
                 if packages_version:
                     extracted_tagger_list = self._create_tagger_list(ecosystem, packages_version)
                     for etl in extracted_tagger_list:
-                            tagger_list.append(etl)
+                        tagger_list.append(etl)
+                append_manifest = self._create_manifest_entry(
+                    package_list,
+                    repo_ecosystem,
+                    repo_name,
+                    s3
+                )
+                manifest_list.append(append_manifest)
 
             except Exception as e:
                 self.log.error('Unable to collect dependencies for {repo_name}: {reason}'.format(
@@ -57,10 +65,16 @@ class AggregateGitHubManifestPackages(BaseHandler):
 
         self.log.info("Storing aggregated list of packages in S3")
 
+        manifest_result = {
+            "ecosystem": ecosystem,
+            "package_list": manifest_list
+        }
+
         s3_dest = AmazonS3(bucket_name=bucket_name)
         s3_dest.connect()
         s3_dest.store_dict(results, object_key)
         s3_dest.store_dict(tagger_list, "tagger_list" + object_key)
+        s3_dest.store_dict(manifest_result, "new_manifest" + object_key)
 
     def _create_tagger_list(self, ecosystem, package_version):
         """
@@ -89,3 +103,37 @@ class AggregateGitHubManifestPackages(BaseHandler):
             "version": version
         }
         return data
+
+    def _create_manifest_entry(self, package_list, repo_ecosystem, repo_name, s3):
+        """
+        :param package_list: list of dependencies of a repo.
+        :param repo_ecosystem: ecosystem of repo.
+        :param repo_name: name of the repo.
+        :param s3: connection of storage (bucket)
+        :return: one dict. object of repo. as per requirement of aggregated manifest file
+        """
+        add_manifest = {}
+        add_manifest["repo_name"] = repo_name
+        try:
+            obj = '{e}/{repo_name}/github_details.json'.\
+                format(e=repo_ecosystem, repo_name=repo_name.replace('/', ':'))
+            github_details = s3.retrieve_dict(obj)
+            github_stats = github_details.get("details", {}).get("github_stats", {})
+            if github_stats:
+                github_stats_data = {
+                    "stars": github_stats.get("stargazers_count"),
+                    "watches": github_stats.get("subscribers_count"),
+                    "forks": github_stats.get("forks_count"),
+                    "contributors": github_stats.get("contributors_count")
+                }
+                add_manifest["github_stats"] = github_stats_data
+                pkg_list_new = {
+                    "path_to_pom": "",
+                    "dependency_list": package_list
+                }
+                add_manifest["all_poms_found"] = pkg_list_new
+
+        except Exception as e:
+            self.log.exception('Unable to collect github details for {repo_name}: {reason}'.
+                               format(repo_name=repo_name, reason=str(e)))
+        return add_manifest
