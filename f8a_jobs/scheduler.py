@@ -12,7 +12,7 @@ from threading import Lock
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.date import DateTrigger
-from f8a_worker.conf import get_postgres_connection_string
+from f8a_worker.defaults import configuration as worker_configuration
 import f8a_jobs.handlers as handlers
 from f8a_jobs.utils import is_failed_job_handler_name
 
@@ -31,7 +31,7 @@ class Scheduler(object):
     _SCHEDULER_CONF = {
         'apscheduler.jobstores.default': {
             'type': 'sqlalchemy',
-            'url': get_postgres_connection_string()
+            'url': worker_configuration.POSTGRES_CONNECTION
         },
         'apscheduler.executors.default': {
             'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
