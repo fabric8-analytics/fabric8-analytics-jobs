@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, Column, Integer, Sequence, String, DateTim
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from f8a_worker.conf import get_postgres_connection_string
+from f8a_worker.defaults import configuration as worker_configuration
 import f8a_jobs.defaults as configuration
 from f8a_jobs.error import TokenExpired
 from sqlalchemy.orm.exc import NoResultFound
@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 def create_models():
-    engine = create_engine(get_postgres_connection_string())
+    engine = create_engine(worker_configuration.POSTGRES_CONNECTION)
     _Base.metadata.create_all(engine)
 
 
 def get_session():
-    engine = create_engine(get_postgres_connection_string())
+    engine = create_engine(worker_configuration.POSTGRES_CONNECTION)
     return sessionmaker(bind=engine)()
 
 
