@@ -151,7 +151,7 @@ class AnalysesBaseHandler(BaseHandler):
             return PythonPopularAnalyses.__name__
         elif ecosystem == 'nuget':
             return NugetPopularAnalyses.__name__
-        elif ecosystem == 'golang':
+        elif ecosystem == 'go':
             return GolangPopularAnalyses.__name__
 
         raise ValueError("Unregistered handler for ecosystem '{}'".format(ecosystem))
