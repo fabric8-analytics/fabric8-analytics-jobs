@@ -489,7 +489,7 @@ parameters:
        - npm
        - pypi
        - nuget
-       - golang
+       - go
   count:
     name: count
     in: query
