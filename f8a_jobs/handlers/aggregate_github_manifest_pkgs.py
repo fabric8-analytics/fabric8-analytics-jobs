@@ -117,7 +117,7 @@ class AggregateGitHubManifestPackages(BaseHandler):
             obj = '{e}/{repo_name}/github_details.json'.\
                 format(e=repo_ecosystem, repo_name=repo_name.replace('/', ':'))
             github_details = s3.retrieve_dict(obj)
-            github_stats = github_details.get("details", {}).get("github_stats", {})
+            github_stats = github_details.get("details", {})
             if github_stats:
                 github_stats_data = {
                     "stars": github_stats.get("stargazers_count"),
