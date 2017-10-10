@@ -291,3 +291,9 @@ def post_sync_to_graph(scheduler, **kwargs):
 @uses_scheduler
 def post_aggregate_topics(scheduler, **kwargs):
     return post_schedule_job(scheduler, handlers.AggregateTopics.__name__, **kwargs)
+
+
+@requires_auth
+@uses_scheduler
+def post_sqs_purge(scheduler, **kwargs):
+    return post_schedule_job(scheduler, handlers.SQSPurge.__name__, **kwargs)
