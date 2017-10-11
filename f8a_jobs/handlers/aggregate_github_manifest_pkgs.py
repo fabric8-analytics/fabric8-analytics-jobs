@@ -76,7 +76,7 @@ class AggregateGitHubManifestPackages(BaseHandler):
         s3_dest.store_dict(results, object_key)
         s3_dest.store_dict(tagger_list, "tagger_list" + object_key)
         s3_dest.store_dict(manifest_result, "new_manifest" + object_key)
-        
+
     def _create_tagger_list(self, ecosystem, package_version):
         """
         :param ecosystem: ecosystem name, will appear in json
