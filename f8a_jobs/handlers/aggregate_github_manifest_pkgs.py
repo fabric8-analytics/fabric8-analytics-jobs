@@ -40,18 +40,19 @@ class AggregateGitHubManifestPackages(BaseHandler):
                 if packages:
                     package_list.append(packages)
 
+                    append_manifest = self._create_manifest_entry(
+                        packages,
+                        repo_ecosystem,
+                        repo_name,
+                        s3
+                    )
+                    manifest_list.append(append_manifest)
+
                 packages_version = dict([(x.get("name"), x.get("version")) for x in dependencies])
                 if packages_version:
                     extracted_tagger_list = self._create_tagger_list(ecosystem, packages_version)
                     for etl in extracted_tagger_list:
                         tagger_list.append(etl)
-                append_manifest = self._create_manifest_entry(
-                    package_list,
-                    repo_ecosystem,
-                    repo_name,
-                    s3
-                )
-                manifest_list.append(append_manifest)
 
             except Exception as e:
                 self.log.error('Unable to collect dependencies for {repo_name}: {reason}'.format(
