@@ -14,3 +14,4 @@ from .aggregate_topics import AggregateTopics
 from .github_most_starred import GitHubMostStarred
 from .github_manifests import GitHubManifests
 from .aggregate_github_manifest_pkgs import AggregateGitHubManifestPackages
+from .sqs_purge import SQSPurge
