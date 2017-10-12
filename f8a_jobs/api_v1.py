@@ -6,6 +6,7 @@ import requests
 from dateutil.parser import parse as parse_datetime
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
 from flask import session, url_for, request
+from selinon import StoragePool
 
 import f8a_jobs.handlers as handlers
 from f8a_jobs.handlers.base import BaseHandler
@@ -297,3 +298,22 @@ def post_aggregate_topics(scheduler, **kwargs):
 @uses_scheduler
 def post_sqs_purge(scheduler, **kwargs):
     return post_schedule_job(scheduler, handlers.SQSPurge.__name__, **kwargs)
+
+
+@requires_auth
+@uses_scheduler
+def post_maven_releases(scheduler, **kwargs):
+    return post_schedule_job(scheduler, handlers.MavenReleasesAnalyses.__name__, **kwargs)
+
+
+@requires_auth
+def get_maven_releases():
+    s3 = StoragePool.get_connected_storage('S3MavenIndex')
+    return {'last_offset': s3.get_last_offset()}, 200
+
+
+@requires_auth
+def put_maven_releases(offset):
+    s3 = StoragePool.get_connected_storage('S3MavenIndex')
+    s3.set_last_offset(offset)
+    return {'last_offset': s3.get_last_offset()}, 201
