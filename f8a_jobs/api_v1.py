@@ -36,9 +36,13 @@ def logout():
 
 
 def authorized():
-    if ('auth_token' in session and isinstance(session['auth_token'], tuple) and
-       session['auth_token']):
-        return JobToken.get_info(session.get('auth_token', (None,))[0])
+    auth_token = request.headers.get('auth_token')
+    if 'auth_token' in session:
+        # Authorization token in session has higher priority
+        auth_token = session.get('auth_token', (None,))[0]
+
+    if auth_token:
+        return JobToken.get_info(auth_token)
 
     logger.info("Authorized redirection triggered, getting authorized response from Github")
     resp = github.authorized_response()
