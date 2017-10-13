@@ -332,6 +332,48 @@ paths:
           description: New analyses job scheduled
         401:
           description: No suitable permissions
+  '/jobs/maven-releases':
+    post:
+      tags: [Add new jobs]
+      operationId: f8a_jobs.api_v1.post_maven_releases
+      summary: Add job for scheduling new maven releases
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/when"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+      security:
+        - auth_token: []
+      responses:
+        201:
+          description: New maven releases job scheduled
+        401:
+          description: No suitable permissions
+    get:
+      tags: [Jobs options]
+      operationId: f8a_jobs.api_v1.get_maven_releases
+      summary: Get last used offset to maven indexer
+      security:
+        - auth_token: []
+      responses:
+        200:
+          description: Offset to maven indexer
+        401:
+          description: No suitable permissions
+    put:
+      tags: [Jobs options]
+      operationId: f8a_jobs.api_v1.put_maven_releases
+      summary: Adjust offset to maven indexer that should be used
+      parameters:
+        - $ref: "#/parameters/offset"
+      security:
+        - auth_token: []
+      responses:
+        201:
+          description: Offset adjusted
+        401:
+          description: No suitable permissions
   '/jobs/aggregate-topics':
     post:
       tags: [Add new jobs]
@@ -603,6 +645,12 @@ parameters:
     required: true
     description: Space-separated list of queues to purge, without deployment prefix
     type: string
+  offset:
+    name: offset
+    in: query
+    required: true
+    description: Offset to be used (positive integer)
+    type: integer
 
 definitions:
   FlowKwargs:
