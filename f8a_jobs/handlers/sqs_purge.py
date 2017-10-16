@@ -21,7 +21,8 @@ class SQSPurge(BaseHandler):
             raise ValueError('Missing AWS credentials')
 
         client = boto3.client('sqs', aws_access_key_id=aws_access_key_id,
-                              aws_secret_access_key=aws_secret_access_key)
+                              aws_secret_access_key=aws_secret_access_key,
+                              region_name='us-east-1')
 
         for queue in queues:
             prefix = os.environ.get('DEPLOYMENT_PREFIX')
