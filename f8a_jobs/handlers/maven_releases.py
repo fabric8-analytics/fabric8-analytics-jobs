@@ -26,8 +26,7 @@ class MavenReleasesAnalyses(BaseHandler):
         try:
             old_timestamp = int(os.stat(timestamp_path).st_mtime)
         except OSError:
-            self.log.info('Timestamp is missing, we will probably need to build the index '
-                          'from scratch.')
+            self.log.info('Timestamp is missing, we need to build the index from scratch.')
             pass
 
         last_offset = s3.get_last_offset()
@@ -39,15 +38,20 @@ class MavenReleasesAnalyses(BaseHandler):
                 output = TimedCommand.get_command_output(cmd, is_json=True, graceful=False,
                                                          timeout=1200)
 
+                current_count = output['count']
                 new_timestamp = int(os.stat(timestamp_path).st_mtime)
                 if old_timestamp != new_timestamp:
                     self.log.info('Storing pre-built maven index to S3...')
                     s3.store_index(target_dir)
                     self.log.debug('Stored. Index in S3 is up-to-date.')
+                    if old_timestamp == 0:
+                        s3.set_last_offset(current_count)
+                        self.log.info('This is first run, i.e. all packages are considered new. '
+                                      'Skipping scheduling to not analyze all packages in index.')
+                        return
                 else:
                     self.log.info('Index in S3 is up-to-date.')
 
-                current_count = output['count']
                 self.log.debug("Number of entries in maven indexer: %d, "
                                "last offset used: %d", current_count, last_offset)
                 to_schedule_count = current_count - last_offset
