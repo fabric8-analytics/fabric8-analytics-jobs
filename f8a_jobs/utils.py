@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import logging
+import os
+import boto3
 from functools import wraps
 import requests
 import random
@@ -112,3 +114,34 @@ def is_organization_member(user_data):
 
 def get_gh_token():
     return random.choice(configuration.GITHUB_ACCESS_TOKENS).strip()
+
+
+def construct_queue_attributes():
+    """Retrieve relevant attributes about queues in the given deployment."""
+    aws_access_key_id = os.getenv('AWS_SQS_ACCESS_KEY_ID')
+    aws_secret_access_key = os.getenv('AWS_SQS_SECRET_ACCESS_KEY')
+    aws_sqs_region = os.getenv('AWS_SQS_REGION', 'us-east-1')
+
+    if not aws_access_key_id or not aws_secret_access_key:
+        raise ValueError('Missing AWS credentials')
+
+    client = boto3.client('sqs',
+                          aws_access_key_id=aws_access_key_id,
+                          aws_secret_access_key=aws_secret_access_key,
+                          region_name=aws_sqs_region)
+
+    response = client.list_queues(QueueNamePrefix=os.getenv('DEPLOYMENT_PREFIX'))
+    queue_urls = response.get('QueueUrls')
+
+    if not queue_urls:
+        raise RuntimeError("No queue urls in response: %r" % str(response))
+
+    result = {}
+    for queue_url in queue_urls:
+        queue_info = client.get_queue_attributes(QueueUrl=queue_url,
+                                                 AttributeNames=[
+                                                     'ApproximateNumberOfMessages',
+                                                 ])
+        result[queue_url] = queue_info.pop('Attributes', {})
+
+    return result

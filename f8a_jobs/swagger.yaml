@@ -195,6 +195,18 @@ paths:
            description: A brief report of the analyses running
          401:
            description: No suitable permissions
+  '/debug/queue-attributes':
+    get:
+       tags: [Debug]
+       operationId: f8a_jobs.api_v1.get_queue_attributes
+       summary: View attributes of queues available
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: A report containing queue attributes info
+         401:
+           description: No suitable permissions
   '/debug/github-tokens':
     get:
        tags: [Debug]
