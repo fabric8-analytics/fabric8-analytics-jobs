@@ -53,7 +53,7 @@ class JobToken(_Base):
         :return: True if token is valid, False otherwise
         :raises TokenExpired: if the given token has expired
         """
-        logger.info("Verifying token '%s'", token)
+        logger.info("Verifying token '%s***'", token[:4])
 
         if not token:
             logger.info("Invalid token '%s'", token)
@@ -76,8 +76,8 @@ class JobToken(_Base):
                         entry.token, entry.revoked, entry.login, entry.valid_until)
             raise TokenExpired()
 
-        logger.info("Verified user '%s' using token '%s' (valid till: %s)",
-                    entry.login, entry.token, str(entry.valid_until))
+        logger.info("Verified user '%s' using token '%s***' (valid till: %s)",
+                    entry.login, entry.token[:4], str(entry.valid_until))
         return True
 
     @staticmethod
