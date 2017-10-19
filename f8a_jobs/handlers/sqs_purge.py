@@ -28,4 +28,11 @@ class SQSPurge(BaseHandler):
             prefix = os.environ.get('DEPLOYMENT_PREFIX')
             queue_name = '{prefix}_{queue}'.format(prefix=prefix, queue=queue)
             self.log.info('Purging queue: {queue}'.format(queue=queue_name))
-            client.purge_queue(QueueUrl=queue_name)
+
+            response = client.create_queue(QueueName=queue_name)
+
+            queue_url = response.get('QueueUrl')
+            if not queue_url:
+                raise RuntimeError("No QueueUrl in the response, response: %r" % response)
+
+            client.purge_queue(QueueUrl=queue_url)
