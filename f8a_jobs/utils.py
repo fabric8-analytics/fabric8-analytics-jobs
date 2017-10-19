@@ -4,6 +4,7 @@ from functools import wraps
 import requests
 import random
 from datetime import timedelta
+from datetime import timezone
 from flask import request, abort
 from apscheduler.schedulers.base import STATE_RUNNING, STATE_STOPPED
 from apscheduler.triggers.date import DateTrigger
@@ -63,10 +64,10 @@ def job2raw_dict(job):
     }
 
     if isinstance(job.trigger, DateTrigger):
-        result['when'] = str(job.trigger.run_date)
+        result['when'] = job.trigger.run_date.astimezone(tz=timezone.utc).isoformat()
         result['periodically'] = False
     elif isinstance(job.trigger, IntervalTrigger):
-        result['when'] = str(job.trigger.start_date)
+        result['when'] = job.trigger.start_date.astimezone(tz=timezone.utc).isoformat()
         result['periodically'] = str(timedelta(seconds=job.trigger.interval_length))
 
     if hasattr(job, 'misfire_grace_time') and job.misfire_grace_time is not None:
