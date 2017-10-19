@@ -14,6 +14,7 @@ from f8a_jobs.utils import (get_service_state_str, get_job_state_str, job2raw_di
                             requires_auth, is_organization_member)
 from f8a_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
 from f8a_jobs.analyses_report import construct_analyses_report
+from f8a_jobs.utils import construct_queue_attributes
 from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
@@ -215,6 +216,16 @@ def get_analyses_report(ecosystem, from_date=None, to_date=None):
             return {"error": "Cannot parse string format for 'to_date': %s" % str(exc)}, 400
 
     return construct_analyses_report(ecosystem, from_date, to_date), 200
+
+
+@requires_auth
+def get_queue_attributes():
+    try:
+        report = construct_queue_attributes()
+    except Exception as exc:
+        logger.exception("Failed to get queue attributes")
+        return {"error": str(exc)}, 500
+    return report, 200
 
 
 @requires_auth
