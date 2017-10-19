@@ -3,6 +3,7 @@ import os
 import logging
 import traceback
 import yaml
+import uuid
 from datetime import timedelta
 from datetime import datetime
 from dateutil.parser import parse as parse_datetime
@@ -176,6 +177,10 @@ class Scheduler(object):
                     cls.log.info("Trigger type has changed, force rescheduling job")
                     job.reschedule(trigger, **trigger_kwargs)
             else:
+                if not job_id:
+                    # explicitly assign job id so we have this ID in logs and job is trackable
+                    job_id = str(uuid.uuid4())
+
                 # force replace existing one
                 job = scheduler.add_job(
                     job_execute,
