@@ -29,7 +29,7 @@ class SQSPurge(BaseHandler):
             queue_name = '{prefix}_{queue}'.format(prefix=prefix, queue=queue)
             self.log.info('Purging queue: {queue}'.format(queue=queue_name))
 
-            response = client.create_queue(QueueName=queue_name)
+            response = client.get_queue_url(QueueName=queue_name)
 
             queue_url = response.get('QueueUrl')
             if not queue_url:
