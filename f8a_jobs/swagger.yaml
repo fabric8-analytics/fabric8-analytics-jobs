@@ -247,7 +247,7 @@ paths:
     post:
       tags: [Add new jobs]
       operationId: f8a_jobs.api_v1.github_manifests
-      summary: Collect and process manifest files from given GitHub repositories.
+      summary: Collect and process manifest files from given GitHub repositories
       parameters:
         - $ref: "#/parameters/job_id"
         - $ref: "#/parameters/periodically"
@@ -258,7 +258,7 @@ paths:
         - name: kwargs
           in: body
           required: true
-          description: Keyword arguments for GitHub manifests job.
+          description: Keyword arguments for GitHub manifests job
           schema:
             $ref: "#/definitions/GitHubManifestsKwargs"
       security:
@@ -285,7 +285,7 @@ paths:
         - name: kwargs
           in: body
           required: true
-          description: Keyword arguments for GitHub manifests job.
+          description: Keyword arguments for GitHub manifests job
           schema:
             $ref: "#/definitions/GitHubAggregateManifestPkgsKwargs"
       security:
@@ -765,7 +765,7 @@ definitions:
     properties:
       repositories:
         type: array
-        description: Array of keyword arguments for githubManifestMetadata flow.
+        description: Array of keyword arguments for githubManifestMetadata flow
         items:
           $ref: "#/definitions/Any"
         example:
