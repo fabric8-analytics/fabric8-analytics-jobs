@@ -3,7 +3,6 @@
 import traceback
 import logging
 import requests
-from dateutil.parser import parse as parse_datetime
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
 from flask import session, url_for, request
 from selinon import StoragePool
@@ -16,6 +15,7 @@ from f8a_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
 from f8a_jobs.analyses_report import construct_analyses_report
 from f8a_jobs.utils import construct_queue_attributes
 from f8a_jobs.utils import purge_queues
+from f8a_jobs.utils import parse_dates
 from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
@@ -203,20 +203,12 @@ def post_expand_filter_query(filter_definition):
 
 
 @requires_auth
-def get_analyses_report(ecosystem, from_date=None, to_date=None):
-    if from_date:
-        try:
-            from_date = parse_datetime(from_date)
-        except Exception as exc:
-            return {"error": "Cannot parse string format for 'from_date': %s" % str(exc)}, 400
-
-    if to_date:
-        try:
-            to_date = parse_datetime(to_date)
-        except Exception as exc:
-            return {"error": "Cannot parse string format for 'to_date': %s" % str(exc)}, 400
-
-    return construct_analyses_report(ecosystem, from_date, to_date), 200
+def get_analyses_report(**kwargs):
+    try:
+        parse_dates(kwargs)
+    except Exception as exc:
+        return {'error': str(exc)}, 400
+    return construct_analyses_report(**kwargs), 200
 
 
 @requires_auth
@@ -295,6 +287,10 @@ def aggregate_github_manifest_pkgs(scheduler, **kwargs):
 @requires_auth
 @uses_scheduler
 def post_clean_postgres(scheduler, **kwargs):
+    try:
+        parse_dates(kwargs)
+    except Exception as exc:
+        return {'error': str(exc)}, 400
     return post_schedule_job(scheduler, handlers.CleanPostgres.__name__, **kwargs)
 
 
