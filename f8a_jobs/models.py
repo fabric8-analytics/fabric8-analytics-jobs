@@ -53,12 +53,11 @@ class JobToken(_Base):
         :return: True if token is valid, False otherwise
         :raises TokenExpired: if the given token has expired
         """
-        logger.info("Verifying token '%s***'", token[:4])
-
         if not token:
             logger.info("Invalid token '%s'", token)
             return False
 
+        logger.info("Verifying token '%s***'", token[:4])
         session = get_session()
 
         try:
