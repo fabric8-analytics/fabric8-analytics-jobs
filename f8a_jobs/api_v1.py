@@ -15,6 +15,7 @@ from f8a_jobs.utils import (get_service_state_str, get_job_state_str, job2raw_di
 from f8a_jobs.scheduler import uses_scheduler, ScheduleJobError, Scheduler
 from f8a_jobs.analyses_report import construct_analyses_report
 from f8a_jobs.utils import construct_queue_attributes
+from f8a_jobs.utils import purge_queues
 from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
@@ -310,9 +311,12 @@ def post_aggregate_topics(scheduler, **kwargs):
 
 
 @requires_auth
-@uses_scheduler
-def post_sqs_purge(scheduler, **kwargs):
-    return post_schedule_job(scheduler, handlers.SQSPurge.__name__, **kwargs)
+def post_queue_purge(queues):
+    try:
+        report = purge_queues(queues.split(','))
+    except Exception as exc:
+        return {'error': str(exc)}, 500
+    return report, 200
 
 
 @requires_auth
