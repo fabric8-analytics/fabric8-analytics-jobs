@@ -142,6 +142,7 @@ def construct_queue_attributes():
                                                  AttributeNames=[
                                                      'ApproximateNumberOfMessages',
                                                  ])
-        result[queue_url] = queue_info.pop('Attributes', {})
+        queue_name = queue_url.rsplit('/', 1)[-1]
+        result[queue_name] = queue_info.pop('Attributes', {})
 
     return result
