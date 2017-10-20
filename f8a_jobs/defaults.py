@@ -16,7 +16,7 @@ APP_SECRET_KEY = os.getenv('APP_SECRET_KEY', 'not-set')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_SQS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SQS_SECRET_ACCESS_KEY')
 AWS_SQS_REGION = os.getenv('AWS_SQS_REGION', 'us-east-1')
-DEPLOYMENT_PREFIX = os.getenv('AWS_SQS_REGION', 'us-east-1')
+DEPLOYMENT_PREFIX = os.getenv('DEPLOYMENT_PREFIX', os.getenv('USER'))
 
 # keep disabled authentication by default
 DISABLE_AUTHENTICATION = os.getenv('DISABLE_AUTHENTICATION', '1') in ('1', 'True', 'true')
