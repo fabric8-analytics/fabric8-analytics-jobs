@@ -118,19 +118,15 @@ def get_gh_token():
 
 def construct_queue_attributes():
     """Retrieve relevant attributes about queues in the given deployment."""
-    aws_access_key_id = os.getenv('AWS_SQS_ACCESS_KEY_ID')
-    aws_secret_access_key = os.getenv('AWS_SQS_SECRET_ACCESS_KEY')
-    aws_sqs_region = os.getenv('AWS_SQS_REGION', 'us-east-1')
-
-    if not aws_access_key_id or not aws_secret_access_key:
+    if not configuration.AWS_ACCESS_KEY_ID or not configuration.AWS_SECRET_ACCESS_KEY:
         raise ValueError('Missing AWS credentials')
 
     client = boto3.client('sqs',
-                          aws_access_key_id=aws_access_key_id,
-                          aws_secret_access_key=aws_secret_access_key,
-                          region_name=aws_sqs_region)
+                          aws_access_key_id=configuration.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=configuration.AWS_SECRET_ACCESS_KEY,
+                          region_name=configuration.AWS_SQS_REGION)
 
-    response = client.list_queues(QueueNamePrefix=os.getenv('DEPLOYMENT_PREFIX'))
+    response = client.list_queues(QueueNamePrefix=configuration.DEPLOYMENT_PREFIX)
     queue_urls = response.get('QueueUrls')
 
     if not queue_urls:
@@ -145,3 +141,34 @@ def construct_queue_attributes():
         result[queue_url] = queue_info.pop('Attributes', {})
 
     return result
+
+
+def purge_queues(queues):
+    """Purge given SQS queues.
+
+    :param queues: a list of queues to be purged
+    :type queues: list
+    """
+    if not configuration.AWS_ACCESS_KEY_ID or not configuration.AWS_SECRET_ACCESS_KEY:
+        raise ValueError('Missing AWS credentials')
+
+    client = boto3.client('sqs', aws_access_key_id=configuration.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=configuration.AWS_SECRET_ACCESS_KEY,
+                          region_name=configuration.AWS_SQS_REGION)
+
+    purged = []
+    for queue in queues:
+        queue_name = '{prefix}_{queue}'.format(prefix=configuration.DEPLOYMENT_PREFIX,
+                                               queue=queue)
+
+        logger.info('Purging queue: {queue}'.format(queue=queue_name))
+        response = client.get_queue_url(QueueName=queue_name)
+
+        queue_url = response.get('QueueUrl')
+        if not queue_url:
+            raise RuntimeError("No QueueUrl in the response, response: %r" % response)
+
+        client.purge_queue(QueueUrl=queue_url)
+        purged.append(queue_name)
+
+    return {'purged': purged}

@@ -207,6 +207,20 @@ paths:
            description: A report containing queue attributes info
          401:
            description: No suitable permissions
+  '/jobs/queue-purge':
+    post:
+      tags: [Debug]
+      operationId: f8a_jobs.api_v1.post_queue_purge
+      summary: Purge given SQS queues
+      parameters:
+        - $ref: "#/parameters/queues"
+      security:
+        - auth_token: []
+      responses:
+        200:
+          description: Queues purged
+        401:
+          description: No suitable permissions
   '/debug/github-tokens':
     get:
        tags: [Debug]
@@ -468,20 +482,6 @@ paths:
           description: Sync to graph scheduled
         401:
           description: No suitable permissions
-  '/jobs/sqs-purge':
-    post:
-      tags: [Add new jobs]
-      operationId: f8a_jobs.api_v1.post_sqs_purge
-      summary: Purge given SQS queues
-      parameters:
-        - $ref: "#/parameters/queues"
-      security:
-        - auth_token: []
-      responses:
-        200:
-          description: Queues purged
-        401:
-          description: No suitable permissions
 
 parameters:
   job_id_path:
@@ -655,7 +655,7 @@ parameters:
     name: queues
     in: query
     required: true
-    description: Space-separated list of queues to purge, without deployment prefix
+    description: A comma-separated list of queues to purge, without deployment prefix
     type: string
   offset:
     name: offset
