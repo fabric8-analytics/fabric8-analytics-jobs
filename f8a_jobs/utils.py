@@ -141,6 +141,7 @@ def construct_queue_attributes():
         queue_info = client.get_queue_attributes(QueueUrl=queue_url,
                                                  AttributeNames=[
                                                      'ApproximateNumberOfMessages',
+                                                     'ApproximateAgeOfOldestMessage'
                                                  ])
         queue_name = queue_url.rsplit('/', 1)[-1]
         result[queue_name] = queue_info.pop('Attributes', {})
