@@ -141,6 +141,11 @@ def construct_queue_attributes():
         queue_name = queue_url.rsplit('/', 1)[-1]
         result[queue_name] = queue_info.pop('Attributes', {})
 
+        # Convert strings that are actually integers
+        for attribute, value in result[queue_name].items():
+            if attribute == 'ApproximateNumberOfMessages':
+                result[queue_name][attribute] = int(value)
+
     return result
 
 
