@@ -655,7 +655,7 @@ parameters:
     name: queues
     in: query
     required: true
-    description: A comma-separated list of queues to purge, without deployment prefix
+    description: A comma-separated list of queues to purge, without deployment prefix or star for all queues in deployment
     type: string
   offset:
     name: offset

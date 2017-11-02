@@ -116,65 +116,86 @@ def get_gh_token():
     return random.choice(configuration.GITHUB_ACCESS_TOKENS).strip()
 
 
-def construct_queue_attributes():
-    """Retrieve relevant attributes about queues in the given deployment."""
-    if not configuration.AWS_ACCESS_KEY_ID or not configuration.AWS_SECRET_ACCESS_KEY:
-        raise ValueError('Missing AWS credentials')
+def _get_queues(client):
+    """List all queues in the deployment.
 
-    client = boto3.client('sqs',
-                          aws_access_key_id=configuration.AWS_ACCESS_KEY_ID,
-                          aws_secret_access_key=configuration.AWS_SECRET_ACCESS_KEY,
-                          region_name=configuration.AWS_SQS_REGION)
-
+    :param client: AWS client instance
+    :return: a dict containing mapping from queue name to queue url"""
     response = client.list_queues(QueueNamePrefix=configuration.DEPLOYMENT_PREFIX)
-    queue_urls = response.get('QueueUrls')
-
-    if not queue_urls:
-        raise RuntimeError("No queue urls in response: %r" % str(response))
+    if not response or not response.get('QueueUrls'):
+        raise RuntimeError("No queues in AWS response: %s" % response)
 
     result = {}
-    for queue_url in queue_urls:
-        queue_info = client.get_queue_attributes(QueueUrl=queue_url,
-                                                 AttributeNames=[
-                                                     'ApproximateNumberOfMessages'
-                                                 ])
+    for queue_url in response['QueueUrls']:
         queue_name = queue_url.rsplit('/', 1)[-1]
-        result[queue_name] = queue_info.pop('Attributes', {})
-
-        # Convert strings that are actually integers
-        for attribute, value in result[queue_name].items():
-            if attribute == 'ApproximateNumberOfMessages':
-                result[queue_name][attribute] = int(value)
+        result[queue_name] = queue_url
 
     return result
 
 
-def purge_queues(queues):
+def requires_aws_sqs_access(func):
+    """Decorator for requesting AWS client instance and performing basic AWS config checks."""
+    def wrapper(*args, **kwargs):
+        if not configuration.AWS_ACCESS_KEY_ID or not configuration.AWS_SECRET_ACCESS_KEY:
+            raise ValueError('Missing AWS credentials')
+
+        client = boto3.client('sqs',
+                              aws_access_key_id=configuration.AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=configuration.AWS_SECRET_ACCESS_KEY,
+                              region_name=configuration.AWS_SQS_REGION)
+        func(client, *args, **kwargs)
+
+    return wrapper
+
+
+@requires_aws_sqs_access
+def construct_queue_attributes(client):
+    """Retrieve relevant attributes about queues in the given deployment."""
+    queues = _get_queues(client)
+    result = {}
+    for queue_name, queue_url in queues.items():
+        queue_info = client.get_queue_attributes(QueueUrl=queue_url,
+                                                 AttributeNames=[
+                                                     'ApproximateNumberOfMessages'
+                                                 ])
+        result[queue_name] = queue_info.pop('Attributes', {})
+
+        if 'ApproximateNumberOfMessages' in result[queue_name]:
+            number_of_messages = result[queue_name]['ApproximateNumberOfMessages']
+            result[queue_name]['ApproximateNumberOfMessages'] = int(number_of_messages)
+
+    return result
+
+
+@requires_aws_sqs_access
+def purge_queues(client, queues):
     """Purge given SQS queues.
 
-    :param queues: a list of queues to be purged
+    :param client: AWS client instance
+    :param queues: a list of queues to be purged or star to clean all queues
     :type queues: list
     """
-    if not configuration.AWS_ACCESS_KEY_ID or not configuration.AWS_SECRET_ACCESS_KEY:
-        raise ValueError('Missing AWS credentials')
-
-    client = boto3.client('sqs', aws_access_key_id=configuration.AWS_ACCESS_KEY_ID,
-                          aws_secret_access_key=configuration.AWS_SECRET_ACCESS_KEY,
-                          region_name=configuration.AWS_SQS_REGION)
-
     purged = []
-    for queue in queues:
-        queue_name = '{prefix}_{queue}'.format(prefix=configuration.DEPLOYMENT_PREFIX,
-                                               queue=queue)
+    if len(queues) == 1 and queues[0] == '*':
+        queues = _get_queues(client)
+        logger.debug("Cleaning all queues on AWS: {}".format(list(queues.values())))
+        for queue_url, queue_name in queues.items():
+            logger.info('Purging queue: {queue}'.format(queue=queue_name))
+            client.purge_queue(QueueUrl=queue_url)
+            purged.append(queue_name)
+    else:
+        for queue in queues:
+            queue_name = '{prefix}_{queue}'.format(prefix=configuration.DEPLOYMENT_PREFIX,
+                                                   queue=queue)
 
-        logger.info('Purging queue: {queue}'.format(queue=queue_name))
-        response = client.get_queue_url(QueueName=queue_name)
+            logger.info('Purging queue: {queue}'.format(queue=queue_name))
+            response = client.get_queue_url(QueueName=queue_name)
 
-        queue_url = response.get('QueueUrl')
-        if not queue_url:
-            raise RuntimeError("No QueueUrl in the response, response: %r" % response)
+            queue_url = response.get('QueueUrl')
+            if not queue_url:
+                raise RuntimeError("No QueueUrl in the response, response: %r" % response)
 
-        client.purge_queue(QueueUrl=queue_url)
-        purged.append(queue_name)
+            client.purge_queue(QueueUrl=queue_url)
+            purged.append(queue_name)
 
     return {'purged': purged}
