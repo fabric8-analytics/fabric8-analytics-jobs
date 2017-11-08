@@ -11,7 +11,8 @@ class GolangPopularAnalyses(AnalysesBaseHandler):
 
     def _get_latest_commit(self, package):
         if package.startswith('github.com'):
-            url = 'https://{p}/commits/master'.format(p=package)
+            repo_base = "/".join(package.split("/")[:3])  # select base url of the github repo
+            url = 'https://{p}/commits/master'.format(p=repo_base)
             response = requests.get(url)
             if response.status_code == 200:
                 page = BeautifulSoup(response.text, 'html.parser')
