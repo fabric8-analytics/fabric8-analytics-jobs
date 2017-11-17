@@ -1,9 +1,4 @@
 from f8a_worker.utils import get_session_retry
-from gremlin_python import statics
-from gremlin_python.structure.graph import Graph, Element, Property, VertexProperty
-from gremlin_python.process.graph_traversal import __
-from gremlin_python.process.strategies import *
-from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 import json
 import os
 from selinon import StoragePool
@@ -20,25 +15,23 @@ class AggregateCrowdSourceTags(BaseHandler):
         :return: Updated package_topic.json file
         """
         s3 = StoragePool.get_connected_storage('S3CrowdSourceTags')
-        print("I am connected First time")
-        print("Started to fetch data.")
-
         bucket_name = "{ecosystem}".format(ecosystem=ecosystem) + "github/data_input_raw_package_list/"
+        self.log.info("Connected with S3 bucket: {}", bucket_name)
+        results = {}
         try:
             obj = bucket_name + "package_topic.json"
             package_topic = s3.retrieve_dict(obj)
+            if package_topic:
+                results = package_topic.get("package_topic_map")
+
         except Exception as e:
             self.log.error('Unable to collect package_topic for {ecosystem}: {reason}'.format(
                 ecosystem=ecosystem, reason=str(e)))
-        if package_topic:
-            results = package_topic.get("package_topic_map", {})
-        else:
-            results = {}
         results = self._read_tags_from_graph(ecosystem=ecosystem, results=results)
         s3_dest = AmazonS3(bucket_name=bucket_name)
         s3_dest.connect()
         s3_dest.store_dict(results, "package_topic.json")
-        self.log.info("package_topic.json has been updated for ecosystem: {}".format(ecosystem=ecosystem))
+        self.log.info("package_topic.json has been updated for ecosystem: {}", ecosystem)
 
     def _get_graph_url(self):
         """
@@ -88,6 +81,9 @@ class AggregateCrowdSourceTags(BaseHandler):
         query = "g.V()." \
                 "has('ecosystem', '" + ecosystem + "')." \
                 "has('name', '" + pkg_name + "')." \
+                "properties('tags').drop().iterate();" \
+                " g.V().has('ecosystem', '" + ecosystem + "')." \
+                "has('name', '" + pkg_name + "')." \
                 "property('manual_tagging_required', false)." \
                 "property('tags','" + tags + "')"
         return query
@@ -105,20 +101,21 @@ class AggregateCrowdSourceTags(BaseHandler):
         package_topic_list = results
         graph_data = correct_data.get("result", {}).get("data", [])
         if graph_data:
+            query = ""
             for users_tag_data in graph_data:
                 users_tag = users_tag_data.get("user_tags", [])
                 pkg_name = users_tag_data.get("name")[0]
                 pkg_tags = []
                 for user_tag in users_tag:
                     tags = self._process_tags(user_tag)
-                    if len(tags) > 0:
-                         query = self._set_usercount_query(ecosystem=ecosystem, pkg_name=pkg_name, tags=tags)
-                         self._execute_query(query)
+                    query += self._set_usercount_query(ecosystem=ecosystem, pkg_name=pkg_name, tags=tags)
                     if pkg_tags == []:
                         pkg_tags = set(tags)
                     else:
                         pkg_tags = pkg_tags & set(user_tag)
                 package_topic_list[pkg_name] = list(pkg_tags)
+            self._execute_query(query)
+            self.log.info("Package in the Graph has been updated")
         results = {
             "ecosystem": ecosystem,
             "package_topic_map": package_topic_list
