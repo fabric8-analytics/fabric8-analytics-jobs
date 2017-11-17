@@ -6,4 +6,3 @@ uwsgi
 json2sql
 Flask-OAuthlib
 SQLAlchemy-Utils
-gremlinpython
