@@ -15,7 +15,8 @@ class AggregateCrowdSourceTags(BaseHandler):
         :return: Updated package_topic.json file
         """
         s3 = StoragePool.get_connected_storage('S3CrowdSourceTags')
-        bucket_name = "{ecosystem}".format(ecosystem=ecosystem) + "github/data_input_raw_package_list/"
+        bucket_name = "{ecosystem}".format(ecosystem=ecosystem) +\
+                      "github/data_input_raw_package_list/"
         self.log.info("Connected with S3 bucket: {}", bucket_name)
         results = {}
         try:
@@ -66,8 +67,11 @@ class AggregateCrowdSourceTags(BaseHandler):
         :param usercount: number of end-user who has suggested had tags
         :return: gremlin-query to fetch package-names, user-count and raw-tags
         """
-        return "g.V().has('ecosystem','" + ecosystem + "').has('manual_tagging_required', 'true')." \
-                                                       "has('tags_count','" + usercount + "').valueMap()"
+        query = "g.V()." \
+                "has('ecosystem','" + ecosystem + "')." \
+                "has('manual_tagging_required', 'true')." \
+                "has('tags_count','" + usercount + "').valueMap()"
+        return query
 
     def _set_usercount_query(self, ecosystem, pkg_name, tags):
         """
@@ -85,7 +89,7 @@ class AggregateCrowdSourceTags(BaseHandler):
                 " g.V().has('ecosystem', '" + ecosystem + "')." \
                 "has('name', '" + pkg_name + "')." \
                 "property('manual_tagging_required', false)." \
-                "property('tags','" + tags + "')"
+                "property('tags','" + tags + "');"
         return query
 
     def _read_tags_from_graph(self, ecosystem, results):
@@ -108,7 +112,8 @@ class AggregateCrowdSourceTags(BaseHandler):
                 pkg_tags = []
                 for user_tag in users_tag:
                     tags = self._process_tags(user_tag)
-                    query += self._set_usercount_query(ecosystem=ecosystem, pkg_name=pkg_name, tags=tags)
+                    query += self._set_usercount_query\
+                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=tags)
                     if pkg_tags == []:
                         pkg_tags = set(tags)
                     else:
