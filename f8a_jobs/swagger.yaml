@@ -309,6 +309,24 @@ paths:
           description: New job successfully scheduled
         401:
           description: No suitable permissions
+  '/jobs/aggregate-crowd-source-tags':
+    post:
+      tags: [Add new jobs]
+      operationId: f8a_jobs.api_v1.aggregate_crowd_source_tags
+      summary: Aggregate crowd-sourced tags
+      parameters:
+        - $ref: "#/parameters/job_id"
+        - $ref: "#/parameters/periodically"
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"
+        - $ref: "#/parameters/ecosystem"
+      security:
+        - auth_token: []
+      responses:
+        201:
+          description: Read, verify, aggregate verify tags store them on S3
+        401:
+          description: No suitable permissions
   '/jobs/selective-flow-scheduling':
     post:
       tags: [Add new jobs]
