@@ -31,8 +31,8 @@ class AggregateCrowdSourceTags(BaseHandler):
         results = self._read_tags_from_graph(ecosystem=ecosystem, results=results)
         s3_dest = AmazonS3(bucket_name=bucket_name)
         s3_dest.connect()
-        s3_dest.store_dict(results, "package_topic.json")
-        self.log.info("package_topic.json has been updated for ecosystem: {}", ecosystem)
+        s3_dest.store_dict(results, "crowd_sourcing_package_topic.json")
+        self.log.info("The file crowd_sourcing_package_topic.json has been stored for ecosystem: {}", ecosystem)
 
     def _get_graph_url(self):
         """
