@@ -110,14 +110,15 @@ class AggregateCrowdSourceTags(BaseHandler):
                 users_tag = users_tag_data.get("user_tags", [])
                 pkg_name = users_tag_data.get("name")[0]
                 pkg_tags = []
+                tags = []
                 for user_tag in users_tag:
                     tags = self._process_tags(user_tag)
-                    query += self._set_usercount_query\
-                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=tags)
                     if pkg_tags == []:
                         pkg_tags = set(tags)
                     else:
                         pkg_tags = pkg_tags & set(user_tag)
+                query += self._set_usercount_query \
+                    (ecosystem=ecosystem, pkg_name=pkg_name, tags=tags)
                 package_topic_list[pkg_name] = list(pkg_tags)
             self._execute_query(query)
             self.log.info("Package in the Graph has been updated")
