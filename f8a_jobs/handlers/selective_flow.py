@@ -2,10 +2,11 @@ from .base import BaseHandler
 
 
 class SelectiveFlowScheduling(BaseHandler):
-    """ Schedule multiple selective flows of a type """
+    """Schedule multiple selective flows of a type."""
+
     def execute(self, flow_name, task_names, flow_arguments, follow_subflows=True,
                 run_subsequent=False):
-        """ Schedule a selective flow, do filter expansion if needed
+        """Schedule a selective flow, do filter expansion if needed.
 
         :param flow_name: Selinon flow name that should be scheduled
         :param task_names: a list of tasks that should be executed

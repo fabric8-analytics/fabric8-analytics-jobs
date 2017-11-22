@@ -13,7 +13,7 @@ from f8a_worker.errors import TaskError
 
 
 class MavenPopularAnalyses(AnalysesBaseHandler):
-    """ Analyse top maven popular projects """
+    """Analyse top maven popular projects."""
 
     _BASE_URL = 'http://mvnrepository.com'
     _MAX_PAGES = 10
@@ -89,12 +89,12 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                         return
 
     def _top_projects(self):
-        """ Scrape Top Projects page @ http://mvnrepository.com/popular """
+        """Scrape Top Projects page @ http://mvnrepository.com/popular."""
         self.log.debug('Scraping Top Projects page http://mvnrepository.com/popular')
         self._projects_from('/popular')
 
     def _top_categories_projects(self):
-        """ Scrape Top Categories page @ http://mvnrepository.com/open-source """
+        """Scrape Top Categories page @ http://mvnrepository.com/open-source."""
         for page in range(1, self._MAX_PAGES + 1):
             page_link = '{url}/open-source?p={page}'.format(url=self._BASE_URL, page=page)
             self.log.debug('Scraping Top Categories page %s' % page_link)
@@ -108,7 +108,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                     return
 
     def _top_tags_projects(self):
-        """ Scrape Popular Tags page @ http://mvnrepository.com/tags """
+        """Scrape Popular Tags page @ http://mvnrepository.com/tags."""
         page_link = '{url}/tags'.format(url=self._BASE_URL)
         self.log.debug('Scraping Popular Tags page %s' % page_link)
         tags_page = requests.get(page_link)

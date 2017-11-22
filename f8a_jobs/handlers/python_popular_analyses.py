@@ -8,14 +8,16 @@ except ImportError:
 
 
 class PythonPopularAnalyses(AnalysesBaseHandler):
-    """ Analyse top npm popular packages """
+    """Analyse top npm popular packages."""
 
     _URL = 'http://pypi-ranking.info'
     _PACKAGES_PER_PAGE = 50
 
     @staticmethod
     def _parse_version_stats(html_version_stats, sort_by_popularity=True):
-        """ Parse version statistics from HTML definition and return ordered
+        """Parse version statistics from HTML definition.
+
+        Parse version statistics from HTML definition and return ordered
         versions based on downloads
 
         :param html_version_stats: tr-like representation of version statistics
@@ -35,7 +37,7 @@ class PythonPopularAnalyses(AnalysesBaseHandler):
         return result
 
     def _use_pypi_xml_rpc(self):
-        """Schedule analyses of packages based on PyPI index using XML-RPC
+        """Schedule analyses of packages based on PyPI index using XML-RPC.
 
         https://wiki.python.org/moin/PyPIXmlRpc
         """

@@ -7,7 +7,7 @@ from f8a_worker.solver import NugetReleasesFetcher
 
 
 class NugetPopularAnalyses(AnalysesBaseHandler):
-    """ Analyse popular nuget packages """
+    """Analyse popular nuget packages."""
 
     _URL = 'https://www.nuget.org/packages?page={page}'
     _POPULAR_PACKAGES_PER_PAGE = 20
