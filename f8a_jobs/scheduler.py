@@ -19,12 +19,13 @@ from f8a_jobs.utils import is_failed_job_handler_name
 
 
 class ScheduleJobError(Exception):
-    """An exception raised on job creation error"""
+    """An exception raised on job creation error."""
     pass
 
 
 class Scheduler(object):
-    """Scheduler wrapper to ensure that we have a single scheduler per process"""
+    """Scheduler wrapper to ensure that we have a single scheduler per process."""
+
     _scheduler = None
     _scheduler_creation_lock = Lock()
     scheduler_lock = Lock()
@@ -66,7 +67,7 @@ class Scheduler(object):
 
     @classmethod
     def get_paused_scheduler(cls):
-        """Return paused scheduler for feeding jobs
+        """Return paused scheduler for feeding jobs.
 
         :return: scheduler instance
         """
@@ -83,7 +84,7 @@ class Scheduler(object):
     def schedule_job(cls, scheduler, handler_name,
                      job_id=None, when=None, periodically=None, misfire_grace_time=None,
                      state=None, modify_existing_job=False, **kwargs):
-        """Schedule a job
+        """Schedule a job.
 
         :param scheduler: scheduler that should be used to schedule a job
         :param handler_name: name of handler that is used to handle the given job
@@ -200,7 +201,7 @@ class Scheduler(object):
 
     @classmethod
     def register_default_jobs(cls, job_dir):
-        """Register default jobs as stated in configuration files
+        """Register default jobs as stated in configuration files.
 
         :param job_dir: directory in which the default jobs sit (YAML files)
         """
@@ -234,7 +235,7 @@ class Scheduler(object):
 
 
 def job_execute(handler_name, job_id, **handler_kwargs):
-    """ Instantiate and run the handler
+    """Instantiate and run the handler.
 
     :param handler_name: name of the handler that should be run
     :param job_id: id of the handler that should be run

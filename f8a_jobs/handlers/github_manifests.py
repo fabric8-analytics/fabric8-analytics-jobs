@@ -8,12 +8,11 @@ class GitHubManifests(BaseHandler):
     GITHUB_URL = 'https://github.com/'
 
     def execute(self, repositories, skip_if_exists):
-        """ Collect and process manifest files from given GitHub repositories.
+        """Collect and process manifest files from given GitHub repositories.
 
         :param repositories: a list of repositories to process, with flow arguments
         :param skip_if_exists: a list of flow arguments per flow
         """
-
         s3 = StoragePool.get_connected_storage('S3GitHubManifestMetadata')
 
         for repo in repositories:

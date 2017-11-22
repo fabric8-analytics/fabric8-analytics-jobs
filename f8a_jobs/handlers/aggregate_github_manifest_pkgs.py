@@ -6,14 +6,13 @@ from f8a_worker.storages import AmazonS3
 class AggregateGitHubManifestPackages(BaseHandler):
 
     def execute(self, repositories, ecosystem, bucket_name, object_key):
-        """ Aggregate package names from GitHub manifests.
+        """Aggregate package names from GitHub manifests.
 
         :param repositories: a list of repositories
         :param ecosystem: ecosystem, will appear in the resulting JSON file
         :param bucket_name: name of the bucket where to put the resulting JSON file
         :param object_key: object key of the resulting JSON file
         """
-
         s3 = StoragePool.get_connected_storage('S3GitHubManifestMetadata')
 
         package_list = []

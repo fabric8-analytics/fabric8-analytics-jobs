@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 class SafeJSONEncoder(json.JSONEncoder):
-    """ Convert objects to JSON, safely """
+    """Convert objects to JSON, safely."""
+
     def default(self, o):
         if isinstance(o, datetime):
             return o.isoformat()
@@ -28,7 +29,7 @@ class SafeJSONEncoder(json.JSONEncoder):
 
 
 def init_logging():
-    """ Initialize application logging """
+    """Initialize application logging."""
     # Initialize flask logging
     formatter = logging.Formatter('%(asctime)s - %(message)s')
     handler = logging.StreamHandler()
@@ -84,7 +85,7 @@ def api_v1():
 
 @manager.command
 def initjobs():
-    """ initialize default jobs """""
+    """Initialize default jobs."""""
     logger.debug("Initializing default jobs")
     Scheduler.register_default_jobs(defaults.DEFAULT_JOB_DIR)
     logger.debug("Default jobs initialized")
@@ -95,7 +96,7 @@ def initjobs():
 
 @manager.command
 def runserver():
-    """ run job service server """""
+    """Run job service server."""
     #
     # The Flasks's runserver command was overwritten because we are using connexion.
     #

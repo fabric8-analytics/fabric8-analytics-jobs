@@ -5,14 +5,14 @@ from .base import AnalysesBaseHandler
 
 
 class NpmPopularAnalyses(AnalysesBaseHandler):
-    """ Analyse top npm popular packages """
+    """Analyse top npm popular packages."""
 
     _URL_REGISTRY = 'https://skimdb.npmjs.com/registry/'
     _URL_POPULAR = 'https://www.npmjs.com/browse'
     _POPULAR_PACKAGES_PER_PAGE = 36
 
     def _schedule_from_npm_registry(self, package, offset):
-        """Schedule analyses of specific versions using skimdb.npmjs.com API"""
+        """Schedule analyses of specific versions using skimdb.npmjs.com API."""
         package_info = requests.get(self._URL_REGISTRY + package).json()
 
         if self.nversions == 1:

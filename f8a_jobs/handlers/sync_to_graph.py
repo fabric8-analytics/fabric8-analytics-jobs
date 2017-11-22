@@ -6,7 +6,8 @@ from .base import BaseHandler
 
 
 class SyncToGraph(BaseHandler):
-    """ Sync all finished analyses to Graph DB """
+    """Sync all finished analyses to Graph DB."""
+
     query_slice = 100
 
     def execute(self, start=0, end=0):

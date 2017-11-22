@@ -6,9 +6,11 @@ from f8a_jobs.utils import get_gh_token
 
 
 class GitHubMostStarred(BaseHandler):
-    """ Store metadata of most starred <insert-your-favourite-ecosystem> projects
-    on GitHub to an S3 bucket. """
+    """Store metadata of most stared projects on GitHub to an S3 bucket.
 
+    Store metadata of most starred <insert-your-favourite-ecosystem> projects
+    on GitHub to an S3 bucket.
+    """
     GITHUB_API_URL = 'https://api.github.com/'
     GITHUB_URL = 'https://github.com/'
 

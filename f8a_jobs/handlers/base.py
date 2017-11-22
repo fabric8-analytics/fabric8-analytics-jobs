@@ -15,7 +15,8 @@ CountRange = namedtuple('CountRange', ['min', 'max'])
 
 
 class BaseHandler(object):
-    """ Base handler class for user defined handlers"""
+    """Base handler class for user defined handlers."""
+
     _initialized_celery = False
 
     def __init__(self, job_id):
@@ -27,7 +28,7 @@ class BaseHandler(object):
 
     @staticmethod
     def construct_select_query(filter_definition):
-        """ Return SELECT statement that will be used as a filter
+        """Return SELECT statement that will be used as a filter.
 
         :param filter_definition: definition of a filter that should be used
         for SELECT construction
@@ -36,13 +37,13 @@ class BaseHandler(object):
         return select2sql(filter_definition)
 
     def _init_celery(self):
-        """ Initialize celery and connect to the broker """
+        """Initialize celery and connect to the broker."""
         if not self._initialized_celery:
             init_celery(result_backend=False)
             self._initialized_celery = True
 
     def run_selinon_flow(self, flow_name, node_args):
-        """Connect to broker, if not connected, and run Selinon flow
+        """Connect to broker, if not connected, and run Selinon flow.
 
         :param flow_name: flow that should be run
         :param node_args: flow arguments
@@ -57,7 +58,7 @@ class BaseHandler(object):
 
     def run_selinon_flow_selective(self, flow_name, task_names, node_args, follow_subflows,
                                    run_subsequent):
-        """Connect to broker, if not connected, and run Selinon selective flow
+        """Connect to broker, if not connected, and run Selinon selective flow.
 
         :param flow_name: flow that should be run
         :param task_names: a list of tasks that should be executed
@@ -86,7 +87,7 @@ class BaseHandler(object):
         return isinstance(filter_query, dict) and DEFAULT_FILTER_KEY in filter_query.keys()
 
     def expand_filter_query(self, filter_definition):
-        """ Expand filter arguments and perform database query
+        """Expand filter arguments and perform database query.
 
         :param filter_definition:
         :return: expanded filter arguments
@@ -113,12 +114,13 @@ class BaseHandler(object):
         return result
 
     def execute(self, **kwargs):
-        """ User defined job handler implementation """
+        """User defined job handler implementation."""
         raise NotImplementedError()
 
 
 class AnalysesBaseHandler(BaseHandler):
     """Base handler for specific analyses handlers."""
+
     _DEFAULT_COUNT = 1000
     _DEFAULT_NVERSIONS = 3
 
@@ -134,7 +136,7 @@ class AnalysesBaseHandler(BaseHandler):
 
     @staticmethod
     def ecosystem2handler_name(ecosystem):
-        """Convert ecosystem name to handler class name
+        """Convert ecosystem name to handler class name.
 
         :param ecosystem: name ecosystem
         :return: name of handler class
@@ -202,7 +204,7 @@ class AnalysesBaseHandler(BaseHandler):
 
     @classmethod
     def check_arguments(cls, **kwargs):
-        """Check provided arguments
+        """Check provided arguments.
 
         :param kwargs: analyses keyword arguments as passed to endpoint
         """

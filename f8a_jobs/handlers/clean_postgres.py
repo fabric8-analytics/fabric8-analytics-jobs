@@ -7,7 +7,8 @@ from .base import BaseHandler
 
 
 class CleanPostgres(BaseHandler):
-    """ Clean JSONB columns in Postgres """
+    """Clean JSONB columns in Postgres."""
+
     def execute(self):
         s3 = StoragePool.get_connected_storage('S3Data')
 
