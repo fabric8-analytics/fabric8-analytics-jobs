@@ -25,7 +25,8 @@ def get_session():
 
 
 class JobToken(_Base):
-    """ Model for token storing """
+    """Model for token storing."""
+
     __tablename__ = 'jobs_tokens'
 
     id = Column(Integer, Sequence('token_id'), primary_key=True)
@@ -47,7 +48,7 @@ class JobToken(_Base):
 
     @staticmethod
     def verify(token):
-        """ Verify that the given token exists and is valid
+        """Verify that the given token exists and is valid.
 
         :param token: token to be verified
         :return: True if token is valid, False otherwise
@@ -102,7 +103,7 @@ class JobToken(_Base):
 
     @classmethod
     def store_token(cls, login, token):
-        """ Store given token and invalidate old ones
+        """Store given token and invalidate old ones.
 
         :param login: login for which token should be stored
         :param token: token to be stored
@@ -129,7 +130,7 @@ class JobToken(_Base):
 
     @classmethod
     def get_info(cls, token):
-        """ Get information about token
+        """Get information about token.
 
         :param token: token to get information about
         :return: token information

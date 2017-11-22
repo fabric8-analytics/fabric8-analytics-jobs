@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_service_state_str(scheduler):
-    """Get string representation of service state/scheduler"""
+    """Get string representation of service state/scheduler."""
     if scheduler.state == STATE_RUNNING:
         return 'running'
     elif scheduler.state == STATE_STOPPED:
@@ -30,7 +30,7 @@ def get_service_state_str(scheduler):
 
 
 def get_job_state_str(job):
-    """Get string representation of a job"""
+    """Get string representation of a job."""
     if not hasattr(job, 'next_run_time'):
         # based on apscheduler sources
         return 'pending'
@@ -57,7 +57,7 @@ def is_failed_job_handler_name(handler_name):
 
 
 def job2raw_dict(job):
-    """Return a dictionary for the given job that is JSON serializable"""
+    """Return a dictionary for the given job that is JSON serializable."""
     result = {
         'job_id': job.id,
         'handler': job.args[0],
@@ -79,7 +79,7 @@ def job2raw_dict(job):
 
 
 def requires_auth(func):
-    """ Verify authentication token sent in header
+    """Verify authentication token sent in header.
 
     :param func: function that should be called if verification succeeds
     """
@@ -102,7 +102,7 @@ def requires_auth(func):
 
 
 def is_organization_member(user_data):
-    """ Check that a user is a member of organization
+    """Check that a user is a member of organization.
 
     :param user_data: user OAuth data
     :return: True if user is a member of organization
@@ -120,7 +120,8 @@ def _get_queues(client):
     """List all queues in the deployment.
 
     :param client: AWS client instance
-    :return: a dict containing mapping from queue name to queue url"""
+    :return: a dict containing mapping from queue name to queue url
+    """
     response = client.list_queues(QueueNamePrefix=configuration.DEPLOYMENT_PREFIX)
     if not response or not response.get('QueueUrls'):
         raise RuntimeError("No queues in AWS response: %s" % response)
@@ -134,7 +135,7 @@ def _get_queues(client):
 
 
 def requires_aws_sqs_access(func):
-    """Decorator for requesting AWS client instance and performing basic AWS config checks."""
+    """Return decorator to request AWS client instance and perform basic AWS config checks."""
     def wrapper(*args, **kwargs):
         if not configuration.AWS_ACCESS_KEY_ID or not configuration.AWS_SECRET_ACCESS_KEY:
             raise ValueError('Missing AWS credentials')
