@@ -1,6 +1,7 @@
 from selinon import StoragePool
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_
+from sqlalchemy import and_
 from f8a_worker.models import WorkerResult, Analysis, PackageAnalysis, PackageWorkerResult
 
 from .base import BaseHandler
@@ -34,7 +35,8 @@ class CleanPostgres(BaseHandler):
 
         if to_date:
             if not clean_unfinished:
-                query = query.filter(Analysis.finished_at <= to_date)
+                query = query.filter(and_(Analysis.finished_at.isnot(None),
+                                          Analysis.finished_at <= to_date))
             else:
                 query = query.filter(or_(Analysis.finished_at.is_(None),
                                          Analysis.finished_at <= to_date))
@@ -97,7 +99,8 @@ class CleanPostgres(BaseHandler):
 
         if to_date:
             if not clean_unfinished:
-                query = query.filter(PackageAnalysis.finished_at <= to_date)
+                query = query.filter(and_(Analysis.finished_at.isnot(None),
+                                          Analysis.finished_at <= to_date))
             else:
                 query = query.filter(or_(PackageAnalysis.finished_at.is_(None),
                                          PackageAnalysis.finished_at <= to_date))
