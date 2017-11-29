@@ -8,7 +8,7 @@ DEFAULT_SERVICE_PORT = 34000
 SWAGGER_YAML_PATH = os.path.join(_BAYESIAN_JOBS_DIR, 'swagger.yaml')
 DEFAULT_JOB_DIR = os.path.join(_BAYESIAN_JOBS_DIR, 'default_jobs')
 TOKEN_VALID_TIME = timedelta(days=14)
-AUTH_ORGANIZATION = 'fabric8-analytics'
+AUTH_ORGANIZATION = os.getenv('AUTH_ORGANIZATION', 'fabric8-analytics')
 GITHUB_CONSUMER_KEY = os.getenv('GITHUB_CONSUMER_KEY', 'not-set')
 GITHUB_CONSUMER_SECRET = os.getenv('GITHUB_CONSUMER_SECRET', 'not-set')
 GITHUB_ACCESS_TOKENS = os.getenv('GITHUB_ACCESS_TOKENS', '').split(',')
