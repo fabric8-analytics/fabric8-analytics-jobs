@@ -73,6 +73,25 @@ class AggregateCrowdSourceTags(BaseHandler):
                 "has('tags_count','" + usercount + "').valueMap()"
         return query
 
+    def _set_user_tags_query(self, ecosystem, pkg_name, tags):
+        """
+        Create gremlin-query to aggregate raw tags as an user tags
+        :param ecosystem: Name of the ecosystem
+        :param pkg_name: Package name
+        :param tags: Processed tags list
+        :return: gremlin-query to append tags into graph
+        """
+        query = "g.V()." \
+                "has('ecosystem', '" + ecosystem + "')." \
+                "has('name', '" + pkg_name + "')." \
+                "properties('tags').drop().iterate();" \
+                " g.V().has('ecosystem', '" + ecosystem + "')." \
+                "has('name', '" + pkg_name + "')." \
+                "property('manual_tagging_required', true).property('tags_count', 1)"
+        query += " ".join(map(lambda x: ".property('tags', '" + x + "');", tags))
+        return query
+
+
     def _set_usercount_query(self, ecosystem, pkg_name, tags):
         """
         Create gremlin-query to rest the manual_tagging_requirement property false after successful
@@ -88,8 +107,8 @@ class AggregateCrowdSourceTags(BaseHandler):
                 "properties('tags').drop().iterate();" \
                 " g.V().has('ecosystem', '" + ecosystem + "')." \
                 "has('name', '" + pkg_name + "')." \
-                "property('manual_tagging_required', false)." \
-                "property('tags','" + tags + "');"
+                "property('manual_tagging_required', false)"
+        query += " ".join(map(lambda x: ".property('tags', '" + x + "');", tags))
         return query
 
     def _read_tags_from_graph(self, ecosystem, results):
@@ -111,14 +130,20 @@ class AggregateCrowdSourceTags(BaseHandler):
                 pkg_name = users_tag_data.get("name")[0]
                 pkg_tags = []
                 tags = []
+                raw_tags = []
                 for user_tag in users_tag:
                     tags = self._process_tags(user_tag)
+                    raw_tags.append(tags)
                     if pkg_tags == []:
                         pkg_tags = set(tags)
                     else:
                         pkg_tags = pkg_tags & set(user_tag)
-                query += self._set_usercount_query \
-                    (ecosystem=ecosystem, pkg_name=pkg_name, tags=pkg_tags)
+                if list(pkg_tags):
+                    query += self._set_usercount_query\
+                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=pkg_tags)
+                else:
+                    query += self._set_user_tags_query\
+                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=raw_tags)
                 package_topic_list[pkg_name] = list(pkg_tags)
             self._execute_query(query)
             self.log.info("Package in the Graph has been updated")
