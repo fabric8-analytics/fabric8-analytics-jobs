@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import logging
-import os
+from dateutil.parser import parse as parse_datetime
 import boto3
 from functools import wraps
 import requests
@@ -200,3 +200,21 @@ def purge_queues(client, queues):
             purged.append(queue_name)
 
     return {'purged': purged}
+
+
+def parse_dates(job_kwargs):
+    """Parse dates supplied from user in jobs - from and to dates."""
+    from_date = job_kwargs.get('from_date')
+    to_date = job_kwargs.get('to_date')
+
+    if from_date:
+        try:
+            job_kwargs['from_date'] = parse_datetime(from_date)
+        except Exception as exc:
+            raise ValueError("Cannot parse string format for 'from_date': %s" % str(exc)) from exc
+
+    if to_date:
+        try:
+            job_kwargs['to_date'] = parse_datetime(to_date)
+        except Exception as exc:
+            raise ValueError("Cannot parse string format for 'to_date': %s" % str(exc)) from exc

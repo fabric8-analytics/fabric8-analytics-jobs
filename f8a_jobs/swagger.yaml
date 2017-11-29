@@ -455,6 +455,9 @@ paths:
         - $ref: "#/parameters/when"
         - $ref: "#/parameters/misfire_grace_time"
         - $ref: "#/parameters/state"
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+        - $ref: "#/parameters/clean_unfinished"
       security:
         - auth_token: []
       responses:
@@ -663,6 +666,13 @@ parameters:
     required: true
     description: Offset to be used (positive integer)
     type: integer
+  clean_unfinished:
+    name: clean_unfinished
+    in: query
+    required: true
+    description: DANGEROUS! Clean also entries of unfinished analyses, no analyses should be in progress
+    type: boolean
+    default: false
 
 definitions:
   FlowKwargs:
