@@ -1,6 +1,6 @@
-from f8a_worker.utils import get_session_retry
 import json
 import os
+from f8a_worker.utils import get_session_retry
 from selinon import StoragePool
 from f8a_jobs.handlers.base import BaseHandler
 from f8a_worker.storages import AmazonS3
@@ -17,7 +17,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         s3 = StoragePool.get_connected_storage('S3CrowdSourceTags')
         bucket_name = "{ecosystem}".format(ecosystem=ecosystem) +\
                       "github/data_input_raw_package_list/"
-        self.log.info("Connected with S3 bucket: {}", bucket_name)
+        self.log.info("Connected with S3 bucket: {bucket_name}", bucket_name=bucket_name)
         results = {}
         try:
             obj = bucket_name + "package_topic.json"
@@ -26,13 +26,14 @@ class AggregateCrowdSourceTags(BaseHandler):
                 results = package_topic.get("package_topic_map")
 
         except Exception as e:
-            self.log.error('Unable to collect package_topic for {ecosystem}: {reason}'.format(
-                ecosystem=ecosystem, reason=str(e)))
+            self.log.error('Unable to collect package_topic for {ecosystem}: {reason}'.
+                           format(ecosystem=ecosystem, reason=str(e)))
         results = self._read_tags_from_graph(ecosystem=ecosystem, results=results)
         s3_dest = AmazonS3(bucket_name=bucket_name)
         s3_dest.connect()
         s3_dest.store_dict(results, "crowd_sourcing_package_topic.json")
-        self.log.info("The file crowd_sourcing_package_topic.json has been stored for ecosystem: {}", ecosystem)
+        self.log.info("The file crowd_sourcing_package_topic."
+                      "json has been stored for ecosystem: {ecosystem}", ecosystem=ecosystem)
 
     def _get_graph_url(self):
         """
@@ -85,12 +86,12 @@ class AggregateCrowdSourceTags(BaseHandler):
                 "has('ecosystem', '" + ecosystem + "')." \
                 "has('name', '" + pkg_name + "')." \
                 "properties('tags').drop().iterate();" \
-                " g.V().has('ecosystem', '" + ecosystem + "')." \
-                "has('name', '" + pkg_name + "')." \
-                "property('manual_tagging_required', true).property('tags_count', 1)"
-        query += " ".join(map(lambda x: ".property('tags', '" + x + "');", tags))
+                "pkg = g.V().has('ecosystem', '" + ecosystem + "')." \
+                "has('name', '" + pkg_name + "').next();" \
+                "pkg.property('manual_tagging_required', true);" \
+                "pkg.property('tags_count', 1);"
+        query += "".join(map(lambda x: "pkg.property('tags', '" + x + "');", tags))
         return query
-
 
     def _set_usercount_query(self, ecosystem, pkg_name, tags):
         """
@@ -105,10 +106,10 @@ class AggregateCrowdSourceTags(BaseHandler):
                 "has('ecosystem', '" + ecosystem + "')." \
                 "has('name', '" + pkg_name + "')." \
                 "properties('tags').drop().iterate();" \
-                " g.V().has('ecosystem', '" + ecosystem + "')." \
-                "has('name', '" + pkg_name + "')." \
-                "property('manual_tagging_required', false)"
-        query += " ".join(map(lambda x: ".property('tags', '" + x + "');", tags))
+                "pkg = g.V().has('ecosystem', '" + ecosystem + "')." \
+                "has('name', '" + pkg_name + "').next();" \
+                "pkg.property('manual_tagging_required', false);"
+        query += "".join(map(lambda x: "pkg.property('tags', '" + x + "');", tags))
         return query
 
     def _read_tags_from_graph(self, ecosystem, results):
