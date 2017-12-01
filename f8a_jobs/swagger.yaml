@@ -485,6 +485,55 @@ paths:
           description: Sync to graph scheduled
         401:
           description: No suitable permissions
+  '/bookkeeping':
+    get:
+       tags: [BookKeeping]
+       operationId: f8a_jobs.api_v1.bookkeeping_all
+       summary: Retrieve Bookeeping data
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Summary of bookkeeping data
+  '/bookkeeping/{ecosystem}':
+    get:
+       tags: [BookKeeping]
+       operationId: f8a_jobs.api_v1.bookkeeping_ecosystem
+       summary: Retrieve Bookeeping data for given ecosystem
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Summary of bookkeeping data for given ecosystem
+  '/bookkeeping/{ecosystem}/{package}':
+    get:
+       tags: [BookKeeping]
+       operationId: f8a_jobs.api_v1.bookkeeping_ecosystem_package
+       summary: Retrieve Bookeeping data for given ecosystem and package
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/package_name"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Summary of bookkeeping data for given ecosystem and package
+  '/bookkeeping/{ecosystem}/{package}/{version}':
+    get:
+       tags: [BookKeeping]
+       operationId: f8a_jobs.api_v1.bookkeeping_epv
+       summary: Retrieve Bookeeping data for given ecosystem, package and version
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/package_name"
+        - $ref: "#/parameters/version_full"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Summary of bookkeeping data for given ecosystem
 
 parameters:
   job_id_path:
@@ -492,6 +541,18 @@ parameters:
     in: path
     required: true
     description: Job identifier
+    type: string
+  package_name:
+    name: package
+    in: path
+    required: true
+    description: Package name
+    type: string
+  version_full:
+    name: version
+    in: path
+    required: true
+    description: Version
     type: string
   job_id:
     name: job_id
@@ -550,6 +611,20 @@ parameters:
   ecosystem:
      name: ecosystem
      in: query
+     required: true
+     description: Ecosystem
+     type: string
+     items:
+       type: string
+     enum:
+       - maven
+       - npm
+       - pypi
+       - nuget
+       - go
+  ecosystem_path:
+     name: ecosystem
+     in: path
      required: true
      description: Ecosystem
      type: string

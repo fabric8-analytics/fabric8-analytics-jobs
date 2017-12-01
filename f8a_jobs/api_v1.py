@@ -20,6 +20,8 @@ from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
 import f8a_jobs.defaults as configuration
+from f8a_jobs.book_keeping import retrieve_bookkeeping
+
 
 logger = logging.getLogger(__name__)
 
@@ -332,3 +334,33 @@ def put_maven_releases(offset):
     s3 = StoragePool.get_connected_storage('S3MavenIndex')
     s3.set_last_offset(offset)
     return {'last_offset': s3.get_last_offset()}, 201
+
+
+@requires_auth
+def bookkeeping_all():
+    result = retrieve_bookkeeping()
+    return result
+
+
+@requires_auth
+def bookkeeping_ecosystem(ecosystem):
+    result = retrieve_bookkeeping(ecosystem=ecosystem)
+    return result
+
+
+@requires_auth
+def bookkeeping_ecosystem_package(ecosystem, package):
+    result = retrieve_bookkeeping(ecosystem=ecosystem, package=package)
+    return result
+
+
+@requires_auth
+def bookkeeping_epv(ecosystem, package, version):
+    result = retrieve_bookkeeping(ecosystem=ecosystem, package=package, version=version)
+    return result
+
+
+# add_resource_no_matter_slashes(BookKeepingAll, '/bookkeeping')
+# add_resource_no_matter_slashes(BookKeepingEcosystem, '/bookkeeping/<ecosystem>')
+# add_resource_no_matter_slashes(BookKeepingEcosystemPackage, '/bookkeeping/<ecosystem>/<package>')
+# add_resource_no_matter_slashes(BookKeepingEPV, '/bookkeeping/<ecosystem>/<package>/<version>')
