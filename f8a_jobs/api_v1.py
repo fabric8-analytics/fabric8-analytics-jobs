@@ -358,9 +358,3 @@ def bookkeeping_ecosystem_package(ecosystem, package):
 def bookkeeping_epv(ecosystem, package, version):
     result = retrieve_bookkeeping(ecosystem=ecosystem, package=package, version=version)
     return result
-
-
-# add_resource_no_matter_slashes(BookKeepingAll, '/bookkeeping')
-# add_resource_no_matter_slashes(BookKeepingEcosystem, '/bookkeeping/<ecosystem>')
-# add_resource_no_matter_slashes(BookKeepingEcosystemPackage, '/bookkeeping/<ecosystem>/<package>')
-# add_resource_no_matter_slashes(BookKeepingEPV, '/bookkeeping/<ecosystem>/<package>/<version>')
