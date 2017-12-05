@@ -3,7 +3,6 @@ import os
 from f8a_worker.utils import get_session_retry
 from selinon import StoragePool
 from f8a_jobs.handlers.base import BaseHandler
-from f8a_worker.storages import AmazonS3
 
 
 class AggregateCrowdSourceTags(BaseHandler):
@@ -15,8 +14,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         :return: Updated package_topic.json file
         """
         s3 = StoragePool.get_connected_storage('S3CrowdSourceTags')
-        bucket_name = "{ecosystem}".format(ecosystem=ecosystem) +\
-                      "github/data_input_raw_package_list/"
+        bucket_name = s3.get_object_key_path(ecosystem)
         self.log.info("Connected with S3 bucket: {bucket_name}", bucket_name=bucket_name)
         results = {}
         try:
@@ -29,9 +27,7 @@ class AggregateCrowdSourceTags(BaseHandler):
             self.log.error('Unable to collect package_topic for {ecosystem}: {reason}'.
                            format(ecosystem=ecosystem, reason=str(e)))
         results = self._read_tags_from_graph(ecosystem=ecosystem, results=results)
-        s3_dest = AmazonS3(bucket_name=bucket_name)
-        s3_dest.connect()
-        s3_dest.store_dict(results, "crowd_sourcing_package_topic.json")
+        s3.store(results)
         self.log.info("The file crowd_sourcing_package_topic."
                       "json has been stored for ecosystem: {ecosystem}", ecosystem=ecosystem)
 
@@ -43,7 +39,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         url = "http://{host}:{port}".\
             format(host=os.environ.get("BAYESIAN_GREMLIN_HTTP_SERVICE_HOST", "localhost"),
                    port=os.environ.get("BAYESIAN_GREMLIN_HTTP_SERVICE_PORT", "8182"))
-        self.log.info("Graph url is: {}".format(url))
+        self.log.debug("Graph url is: {}".format(url))
         return url
 
     def _execute_query(self, query):
@@ -58,7 +54,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         if response.status_code == 200:
             return response.json()
         else:
-            self.log.info('Graph is not responding.')
+            self.log.error('Graph is not responding.')
             return {}
 
     def _get_usertags_query(self, ecosystem, usercount):
@@ -69,13 +65,15 @@ class AggregateCrowdSourceTags(BaseHandler):
         :return: gremlin-query to fetch package-names, user-count and raw-tags
         """
         query = "g.V()." \
-                "has('ecosystem','" + ecosystem + "')." \
+                "has('ecosystem', '{ecosystem}')." \
                 "has('manual_tagging_required', 'true')." \
-                "has('tags_count','" + usercount + "').valueMap()"
+                "has('tags_count','{usercount}').valueMap()"\
+                .format(ecosystem=ecosystem, usercount=usercount)
         return query
 
     def _set_user_tags_query(self, ecosystem, pkg_name, tags):
         """
+        When pkg_tags is empty,
         Create gremlin-query to aggregate raw tags as an user tags
         :param ecosystem: Name of the ecosystem
         :param pkg_name: Package name
@@ -83,19 +81,21 @@ class AggregateCrowdSourceTags(BaseHandler):
         :return: gremlin-query to append tags into graph
         """
         query = "g.V()." \
-                "has('ecosystem', '" + ecosystem + "')." \
-                "has('name', '" + pkg_name + "')." \
+                "has('ecosystem', '{ecosystem}')." \
+                "has('name', '{pkg_name}')." \
                 "properties('tags').drop().iterate();" \
-                "pkg = g.V().has('ecosystem', '" + ecosystem + "')." \
-                "has('name', '" + pkg_name + "').next();" \
+                "pkg = g.V().has('ecosystem', '{ecosystem}')." \
+                "has('name', '{pkg_name}').next();" \
                 "pkg.property('manual_tagging_required', true);" \
-                "pkg.property('tags_count', 1);"
-        query += "".join(map(lambda x: "pkg.property('tags', '" + x + "');", tags))
+                "pkg.property('tags_count', 1);".format(ecosystem=ecosystem,
+                                                        pkg_name=pkg_name)
+        query += "".join(["pkg.property('tags', '{}');".format(t) for t in tags])
         return query
 
     def _set_usercount_query(self, ecosystem, pkg_name, tags):
         """
-        Create gremlin-query to rest the manual_tagging_requirement property false after successful
+        When pkg_tags is not empty, Create gremlin-query to rest
+        the manual_tagging_requirement property false after successful
         tagging of a package.
         :param ecosystem: Name of the ecosystem
         :param pkg_name: Package name
@@ -103,13 +103,14 @@ class AggregateCrowdSourceTags(BaseHandler):
         :return: gremlin-query to set tags into graph and make manual tagging requirement false
         """
         query = "g.V()." \
-                "has('ecosystem', '" + ecosystem + "')." \
-                "has('name', '" + pkg_name + "')." \
+                "has('ecosystem', '{ecosystem}')." \
+                "has('name', '{pkg_name}')." \
                 "properties('tags').drop().iterate();" \
-                "pkg = g.V().has('ecosystem', '" + ecosystem + "')." \
-                "has('name', '" + pkg_name + "').next();" \
-                "pkg.property('manual_tagging_required', false);"
-        query += "".join(map(lambda x: "pkg.property('tags', '" + x + "');", tags))
+                "pkg = g.V().has('ecosystem', '{ecosystem}')." \
+                "has('name', '{pkg_name}').next();" \
+                "pkg.property('manual_tagging_required', false);"\
+            .format(ecosystem=ecosystem,pkg_name=pkg_name)
+        query += "".join(["pkg.property('tags', '{}');".format(t) for t in tags])
         return query
 
     def _read_tags_from_graph(self, ecosystem, results):
@@ -128,23 +129,14 @@ class AggregateCrowdSourceTags(BaseHandler):
             query = ""
             for users_tag_data in graph_data:
                 users_tag = users_tag_data.get("user_tags", [])
-                pkg_name = users_tag_data.get("name")[0]
-                pkg_tags = []
-                tags = []
-                raw_tags = []
-                for user_tag in users_tag:
-                    tags = self._process_tags(user_tag)
-                    raw_tags.append(tags)
-                    if pkg_tags == []:
-                        pkg_tags = set(tags)
-                    else:
-                        pkg_tags = pkg_tags & set(user_tag)
-                if list(pkg_tags):
-                    query += self._set_usercount_query\
-                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=pkg_tags)
-                else:
+                pkg_name = users_tag_data["name"][0]
+                pkg_tags, raw_tags = self._filter_user_tags(users_tag=users_tag)
+                if not pkg_tags:
                     query += self._set_user_tags_query\
                         (ecosystem=ecosystem, pkg_name=pkg_name, tags=raw_tags)
+                else:
+                    query += self._set_usercount_query\
+                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=pkg_name)
                 package_topic_list[pkg_name] = list(pkg_tags)
             self._execute_query(query)
             self.log.info("Package in the Graph has been updated")
@@ -154,13 +146,28 @@ class AggregateCrowdSourceTags(BaseHandler):
         }
         return results
 
+    def _filter_user_tags(self, users_tag):
+        """
+        Filter tags and apply verification logic on it
+        :param users_tag: list of tags provided by end-users for one package
+        :return: pkg_tags for package_topic_map, raw_tags to update graph
+        """
+        pkg_tags = set()
+        tags = []
+        raw_tags = []
+        for user_tag in users_tag:
+            tags = self._process_tags(user_tag)
+            raw_tags.append(tags)
+            if not pkg_tags:
+                pkg_tags = set(tags)
+            else:
+                pkg_tags = pkg_tags & set(tags)
+        return pkg_tags, raw_tags
+
     def _process_tags(self, tags):
         """
         Preprocesing and Data cleansing task on raw-tags
         :param tags: End-user suggested raw-tags
         :return: List of cleaned tags
         """
-        tag_list = []
-        for tag in tags.split(";"):
-            tag_list.append(tag)
-        return tag_list
+        return tags.split(";")
