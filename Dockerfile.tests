@@ -1,0 +1,17 @@
+FROM registry.devshift.net/bayesian/coreapi-jobs
+
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# base image has set USER to coreapi and requirements installation then fails
+USER root
+COPY . /f8a_jobs
+RUN cd /f8a_jobs/tests && pip3 install -r ./requirements.txt
+
+RUN yum install -y --setopt=tsflags=nodocs mock && yum clean all && \
+    useradd -o -u 1000 -G mock f8a
+USER f8a
+
+# This is needed for codecov so the CWD is writeable and codecov can write stats to a file.
+WORKDIR /tmp
+
+CMD ["py.test"]
