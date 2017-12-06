@@ -130,13 +130,13 @@ class AggregateCrowdSourceTags(BaseHandler):
             for users_tag_data in graph_data:
                 users_tag = users_tag_data.get("user_tags", [])
                 pkg_name = users_tag_data["name"][0]
-                pkg_tags, raw_tags = self._filter_user_tags(users_tag=users_tag)
+                pkg_tags, raw_tags = self._filter_users_tag(users_tag=users_tag)
                 if not pkg_tags:
                     query += self._set_user_tags_query\
                         (ecosystem=ecosystem, pkg_name=pkg_name, tags=raw_tags)
                 else:
                     query += self._set_usercount_query\
-                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=pkg_name)
+                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=pkg_tags)
                 package_topic_list[pkg_name] = list(pkg_tags)
             self._execute_query(query)
             self.log.info("Package in the Graph has been updated")
@@ -146,7 +146,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         }
         return results
 
-    def _filter_user_tags(self, users_tag):
+    def _filter_users_tag(self, users_tag):
         """
         Filter tags and apply verification logic on it
         :param users_tag: list of tags provided by end-users for one package
@@ -157,7 +157,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         raw_tags = []
         for user_tag in users_tag:
             tags = self._process_tags(user_tag)
-            raw_tags.append(tags)
+            raw_tags.extend(tags)
             if not pkg_tags:
                 pkg_tags = set(tags)
             else:
