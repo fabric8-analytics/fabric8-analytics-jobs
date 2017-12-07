@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import logging
 from dateutil.parser import parse as parse_datetime
 import boto3
@@ -11,8 +12,8 @@ from flask import request, abort
 from apscheduler.schedulers.base import STATE_RUNNING, STATE_STOPPED
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
+
 import f8a_jobs.defaults as configuration
-from f8a_jobs.handlers.error import ErrorHandler
 from f8a_jobs.models import JobToken
 from f8a_jobs.error import TokenExpired
 
@@ -53,6 +54,8 @@ def is_failed_job_handler_name(handler_name):
     :param handler_name: job handler name
     :return: True if job handler is an error handler
     """
+    # to avoid circular dependencies
+    from f8a_jobs.handlers.error import ErrorHandler
     return handler_name == ErrorHandler.__name__
 
 
