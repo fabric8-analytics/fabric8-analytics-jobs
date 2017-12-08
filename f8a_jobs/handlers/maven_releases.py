@@ -1,9 +1,10 @@
 import os
-import errno
+import tempfile
+from shutil import rmtree
 
 from f8a_worker.utils import cwd
 from f8a_worker.utils import TimedCommand
-from f8a_worker.utils import tempdir
+from f8a_worker.errors import TaskError
 from selinon import StoragePool
 
 from .base import BaseHandler
@@ -33,13 +34,16 @@ class MavenReleasesAnalyses(BaseHandler):
             pass
 
         last_offset = s3.get_last_offset()
-        with tempdir() as java_temp_dir:
-            cmd = ['java', '-Xmx768m',
-                   '-Djava.io.tmpdir={}'.format(java_temp_dir),
-                   '-DcentralIndexDir={}'.format(central_index_dir),
-                   '-jar', 'maven-index-checker.jar', '-c']
 
-            with cwd(maven_index_checker_dir):
+        java_temp_dir = tempfile.mkdtemp(prefix='tmp-', dir=os.environ.get('PV_DIR', '/tmp'))
+
+        cmd = ['java', '-Xmx768m',
+               '-Djava.io.tmpdir={}'.format(java_temp_dir),
+               '-DcentralIndexDir={}'.format(central_index_dir),
+               '-jar', 'maven-index-checker.jar', '-c']
+
+        with cwd(maven_index_checker_dir):
+            try:
                 output = TimedCommand.get_command_output(cmd, is_json=True, graceful=False,
                                                          timeout=1200)
 
@@ -66,20 +70,28 @@ class MavenReleasesAnalyses(BaseHandler):
 
                 cmd = ['java', '-Xmx768m',
                        '-Djava.io.tmpdir={}'.format(java_temp_dir),
+                       '-DcentralIndexDir={}'.format(central_index_dir),
                        '-jar', 'maven-index-checker.jar',
                        '-r', '0-{}'.format(to_schedule_count)]
                 output = TimedCommand.get_command_output(cmd, is_json=True, graceful=False,
                                                          timeout=1200)
+            except TaskError as e:
+                self.log.exception(e)
+                raise
+            finally:
+                rmtree(central_index_dir)
+                self.log.debug('central-index/ deleted')
+                rmtree(java_temp_dir)
 
-                self.log.info("Found %d new packages to analyse, scheduling analyses...",
-                              len(output))
-                for entry in output:
-                    self.run_selinon_flow('bayesianFlow', {
-                        'ecosystem': 'maven',
-                        'name': '{groupId}:{artifactId}'.format(**entry),
-                        'version': entry['version'],
-                        'recursive_limit': 0
-                    })
+            self.log.info("Found %d new packages to analyse, scheduling analyses...",
+                          len(output))
+            for entry in output:
+                self.run_selinon_flow('bayesianFlow', {
+                    'ecosystem': 'maven',
+                    'name': '{groupId}:{artifactId}'.format(**entry),
+                    'version': entry['version'],
+                    'recursive_limit': 0
+                })
 
         s3.set_last_offset(current_count)
         self.log.info("All new maven releases scheduled for analysis, exiting..")
