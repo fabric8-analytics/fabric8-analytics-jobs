@@ -22,6 +22,8 @@ objects:
         labels:
           service: bayesian-jobs
       spec:
+        strategy:
+          type: Recreate
         containers:
         - env:
           - name: DEPLOYMENT_PREFIX
