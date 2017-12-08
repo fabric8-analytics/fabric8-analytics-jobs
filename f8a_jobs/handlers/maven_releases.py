@@ -35,7 +35,7 @@ class MavenReleasesAnalyses(BaseHandler):
 
         last_offset = s3.get_last_offset()
 
-        java_temp_dir = tempfile.mkdtemp(dir=os.environ.get('PV_DIR', '/tmp'))
+        java_temp_dir = tempfile.mkdtemp(prefix='tmp-', dir=os.environ.get('PV_DIR', '/tmp'))
 
         cmd = ['java', '-Xmx768m',
                '-Djava.io.tmpdir={}'.format(java_temp_dir),

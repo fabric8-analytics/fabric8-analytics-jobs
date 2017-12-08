@@ -143,7 +143,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                           'from scratch.')
             pass
 
-        java_temp_dir = tempfile.mkdtemp(dir=os.environ.get('PV_DIR', '/tmp'))
+        java_temp_dir = tempfile.mkdtemp(prefix='tmp-', dir=os.environ.get('PV_DIR', '/tmp'))
 
         index_range = '{}-{}'.format(self.count.min, self.count.max)
         command = ['java', '-Xmx768m',
