@@ -6,7 +6,6 @@ import requests
 import tempfile
 from selinon import StoragePool
 from shutil import rmtree
-import errno
 
 from .base import AnalysesBaseHandler
 from f8a_worker.utils import cwd, TimedCommand
@@ -144,7 +143,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                           'from scratch.')
             pass
 
-        java_temp_dir = tempfile.mkdtemp()
+        java_temp_dir = tempfile.mkdtemp(dir=os.environ.get('PV_DIR', '/tmp'))
 
         index_range = '{}-{}'.format(self.count.min, self.count.max)
         command = ['java', '-Xmx768m',
@@ -167,6 +166,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                     self.log.info('Index in S3 is up-to-date.')
             except TaskError as e:
                 self.log.exception(e)
+                raise
             finally:
                 rmtree(central_index_dir)
                 self.log.debug('central-index/ deleted')
