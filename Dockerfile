@@ -3,6 +3,7 @@ MAINTAINER Fridolin Pokorny <fridolin@redhat.com>
 
 ENV LANG=en_US.UTF-8 \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
+    MAVEN_INDEX_CHECKER_DATA_PATH='/pv/index-checker' \
     F8A_WORKER_VERSION=662a102
 
 RUN useradd coreapi
@@ -20,7 +21,9 @@ RUN pushd /tmp/jobs_install &&\
   pip3 install . &&\
   pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${F8A_WORKER_VERSION} &&\
   popd &&\
-  rm -rf /tmp/jobs_install
+  rm -rf /tmp/jobs_install &&\
+  mkdir /pv &&\
+  chmod 777 /pv
 
 COPY hack/run_jobs.sh /usr/bin/
 
