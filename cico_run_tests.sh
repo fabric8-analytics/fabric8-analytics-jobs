@@ -6,4 +6,6 @@ set -ex
 
 build_image
 
+make test
+
 push_image

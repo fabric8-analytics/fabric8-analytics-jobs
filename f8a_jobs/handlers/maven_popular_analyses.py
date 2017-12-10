@@ -125,13 +125,15 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
 
     def _use_maven_index_checker(self):
         maven_index_checker_dir = os.getenv('MAVEN_INDEX_CHECKER_PATH')
-        target_dir = os.path.join(maven_index_checker_dir, 'target')
-        central_index_dir = os.path.join(target_dir, 'central-index')
+        maven_index_checker_data_dir = os.environ.get('MAVEN_INDEX_CHECKER_DATA_PATH',
+                                                      '/tmp/index-checker')
+        os.makedirs(maven_index_checker_data_dir, exist_ok=True)
+        central_index_dir = os.path.join(maven_index_checker_data_dir, 'central-index')
         timestamp_path = os.path.join(central_index_dir, 'timestamp')
 
         s3 = StoragePool.get_connected_storage('S3MavenIndex')
         self.log.info('Fetching pre-built maven index from S3, if available.')
-        s3.retrieve_index_if_exists(target_dir)
+        s3.retrieve_index_if_exists(maven_index_checker_data_dir)
 
         old_timestamp = 0
         try:
@@ -141,11 +143,13 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                           'from scratch.')
             pass
 
-        java_temp_dir = tempfile.mkdtemp()
+        java_temp_dir = tempfile.mkdtemp(prefix='tmp-', dir=os.environ.get('PV_DIR', '/tmp'))
 
         index_range = '{}-{}'.format(self.count.min, self.count.max)
-        command = ['java', '-Xmx768m', '-Djava.io.tmpdir={}'.format(java_temp_dir), '-jar',
-                   'maven-index-checker.jar', '-r', index_range]
+        command = ['java', '-Xmx768m',
+                   '-Djava.io.tmpdir={}'.format(java_temp_dir),
+                   '-DcentralIndexDir={}'.format(central_index_dir),
+                   '-jar', 'maven-index-checker.jar', '-r', index_range]
         if self.nversions == 1:
             command.append('-l')
         with cwd(maven_index_checker_dir):
@@ -156,12 +160,13 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
                 new_timestamp = int(os.stat(timestamp_path).st_mtime)
                 if old_timestamp != new_timestamp:
                     self.log.info('Storing pre-built maven index to S3...')
-                    s3.store_index(target_dir)
+                    s3.store_index(maven_index_checker_data_dir)
                     self.log.debug('Stored. Index in S3 is up-to-date.')
                 else:
                     self.log.info('Index in S3 is up-to-date.')
             except TaskError as e:
                 self.log.exception(e)
+                raise
             finally:
                 rmtree(central_index_dir)
                 self.log.debug('central-index/ deleted')

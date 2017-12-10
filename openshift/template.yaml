@@ -15,6 +15,8 @@ objects:
     name: bayesian-jobs
   spec:
     replicas: 1
+    strategy:
+      type: Recreate
     selector:
       service: bayesian-jobs
     template:
@@ -128,7 +130,14 @@ objects:
             limits:
               memory: "2048Mi"
               cpu: "500m"
+          volumeMounts:
+          - mountPath: "/pv"
+            name: bayesian-jobs-pv
         restartPolicy: Always
+        volumes:
+          - name: bayesian-jobs-pv
+            persistentVolumeClaim:
+              claimName: bayesian-jobs-pvc
     test: false
     triggers:
     - type: ConfigChange
@@ -155,6 +164,16 @@ objects:
     to:
       kind: Service
       name: bayesian-jobs
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: bayesian-jobs-pvc
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
 
 parameters:
 - description: A hostname where the Bayesian Jobs should be exposed (will be auto-generated if empty)

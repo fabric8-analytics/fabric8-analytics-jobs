@@ -2,7 +2,7 @@
   handler: MavenReleasesAnalyses
   job_id: mavenReleasesJob
   when:
-  periodically: 7 days
+  periodically: 1 days
   # Keep this high so redeployment/downtime does not affect flow scheduling
   misfire_grace_time: 99999 days
   state: running
