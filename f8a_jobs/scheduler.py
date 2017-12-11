@@ -272,7 +272,7 @@ def job_execute(handler_name, job_id, **handler_kwargs):
 
 
 def uses_scheduler(func):
-    """Wrap the specified function - add a scheduler instance as a first argument.."""
+    """Wrap the specified function - add a scheduler instance as a first argument."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         # possible bottleneck here - I'm not sure if apscheduler implementation
