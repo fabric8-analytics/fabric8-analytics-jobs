@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+"""Module that contains various, unsorted utility functions."""
 import logging
 from dateutil.parser import parse as parse_datetime
 import boto3
@@ -42,7 +43,8 @@ def get_job_state_str(job):
 
 
 def is_failed_job(job):
-    """
+    """Check if the job specified by name is an error handler job.
+
     :param job: job to check
     :return: True if the given job is an error handler job
     """
@@ -50,7 +52,8 @@ def is_failed_job(job):
 
 
 def is_failed_job_handler_name(handler_name):
-    """
+    """Check if the job handler specified by name is an error handler.
+
     :param handler_name: job handler name
     :return: True if job handler is an error handler
     """
@@ -116,6 +119,7 @@ def is_organization_member(user_data):
 
 
 def get_gh_token():
+    """Return the token used to access GitHub."""
     return random.choice(configuration.GITHUB_ACCESS_TOKENS).strip()
 
 
