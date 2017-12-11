@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+"""Module that contains global variables with the project runtime configuration."""
+
 import os
 from datetime import timedelta
 

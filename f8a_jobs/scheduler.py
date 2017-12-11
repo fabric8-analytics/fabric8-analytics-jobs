@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+"""Scheduler wrapper to ensure that we have a single scheduler per process."""
+
 import os
 import logging
 import traceback
@@ -20,6 +23,7 @@ from f8a_jobs.utils import is_failed_job_handler_name
 
 class ScheduleJobError(Exception):
     """An exception raised on job creation error."""
+
     pass
 
 
@@ -49,11 +53,12 @@ class Scheduler(object):
     }
 
     def __init__(self):
+        """Raise a exception because the Scheduler class must be instantiated via factory method."""
         raise NotImplementedError()
 
     @classmethod
     def get_scheduler(cls):
-        """Get scheduler instance
+        """Get scheduler instance.
 
         :return: scheduler instance
         """
@@ -267,6 +272,7 @@ def job_execute(handler_name, job_id, **handler_kwargs):
 
 
 def uses_scheduler(func):
+    """Wrap the specified function - add a scheduler instance as a first argument."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         # possible bottleneck here - I'm not sure if apscheduler implementation
