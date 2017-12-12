@@ -1,3 +1,5 @@
+"""Class to aggregate gathered topics and store them onto S3."""
+
 from dateutil.parser import parse as parse_datetime
 from selinon import StoragePool
 from sqlalchemy import desc
