@@ -1,3 +1,5 @@
+"""Analyse top maven popular projects."""
+
 import bs4
 from collections import OrderedDict
 import os
@@ -19,6 +21,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
     _MAX_PAGES = 10
 
     def __init__(self, *args, **kwargs):
+        """Create and instance of this analyse handler."""
         super().__init__(*args, **kwargs)
         self.projects = OrderedDict()
         self.nprojects = 0
