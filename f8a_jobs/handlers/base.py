@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""Base handlers.
+
+This module contains base handler class for user defined handlers and a handler for specific
+analyses.
+"""
+
 import logging
 import copy
 from collections import namedtuple
@@ -20,6 +26,7 @@ class BaseHandler(object):
     _initialized_celery = False
 
     def __init__(self, job_id):
+        """Construct the instance of the handler class for given job id."""
         self.log = logging.getLogger(__name__)
         self.job_id = job_id
         # initialize always as the assumption is that we will use it
@@ -80,7 +87,8 @@ class BaseHandler(object):
                                   run_subsequent)
 
     def is_filter_query(self, filter_query):
-        """
+        """Return true for queries that contains default filter key.
+
         :param filter_query: dictionary to be checked for filter_query
         :return: True if filter_query is considered to be expanded based on database query
         """
@@ -125,6 +133,7 @@ class AnalysesBaseHandler(BaseHandler):
     _DEFAULT_NVERSIONS = 3
 
     def __init__(self, *args, **kwargs):
+        """Construct the instance of the analyses handler class."""
         super().__init__(*args, **kwargs)
         self.nversions = self._DEFAULT_NVERSIONS
         self.popular = True
