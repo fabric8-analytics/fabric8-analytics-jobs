@@ -1,3 +1,5 @@
+"""Module with a class to clean JSONB columns in Postgres."""
+
 from selinon import StoragePool
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_
@@ -150,6 +152,7 @@ class CleanPostgres(BaseHandler):
                 del entry
 
     def execute(self, from_date=None, to_date=None, clean_unfinished=False):
+        """Start the data cleaner."""
         if clean_unfinished:
             self.log.warning("Cleaning entries of unfinished analyses, this is DANGEROUS if some "
                              "analysis is in progress!!!")
