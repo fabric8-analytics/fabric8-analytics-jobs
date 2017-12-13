@@ -1,3 +1,5 @@
+"""Schedule analyses for golang packages.."""
+
 from bs4 import BeautifulSoup
 import requests
 from .base import AnalysesBaseHandler

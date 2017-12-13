@@ -51,7 +51,7 @@ class MavenPopularAnalyses(AnalysesBaseHandler):
         return versions
 
     def _projects_from(self, url_suffix):
-        """
+        """Scrape the selected page @ http://mvnrepository.com.
 
         :param url_suffix: to add to _BASE_URL
         :return: 2-tuple of (dict of {project_name: [versions]}, number of found projects)

@@ -1,3 +1,5 @@
+"""Store metadata of most stared projects on GitHub to an S3 bucket."""
+
 import requests
 import urllib.parse
 from selinon import StoragePool
@@ -11,6 +13,7 @@ class GitHubMostStarred(BaseHandler):
     Store metadata of most starred <insert-your-favourite-ecosystem> projects
     on GitHub to an S3 bucket.
     """
+
     GITHUB_API_URL = 'https://api.github.com/'
     GITHUB_URL = 'https://github.com/'
 
@@ -22,6 +25,7 @@ class GitHubMostStarred(BaseHandler):
     _MIN_STARS_DEFAULT = 500
 
     def __init__(self, *args, **kwargs):
+        """Initialize instance of the GitHubMostStarred class."""
         super().__init__(*args, **kwargs)
         self.nversions = 1
         self.count = 1
@@ -42,6 +46,7 @@ class GitHubMostStarred(BaseHandler):
             return '>={min}'.format(min=self.min_stars or self._MIN_STARS_DEFAULT)
 
     def get_most_starred_repositories(self, ecosystem, start_from):
+        """Get the most starred repositories taken from the selected ecosystem."""
         url_path = 'search/repositories?q=language:{lang}+stars:{stars}+sort:stars&page={page}'
         url_template = urllib.parse.urljoin(self.GITHUB_API_URL, url_path)
 
@@ -90,7 +95,7 @@ class GitHubMostStarred(BaseHandler):
     def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False,
                 recursive_limit=None, min_stars=None, max_stars=None, skip_if_exists=True,
                 start_from=0):
-        """Run analyses on the most-starred GitHub projects.
+        """Process the parameters and start analyses on the most-starred GitHub projects.
 
         :param ecosystem: ecosystem name
         :param popular: boolean, sort index by popularity
@@ -116,7 +121,7 @@ class GitHubMostStarred(BaseHandler):
         return self.do_execute()
 
     def do_execute(self):
-
+        """Run analyses on the most-starred GitHub projects."""
         s3 = StoragePool.get_connected_storage('S3GitHubManifestMetadata')
 
         count = 0
