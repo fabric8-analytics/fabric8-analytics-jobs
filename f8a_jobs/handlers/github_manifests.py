@@ -1,9 +1,12 @@
+"""Collect and process manifest files from given GitHub repositories."""
+
 import urllib.parse
 from selinon import StoragePool
 from f8a_jobs.handlers.base import BaseHandler
 
 
 class GitHubManifests(BaseHandler):
+    """Collect and process manifest files from given GitHub repositories."""
 
     GITHUB_URL = 'https://github.com/'
 
