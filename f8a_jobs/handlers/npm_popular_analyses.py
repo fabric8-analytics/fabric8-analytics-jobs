@@ -1,3 +1,5 @@
+"""Analyse top npm popular packages."""
+
 import json
 import bs4
 import requests

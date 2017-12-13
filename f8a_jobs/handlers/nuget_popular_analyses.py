@@ -1,3 +1,5 @@
+"""Analyse popular nuget packages."""
+
 from bs4 import BeautifulSoup
 from re import compile as re_compile
 from requests import get
