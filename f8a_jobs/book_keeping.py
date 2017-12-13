@@ -2,8 +2,108 @@ from selinon import StoragePool
 from f8a_worker.models import (Analysis, Ecosystem, Package, Version,
                                WorkerResult, PackageWorkerResult, PackageAnalysis)
 
+from sqlalchemy.orm.exc import NoResultFound
 
-def retrieve_bookkeeping(ecosystem=None, package=None, version=None):
+from f8a_jobs.analyses_report import _count
+
+
+def retrieve_bookkeeping_all():
+    """
+    Retrieve BookKeeping data for all Ecosystems
+    """
+
+    rdb = StoragePool.get_connected_storage('BayesianPostgres')
+    db = rdb.session
+    data = []
+    for e in db.query(Ecosystem).all():
+        package_count = db.query(Package).filter(Package.ecosystem == e).count()
+        ecosystem_name = db.query(Ecosystem).get(e.id).name
+        package_version_count = db.query(Version).join(Package).filter(Package.ecosystem == e).count()
+
+        entry = {
+            "name": ecosystem_name,
+            "package_count": package_count,
+            "package_version_count": package_version_count
+        }
+        data.append(entry)
+
+    result = {"summary": data}
+    return result
+
+
+def retrieve_bookkeeping_for_ecosystem(ecosystem):
+    """
+    Retrieve BookKeeping data for given Ecosystem
+
+    :param ecosystem: ecosystem for which the data should be retrieved
+    """
+
+    rdb = StoragePool.get_connected_storage('BayesianPostgres')
+    db = rdb.session
+    try:
+        e = Ecosystem.by_name(db, ecosystem)
+        result = {
+            "summary": {
+                "ecosystem": e.name,
+                "package_count": db.query(Package).filter(Package.ecosystem == e).count(),
+                "package_version_count": db.query(Version).join(Package). \
+                    filter(Package.ecosystem == e).count()
+            }
+        }
+    except NoResultFound as e:
+        result = {"error": "No such ecosystem: %s" % ecosystem}
+    return result
+
+
+def retrieve_bookkeeping_for_ecosystem_package(ecosystem, package):
+    """
+    Retrieve BookKeeping data for given Package and Ecosystem
+
+    :param ecosystem: ecosystem for which the data should be retrieved
+    :param package: package for which the data should be retrieved
+    """
+
+    rdb = StoragePool.get_connected_storage('BayesianPostgres')
+    db = rdb.session
+
+    try:
+        e = Ecosystem.by_name(db, ecosystem)
+        p = Package.by_name(db, package)
+    except NoResultFound as e:
+        return {"error": "No such package: %s/%s" % (ecosystem, package)}
+
+    version_count = db.query(Version).join(Package).filter(Package.ecosystem == e). \
+        filter(Version.package == p).count()
+
+    stat = db.query(PackageWorkerResult.worker, PackageWorkerResult.error,
+                    PackageWorkerResult.task_result).join(PackageAnalysis). \
+        filter(PackageAnalysis.package == p). \
+        all()
+
+    worker_stats = []
+    for worker_name, has_error, task_result in stat:
+        entry = {"worker_name": worker_name,
+                 "has_error": has_error,
+                 "task_result": task_result}
+        worker_stats.append(entry)
+
+    p_versions = db.query(Version).join(Package).join(Ecosystem). \
+        filter(Package.ecosystem == e). \
+        filter(Version.package == p)
+
+    result = {
+        "summary": {
+            "ecosystem": e.name,
+            "package": p.name,
+            "package_version_count": version_count,
+            "package_level_workers": worker_stats,
+            "analysed_versions": [v.identifier for v in p_versions]
+        }
+    }
+    return result
+
+
+def retrieve_bookkeeping_for_epv(ecosystem, package, version):
     """Retrieve BookKeeping data
 
     :param ecosystem: ecosystem for which the data should be retrieved
@@ -13,96 +113,34 @@ def retrieve_bookkeeping(ecosystem=None, package=None, version=None):
 
     rdb = StoragePool.get_connected_storage('BayesianPostgres')
     db = rdb.session
-    result = {}
-    if ecosystem is None:
-        # return all stats from here
-        data = []
-        for e in db.query(Ecosystem).all():
-            entry = {
-                "name": db.query(Ecosystem).get(e.id).name,
-                "package_count": db.query(Package).filter(Package.ecosystem == e).count(),
-                "package_version_count": db.query(Version).join(Package). \
-                    filter(Package.ecosystem == e).count()
-            }
-            data.append(entry)
-
-        result = {"summary": data}
-        return result
-
-    else:
+    try:
         e = Ecosystem.by_name(db, ecosystem)
-
-        if package is None:
-            result = {
-                "summary": {
-                    "ecosystem": e.name,
-                    "package_count": db.query(Package).filter(Package.ecosystem == e).count(),
-                    "package_version_count": db.query(Version).join(Package). \
-                        filter(Package.ecosystem == e).count()
-                }
-            }
-            return result
-        else:
-            p = Package.by_name(db, package)
-
-            if version is None:
-                # return package stats
-                version_count = db.query(Version).join(Package).filter(Package.ecosystem == e). \
-                    filter(Version.package == p).count()
-
-                stat = db.query(PackageWorkerResult.worker, PackageWorkerResult.error,
-                                PackageWorkerResult.task_result).join(PackageAnalysis). \
-                    filter(PackageAnalysis.package == p). \
-                    all()
-
-                worker_stats = []
-                for worker_name, has_error, task_result in stat:
-                    entry = {"worker_name": worker_name,
-                             "has_error": has_error,
-                             "task_result": task_result}
-                    worker_stats.append(entry)
-
-                p_versions = db.query(Version).join(Package).join(Ecosystem). \
-                    filter(Package.ecosystem == e). \
-                    filter(Version.package == p)
+        p = Package.by_name(db, package)
+        v = db.query(Version).join(Package).join(Ecosystem). \
+            filter(Package.ecosystem == e). \
+            filter(Version.package == p). \
+            filter(Version.identifier == version).one()
+    except NoResultFound as e:
+        return {"error": "No such version: %s/%s/%s" % (ecosystem, package, version)}
 
 
+    stat = db.query(WorkerResult.worker, WorkerResult.error, WorkerResult.task_result). \
+        join(Analysis).join(Version). \
+        filter(Analysis.version == v).all()
 
-                result = {
-                    "summary": {
-                        "ecosystem": e.name,
-                        "package": p.name,
-                        "package_version_count": version_count,
-                        "package_level_workers": worker_stats,
-                        "analysed_versions": [v.identifier for v in p_versions]
-                    }
-                }
-                return result
-            else:
-                v = db.query(Version).join(Package).join(Ecosystem). \
-                    filter(Package.ecosystem == e). \
-                    filter(Version.package == p). \
-                    filter(Version.identifier == version).one()
+    worker_stats = []
+    for worker_name, has_error, task_result in stat:
+        entry = {"worker_name": worker_name,
+                 "has_error": has_error,
+                 "task_result": task_result}
+        worker_stats.append(entry)
 
-                stat = db.query(WorkerResult.worker, WorkerResult.error, WorkerResult.task_result). \
-                    join(Analysis).join(Version). \
-                    filter(Analysis.version == v).all()
-
-                worker_stats = []
-                for worker_name, has_error, task_result in stat:
-                    entry = {"worker_name": worker_name,
-                             "has_error": has_error,
-                             "task_result": task_result}
-                    worker_stats.append(entry)
-
-                result = {
-                    "summary": {
-                        "ecosystem": e.name,
-                        "package": p.name,
-                        "version": v.identifier,
-                        "workers": worker_stats
-                    }
-                }
-                return result
-
+    result = {
+        "summary": {
+            "ecosystem": e.name,
+            "package": p.name,
+            "version": v.identifier,
+            "workers": worker_stats
+        }
+    }
     return result
