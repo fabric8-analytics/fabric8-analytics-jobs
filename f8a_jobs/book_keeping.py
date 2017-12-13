@@ -1,9 +1,7 @@
 from selinon import StoragePool
 from f8a_worker.models import (Analysis, Ecosystem, Package, Version,
                                WorkerResult, PackageWorkerResult, PackageAnalysis)
-
 from sqlalchemy.orm.exc import NoResultFound
-
 from f8a_jobs.analyses_report import _count
 
 
@@ -18,13 +16,11 @@ def retrieve_bookkeeping_all():
     for e in db.query(Ecosystem).all():
         package_count = db.query(Package).filter(Package.ecosystem == e).count()
         ecosystem_name = db.query(Ecosystem).get(e.id).name
-        package_version_count = db.query(Version).join(Package). \
-                                filter(Package.ecosystem == e).count()
-
+        pv_count = db.query(Version).join(Package).filter(Package.ecosystem == e).count()
         entry = {
             "name": ecosystem_name,
             "package_count": package_count,
-            "package_version_count": package_version_count
+            "package_version_count": pv_count
         }
         data.append(entry)
 
