@@ -1,3 +1,5 @@
+"""Module with functions to generate analyses state report."""
+
 from datetime import datetime
 from selinon import StoragePool
 from sqlalchemy.exc import SQLAlchemyError

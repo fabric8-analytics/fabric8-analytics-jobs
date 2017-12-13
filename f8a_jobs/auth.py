@@ -1,3 +1,5 @@
+"""Authorization token handling functions."""
+
 from flask import session
 from flask_oauthlib.client import OAuth
 import f8a_jobs.defaults as configuration
@@ -18,4 +20,5 @@ github = oauth.remote_app(
 
 @github.tokengetter
 def get_github_oauth_token():
+    """Return the authorization token to GitHub."""
     return session.get('auth_token')

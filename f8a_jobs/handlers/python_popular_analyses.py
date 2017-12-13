@@ -1,3 +1,5 @@
+"""Analyse top npm popular packages."""
+
 import bs4
 import requests
 from .base import AnalysesBaseHandler
