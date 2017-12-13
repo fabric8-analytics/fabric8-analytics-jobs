@@ -1,3 +1,5 @@
+"""Trigger analysis of newly released maven packages."""
+
 import os
 import tempfile
 from shutil import rmtree
@@ -14,6 +16,7 @@ class MavenReleasesAnalyses(BaseHandler):
     """Trigger analysis of newly released maven packages."""
 
     def execute(self):
+        """Start the analysis."""
         self.log.info("Checking maven index for new releases")
         maven_index_checker_dir = os.getenv('MAVEN_INDEX_CHECKER_PATH')
         maven_index_checker_data_dir = os.environ.get('MAVEN_INDEX_CHECKER_DATA_PATH',
