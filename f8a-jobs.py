@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+"""Module containing handlers for REST API calls, Swagger UI etc."""
+
 import os
 import json
 import connexion
@@ -20,6 +23,7 @@ class SafeJSONEncoder(json.JSONEncoder):
     """Convert objects to JSON, safely."""
 
     def default(self, o):
+        """Override the base class method to work with datetimes properly."""
         if isinstance(o, datetime):
             return o.isoformat()
         try:
@@ -67,12 +71,14 @@ logger.debug("Selinon initialized successfully")
 
 @app.route('/')
 def base_url():
+    """Redirect client to the Swagger UI web page."""
     # Be nice with user access
     return redirect('api/v1/ui')
 
 
 @app.route('/api/v1')
 def api_v1():
+    """Accept and respont to all REST API calls."""
     paths = []
 
     for rule in application.url_map.iter_rules():

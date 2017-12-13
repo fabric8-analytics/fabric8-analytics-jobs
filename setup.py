@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 
+"""Project setup file for the f8a jobs."""
+
 import os
 from setuptools import setup, find_packages
 
 
 def get_requirements():
+    """Parse all packages mentioned in the 'requirements.txt' file."""
     requirements_txt = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'requirements.txt')
     with open(requirements_txt) as fd:
         return fd.read().splitlines()

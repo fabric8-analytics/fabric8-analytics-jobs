@@ -1,3 +1,5 @@
+"""Schedule multiple flows of a type."""
+
 from .base import BaseHandler
 
 
