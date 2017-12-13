@@ -37,6 +37,7 @@ class JobToken(_Base):
     revoked = Column(Boolean, default=False)
 
     def to_dict(self):
+        """Convert the object of type JobToken into a dictionary."""
         return {
             'token': self.token,
             'valid_until': self.valid_until,
