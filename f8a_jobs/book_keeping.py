@@ -14,9 +14,9 @@ def retrieve_bookkeeping_all():
     db = rdb.session
     data = []
     for e in db.query(Ecosystem).all():
-        package_count = db.query(Package).filter(Package.ecosystem == e).count()
+        package_count = _count(db, db.query(Package).filter(Package.ecosystem == e))
         ecosystem_name = db.query(Ecosystem).get(e.id).name
-        pv_count = db.query(Version).join(Package).filter(Package.ecosystem == e).count()
+        pv_count = _count(db, db.query(Version).join(Package).filter(Package.ecosystem == e))
         entry = {
             "name": ecosystem_name,
             "package_count": package_count,
@@ -39,8 +39,8 @@ def retrieve_bookkeeping_for_ecosystem(ecosystem):
     db = rdb.session
     try:
         e = Ecosystem.by_name(db, ecosystem)
-        package_count = db.query(Package).filter(Package.ecosystem == e).count()
-        pv_count = db.query(Version).join(Package).filter(Package.ecosystem == e).count()
+        package_count = _count(db, db.query(Package).filter(Package.ecosystem == e))
+        pv_count = _count(db, db.query(Version).join(Package).filter(Package.ecosystem == e))
         result = {
             "summary": {
                 "ecosystem": e.name,
@@ -70,8 +70,8 @@ def retrieve_bookkeeping_for_ecosystem_package(ecosystem, package):
     except NoResultFound as e:
         return {"error": "No such package: %s/%s" % (ecosystem, package)}
 
-    version_count = db.query(Version).join(Package).filter(Package.ecosystem == e). \
-        filter(Version.package == p).count()
+    version_count = _count(db, db.query(Version).join(Package).filter(Package.ecosystem == e).
+                           filter(Version.package == p))
 
     stat = db.query(PackageWorkerResult.worker, PackageWorkerResult.error,
                     PackageWorkerResult.task_result).join(PackageAnalysis). \
