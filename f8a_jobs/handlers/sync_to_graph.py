@@ -1,3 +1,5 @@
+"""Sync all finished analyses to Graph DB."""
+
 from sqlalchemy.exc import SQLAlchemyError
 from f8a_worker.models import Analysis, Package, Version, Ecosystem
 from f8a_worker.workers import GraphImporterTask
@@ -11,6 +13,7 @@ class SyncToGraph(BaseHandler):
     query_slice = 100
 
     def execute(self, start=0, end=0):
+        """Start the synchronization of all finished analyses to Graph database."""
         base_query = self.postgres.session.query(Analysis).\
             join(Version).\
             join(Package).\
