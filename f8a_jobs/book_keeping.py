@@ -18,7 +18,8 @@ def retrieve_bookkeeping_all():
     for e in db.query(Ecosystem).all():
         package_count = db.query(Package).filter(Package.ecosystem == e).count()
         ecosystem_name = db.query(Ecosystem).get(e.id).name
-        package_version_count = db.query(Version).join(Package).filter(Package.ecosystem == e).count()
+        package_version_count = db.query(Version).join(Package). \
+                                filter(Package.ecosystem == e).count()
 
         entry = {
             "name": ecosystem_name,
@@ -42,12 +43,13 @@ def retrieve_bookkeeping_for_ecosystem(ecosystem):
     db = rdb.session
     try:
         e = Ecosystem.by_name(db, ecosystem)
+        package_count = db.query(Package).filter(Package.ecosystem == e).count()
+        pv_count = db.query(Version).join(Package).filter(Package.ecosystem == e).count()
         result = {
             "summary": {
                 "ecosystem": e.name,
-                "package_count": db.query(Package).filter(Package.ecosystem == e).count(),
-                "package_version_count": db.query(Version).join(Package). \
-                    filter(Package.ecosystem == e).count()
+                "package_count": package_count,
+                "package_version_count": pv_count
             }
         }
     except NoResultFound as e:
@@ -122,7 +124,6 @@ def retrieve_bookkeeping_for_epv(ecosystem, package, version):
             filter(Version.identifier == version).one()
     except NoResultFound as e:
         return {"error": "No such version: %s/%s/%s" % (ecosystem, package, version)}
-
 
     stat = db.query(WorkerResult.worker, WorkerResult.error, WorkerResult.task_result). \
         join(Analysis).join(Version). \
