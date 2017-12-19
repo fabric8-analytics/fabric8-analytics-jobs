@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Callback functions called for requests sent to the jobs REST API."""
+
 import traceback
 import logging
 import requests
@@ -25,11 +27,13 @@ logger = logging.getLogger(__name__)
 
 
 def generate_token():
+    """Generate the authorization token via GitHub service."""
     return github.authorize(callback=url_for('/api/v1.f8a_jobs_api_v1_authorized',
                             _external=True))
 
 
 def logout():
+    """Logout from the Job service (if the user is already loged in)."""
     if 'auth_token' not in session:
         return {}, 401
 
@@ -38,6 +42,7 @@ def logout():
 
 
 def authorized():
+    """Perform authorization via GitHub service."""
     auth_token = request.headers.get('auth_token')
     if 'auth_token' in session:
         # Authorization token in session has higher priority
@@ -75,12 +80,14 @@ def authorized():
 @requires_auth
 @uses_scheduler
 def get_service_state(scheduler):
+    """Return the current state of the job service."""
     return {"state": get_service_state_str(scheduler)}, 200
 
 
 @requires_auth
 @uses_scheduler
 def put_service_state(scheduler, state):
+    """Change the state of the job service."""
     if scheduler.state == STATE_STOPPED:
         scheduler.start(paused=(state == 'paused'))
 
@@ -97,6 +104,7 @@ def put_service_state(scheduler, state):
 @requires_auth
 @uses_scheduler
 def delete_jobs(scheduler, job_id):
+    """Delete job with given job ID."""
     try:
         scheduler.remove_job(job_id)
     except JobLookupError:
@@ -107,6 +115,7 @@ def delete_jobs(scheduler, job_id):
 @requires_auth
 @uses_scheduler
 def delete_clean_failed(scheduler):
+    """Clean up all failed jobs."""
     ret = []
     for job in scheduler.get_jobs():
         if is_failed_job(job):
@@ -118,6 +127,7 @@ def delete_clean_failed(scheduler):
 @requires_auth
 @uses_scheduler
 def put_jobs(scheduler, job_id, state):
+    """Change the state of job specified by its ID."""
     try:
         if state == "paused":
             job = scheduler.pause_job(job_id)
@@ -134,6 +144,7 @@ def put_jobs(scheduler, job_id, state):
 @requires_auth
 @uses_scheduler
 def get_jobs(scheduler, job_type=None):
+    """Retrieve all active jobs or all jobs of specified type."""
     jobs = scheduler.get_jobs()
 
     job_types = ('all', 'failed', 'user', None)
@@ -155,11 +166,13 @@ def get_jobs(scheduler, job_type=None):
 
 
 def get_readiness():
+    """Get job service readiness."""
     return {}, 200
 
 
 @uses_scheduler
 def get_liveness(scheduler):
+    """Get job service liveness."""
     # Ensure the scheduler is alive
     logger.warning("Liveness probe - trying retrieve stored jobs from database using scheduler")
     # Ensure that we are able to publish messages
@@ -170,6 +183,7 @@ def get_liveness(scheduler):
 
 
 def post_schedule_job(scheduler, handler_name, **kwargs):
+    """Schedule the new job specified by its name and parameters."""
     # No need to add @requires_auth for this one, assuming handler specific
     # POST endpoints take care of it
     try:
@@ -183,6 +197,7 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
 
 @requires_auth
 def post_show_select_query(filter_definition):
+    """Show SQL query that will be used in case of filter parametrized jobs."""
     try:
         query = BaseHandler(job_id=None).construct_select_query(filter_definition.pop(
             BaseHandler.DEFAULT_FILTER_KEY))
@@ -194,6 +209,7 @@ def post_show_select_query(filter_definition):
 
 @requires_auth
 def post_expand_filter_query(filter_definition):
+    """Use filter to query database and show results that matched given filter."""
     try:
         matched = BaseHandler(job_id=None).expand_filter_query(filter_definition)
     except Exception as exc:
@@ -204,6 +220,7 @@ def post_expand_filter_query(filter_definition):
 
 @requires_auth
 def get_analyses_report(**kwargs):
+    """View brief report of the current system analyses status."""
     try:
         parse_dates(kwargs)
     except Exception as exc:
@@ -213,6 +230,7 @@ def get_analyses_report(**kwargs):
 
 @requires_auth
 def get_queue_attributes():
+    """Generate report containing queue attributes info."""
     try:
         report = construct_queue_attributes()
     except Exception as exc:
@@ -223,6 +241,7 @@ def get_queue_attributes():
 
 @requires_auth
 def get_gh_tokens_rate_limits():
+    """Show current API rate limits on GitHub tokens."""
     response = {'tokens': []}
     for token in configuration.GITHUB_ACCESS_TOKENS:
         r = requests.get('https://api.github.com/rate_limit', params={'access_token': token})
@@ -240,18 +259,21 @@ def get_gh_tokens_rate_limits():
 @requires_auth
 @uses_scheduler
 def post_flow_scheduling(scheduler, **kwargs):
+    """Schedule the job with configuration based on the JSON structure send via request."""
     return post_schedule_job(scheduler, handlers.FlowScheduling.__name__, **kwargs)
 
 
 @requires_auth
 @uses_scheduler
 def post_selective_flow_scheduling(scheduler, **kwargs):
+    """Schedule the job with configuration based on the JSON structure send via request."""
     return post_schedule_job(scheduler, handlers.SelectiveFlowScheduling.__name__, **kwargs)
 
 
 @requires_auth
 @uses_scheduler
 def post_analyses(scheduler, **kwargs):
+    """Schedule the job to run analysis for selected ecosystem."""
     try:
         handlers.base.AnalysesBaseHandler.check_arguments(**kwargs)
     except Exception as exc:
@@ -264,6 +286,7 @@ def post_analyses(scheduler, **kwargs):
 @requires_auth
 @uses_scheduler
 def github_most_starred(scheduler, **kwargs):
+    """Schedule the job to read GitHub most starred repositories."""
     try:
         handlers.base.AnalysesBaseHandler.check_arguments(**kwargs)
     except Exception as exc:
@@ -275,18 +298,21 @@ def github_most_starred(scheduler, **kwargs):
 @requires_auth
 @uses_scheduler
 def github_manifests(scheduler, **kwargs):
+    """Collect and process manifest files from given GitHub repositories."""
     return post_schedule_job(scheduler, handlers.GitHubManifests.__name__, **kwargs)
 
 
 @requires_auth
 @uses_scheduler
 def aggregate_github_manifest_pkgs(scheduler, **kwargs):
+    """Aggregate package names from GitHub manifests."""
     return post_schedule_job(scheduler, handlers.AggregateGitHubManifestPackages.__name__, **kwargs)
 
 
 @requires_auth
 @uses_scheduler
 def post_clean_postgres(scheduler, **kwargs):
+    """Clean PostgreSQL results."""
     try:
         parse_dates(kwargs)
     except Exception as exc:
@@ -297,17 +323,20 @@ def post_clean_postgres(scheduler, **kwargs):
 @requires_auth
 @uses_scheduler
 def post_sync_to_graph(scheduler, **kwargs):
+    """Sync all finished analyses to graph."""
     return post_schedule_job(scheduler, handlers.SyncToGraph.__name__, **kwargs)
 
 
 @requires_auth
 @uses_scheduler
 def post_aggregate_topics(scheduler, **kwargs):
+    """Aggregate all topics collected from GitHub and store them on S3."""
     return post_schedule_job(scheduler, handlers.AggregateTopics.__name__, **kwargs)
 
 
 @requires_auth
 def post_queue_purge(queues):
+    """Purge given SQS queues."""
     try:
         report = purge_queues(queues.split(','))
     except Exception as exc:
@@ -318,17 +347,20 @@ def post_queue_purge(queues):
 @requires_auth
 @uses_scheduler
 def post_maven_releases(scheduler, **kwargs):
+    """Add job for scheduling new maven releases."""
     return post_schedule_job(scheduler, handlers.MavenReleasesAnalyses.__name__, **kwargs)
 
 
 @requires_auth
 def get_maven_releases():
+    """Get last used offset to maven indexer."""
     s3 = StoragePool.get_connected_storage('S3MavenIndex')
     return {'last_offset': s3.get_last_offset()}, 200
 
 
 @requires_auth
 def put_maven_releases(offset):
+    """Adjust offset to maven indexer that should be used."""
     s3 = StoragePool.get_connected_storage('S3MavenIndex')
     s3.set_last_offset(offset)
     return {'last_offset': s3.get_last_offset()}, 201
