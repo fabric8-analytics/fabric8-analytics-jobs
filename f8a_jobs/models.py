@@ -1,3 +1,5 @@
+"""Module with functions to handle database sessions and job API tokens."""
+
 import logging
 from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, Sequence, String, DateTime, Boolean
@@ -15,11 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 def create_models():
+    """Create the engine to manage many individual database connections."""
     engine = create_engine(worker_configuration.POSTGRES_CONNECTION)
     _Base.metadata.create_all(engine)
 
 
 def get_session():
+    """Retrieve the database connection session."""
     engine = create_engine(worker_configuration.POSTGRES_CONNECTION)
     return sessionmaker(bind=engine)()
 
