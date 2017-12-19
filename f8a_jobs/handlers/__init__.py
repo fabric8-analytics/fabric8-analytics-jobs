@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Module containing all handlers supported by the job service."""
+
 from .clean_postgres import CleanPostgres
 from .error import ErrorHandler
 from .flow import FlowScheduling

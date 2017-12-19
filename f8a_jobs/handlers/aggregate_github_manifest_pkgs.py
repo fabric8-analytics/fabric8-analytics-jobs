@@ -1,12 +1,15 @@
+"""Class to aggregate package names from GitHub manifests."""
+
 from selinon import StoragePool
 from f8a_jobs.handlers.base import BaseHandler
 from f8a_worker.storages import AmazonS3
 
 
 class AggregateGitHubManifestPackages(BaseHandler):
+    """Class to aggregate package names from GitHub manifests."""
 
     def execute(self, repositories, ecosystem, bucket_name, object_key):
-        """Aggregate package names from GitHub manifests.
+        """Perform aggregation of package names from GitHub manifests.
 
         :param repositories: a list of repositories
         :param ecosystem: ecosystem, will appear in the resulting JSON file
@@ -77,18 +80,21 @@ class AggregateGitHubManifestPackages(BaseHandler):
         s3_dest.store_dict(manifest_result, "new_manifest" + object_key)
 
     def _create_tagger_list(self, ecosystem, package_version):
-        """
+        """Create list of dict objects that is to be appended into tagger_list.
+
         :param ecosystem: ecosystem name, will appear in json
         :param package_version: a list of tuples containg package name and version;
-        :return: a list of dict objects will get appened in tagger_list
+        :return: a list of dict objects will get appended in tagger_list
         """
-        appened_tagger_list = []
+        appended_tagger_list = []
         for package in package_version.items():
-            appened_tagger_list.append(self._create_data(ecosystem, package[0], package[1]))
-        return appened_tagger_list
+            appended_tagger_list.append(self._create_data_structure(ecosystem, package[0],
+                                                                    package[1]))
+        return appended_tagger_list
 
-    def _create_data(self, ecosystem, package, version):
-        """
+    def _create_data_structure(self, ecosystem, package, version):
+        """Create data structure that describes job configuration.
+
         :param ecosystem: ecosystem name will appear in each dict object in json file
         :param package: package name for the dict object
         :param version: version of the package for the dict object
@@ -105,7 +111,8 @@ class AggregateGitHubManifestPackages(BaseHandler):
         return data
 
     def _create_manifest_entry(self, package_list, repo_ecosystem, repo_name, s3):
-        """
+        """Create dict object for the given repository with metadata taken from the S3 database.
+
         :param package_list: list of dependencies of a repo.
         :param repo_ecosystem: ecosystem of repo.
         :param repo_name: name of the repo.
