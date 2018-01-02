@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 def generate_token():
     """Generate the authorization token via GitHub service."""
     return github.authorize(callback=url_for('/api/v1.f8a_jobs_api_v1_authorized',
-                            _external=True))
+                                             _external=True))
 
 
 def logout():
@@ -56,7 +56,8 @@ def authorized():
     if auth_token:
         return JobToken.get_info(auth_token)
 
-    logger.info("Authorized redirection triggered, getting authorized response from Github")
+    logger.info(
+        "Authorized redirection triggered, getting authorized response from Github")
     resp = github.authorized_response()
     logger.info("Got Github authorized response")
 
@@ -69,7 +70,8 @@ def authorized():
         logger.warning(msg)
         return {'error': msg}, 400
 
-    logger.debug("Assigning authorization token '%s' to session", resp['access_token'])
+    logger.debug("Assigning authorization token '%s' to session",
+                 resp['access_token'])
     session['auth_token'] = (resp['access_token'], '')
     oauth_info = github.get('user')
     if not is_organization_member(oauth_info.data):
@@ -78,7 +80,8 @@ def authorized():
         logout()
         return {'error': 'unauthorized'}, 401
 
-    token_info = JobToken.store_token(oauth_info.data['login'], resp['access_token'])
+    token_info = JobToken.store_token(
+        oauth_info.data['login'], resp['access_token'])
     return token_info
 
 
@@ -161,7 +164,7 @@ def get_jobs(scheduler, job_type=None):
     job_type = job_type or 'all'
     for job in jobs:
         if job_type == 'failed' and is_failed_job(job):
-                job_list.append(job2raw_dict(job))
+            job_list.append(job2raw_dict(job))
         if job_type == 'user' and not is_failed_job(job):
             job_list.append(job2raw_dict(job))
         if job_type == 'all':
@@ -179,10 +182,12 @@ def get_readiness():
 def get_liveness(scheduler):
     """Get job service liveness."""
     # Ensure the scheduler is alive
-    logger.warning("Liveness probe - trying retrieve stored jobs from database using scheduler")
+    logger.warning(
+        "Liveness probe - trying retrieve stored jobs from database using scheduler")
     # Ensure that we are able to publish messages
     logger.warning("Liveness probe - trying to schedule the livenessFlow")
-    handlers.FlowScheduling(job_id=None).execute('livenessFlow', flow_arguments=[None])
+    handlers.FlowScheduling(job_id=None).execute(
+        'livenessFlow', flow_arguments=[None])
     logger.warning("Liveness probe - finished")
     return {}, 200
 
@@ -192,7 +197,8 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
     # No need to add @requires_auth for this one, assuming handler specific
     # POST endpoints take care of it
     try:
-        # Translate 'kwargs' in POST to handler key-value arguments passing, if needed
+        # Translate 'kwargs' in POST to handler key-value arguments passing, if
+        # needed
         kwargs.update(kwargs.pop('kwargs', {}))
         job = Scheduler.schedule_job(scheduler, handler_name, **kwargs)
         return {"job": job2raw_dict(job)}, 201
@@ -216,7 +222,8 @@ def post_show_select_query(filter_definition):
 def post_expand_filter_query(filter_definition):
     """Use filter to query database and show results that matched given filter."""
     try:
-        matched = BaseHandler(job_id=None).expand_filter_query(filter_definition)
+        matched = BaseHandler(
+            job_id=None).expand_filter_query(filter_definition)
     except Exception as exc:
         logger.exception(str(exc))
         return {"error": str(exc), "traceback": traceback.format_exc()}, 400
@@ -249,7 +256,8 @@ def get_gh_tokens_rate_limits():
     """Show current API rate limits on GitHub tokens."""
     response = {'tokens': []}
     for token in configuration.GITHUB_ACCESS_TOKENS:
-        r = requests.get('https://api.github.com/rate_limit', params={'access_token': token})
+        r = requests.get('https://api.github.com/rate_limit',
+                         params={'access_token': token})
         limits = r.json()
         limits['token'] = '{prefix}...'.format(prefix=token[:4])
         response['tokens'].append(limits)
@@ -284,7 +292,8 @@ def post_analyses(scheduler, **kwargs):
     except Exception as exc:
         return {"error": str(exc)}, 400
 
-    handler_name = handlers.base.AnalysesBaseHandler.ecosystem2handler_name(kwargs['ecosystem'])
+    handler_name = handlers.base.AnalysesBaseHandler.ecosystem2handler_name(kwargs[
+                                                                            'ecosystem'])
     return post_schedule_job(scheduler, handler_name, **kwargs)
 
 
@@ -404,3 +413,10 @@ def bookkeeping_epv(ecosystem, package, version):
     """Retrieve BookKeeping data for the given ecosystem, package, and version."""
     result = retrieve_bookkeeping_for_epv(ecosystem, package, version)
     return result
+
+
+@requires_auth
+@uses_scheduler
+def kronos_data_update(scheduler, **kwargs):
+    """Aggregate package names from GitHub manifests."""
+    return post_schedule_job(scheduler, handlers.KronosDataUpdater.__name__, **kwargs)

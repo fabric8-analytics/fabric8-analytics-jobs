@@ -19,29 +19,30 @@ class KronosDataUpdater(BaseHandler):
         self.user_persona = None
         self.extra_manifest_list = []
         self.unique_packages = set()
-        self.past_variable = None
-        self.past_count = None
+        self.past_days = None
 
-    def execute(self, ecosystem="maven",
-                past_variable="DAYS",
-                past_count=7):
+    def execute(self, bucket_name="dev-stack-analysis-clean-data",
+                ecosystem="maven",
+                user_persona=1,
+                past_days=7):
         self.ecosystem = ecosystem
-        self.past_variable = past_variable
-        self.past_count = past_count
+        self.past_days = past_days
+        self.user_persona = user_persona
         return self.processing()
 
-    def generate_query(self):
+    def _generate_query(self):
         query = "select all_details -> 'ecosystem' as ecosystem, all_details -> '_resolved' as deps from worker_results"
         query += " cross join jsonb_array_elements(worker_results.task_result -> 'result')"
         query += " all_results cross join jsonb_array_elements(all_results -> 'details') all_details where worker = 'GraphAggregatorTask'"
-        query += " and EXTRACT({} FROM age(to_timestamp(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss'))) <={} and all_details->>'ecosystem'='{}';".format(
-            self.past_var, self.past_count, self.ecosystem)
+        query += " and EXTRACT(DAYS FROM age(to_timestamp(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))"
+        query += "<={} and all_details->>'ecosystem'='{}';".format(
+            self.past_days, self.ecosystem)
         return query
 
-    def execute_query(self, query):
+    def _execute_query(self, query):
         return self.postgres.session.query(query)
 
-    def append_mainfest(self, s3):
+    def _append_mainfest(self, s3):
         manifest_path = os.path.join(self.ecosystem,
                                      "github/data_input_manifest_file_list",
                                      self.user_persona, "manifets.json")
@@ -54,7 +55,7 @@ class KronosDataUpdater(BaseHandler):
                 break
         s3.store_updated_data(manifest_data, manifest_path)
 
-    def append_package_topic(self, s3):
+    def _append_package_topic(self, s3):
         package_topic_path = os.path.join(self.ecosystem,
                                           "github/data_input_raw_package_list/package_topic.json")
         package_topic = s3.fetch_existing_data(package_topic_path)
@@ -68,18 +69,24 @@ class KronosDataUpdater(BaseHandler):
                 break
         s3.store_updated_data(package_topic, package_topic_path)
 
-    def processing(self):
-        result = self.execute_query(query).fetchall()
-        for each_row in result:
-            package_list = []
-            if len(each_row) != 2 or each_row[0] != self.ecosystem:
-                continue
-            for dep in each_row[1]:
-                package_name = dep.get('package')
-                package_list.append(package_name)
-                self.unique_packages.add(package_name)
-                self.extra_manifest_list.append(package_list)
+    def _processing(self):
+        try:
+            result = self._execute_query(query).fetchall()
+            self.log.info("Query executed.")
+            for each_row in result:
+                package_list = []
+                if len(each_row) != 2 or each_row[0] != self.ecosystem:
+                    continue
+                for dep in each_row[1]:
+                    package_name = dep.get('package')
+                    package_list.append(package_name)
+                    self.unique_packages.add(package_name)
+                    self.extra_manifest_list.append(package_list)
 
-        s3 = StoragePool.get_connected_storage('S3KronosAppend')
-        self.append_mainfest(s3)
-        self.append_package_topic(s3)
+            s3 = StoragePool.get_connected_storage('S3KronosAppend')
+            self._append_mainfest(s3)
+            self._append_package_topic(s3)
+            self.log.info("User Input Stacks appended.")
+        except Exception as e:
+            self.log.exception('Unable to append input stack for ecosystem {ecosystem}: {reason}'.
+                               format(ecosystem=self.ecosystem, reason=str(e)))
