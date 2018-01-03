@@ -1,5 +1,4 @@
 FROM registry.centos.org/centos/centos:7
-MAINTAINER Fridolin Pokorny <fridolin@redhat.com>
 
 ENV LANG=en_US.UTF-8 \
     PV_DIR='/pv' \
