@@ -22,6 +22,11 @@ from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
 import f8a_jobs.defaults as configuration
+from f8a_jobs.book_keeping import retrieve_bookkeeping_all
+from f8a_jobs.book_keeping import retrieve_bookkeeping_for_ecosystem
+from f8a_jobs.book_keeping import retrieve_bookkeeping_for_ecosystem_package
+from f8a_jobs.book_keeping import retrieve_bookkeeping_for_epv
+
 
 logger = logging.getLogger(__name__)
 
@@ -364,3 +369,27 @@ def put_maven_releases(offset):
     s3 = StoragePool.get_connected_storage('S3MavenIndex')
     s3.set_last_offset(offset)
     return {'last_offset': s3.get_last_offset()}, 201
+
+
+@requires_auth
+def bookkeeping_all():
+    result = retrieve_bookkeeping_all()
+    return result
+
+
+@requires_auth
+def bookkeeping_ecosystem(ecosystem):
+    result = retrieve_bookkeeping_for_ecosystem(ecosystem)
+    return result
+
+
+@requires_auth
+def bookkeeping_ecosystem_package(ecosystem, package):
+    result = retrieve_bookkeeping_for_ecosystem_package(ecosystem, package)
+    return result
+
+
+@requires_auth
+def bookkeeping_epv(ecosystem, package, version):
+    result = retrieve_bookkeeping_for_epv(ecosystem, package, version)
+    return result
