@@ -1,9 +1,12 @@
 import json
+import os.path
 from f8a_jobs.handlers import aggregate_crowd_source_tags as acs
 
 
 def test_single_pkg():
-    with open("data/single_pkg.json") as rd:
+    data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'data', 'single_pkg.json')
+    with open(data) as rd:
         correct_data = json.load(rd)
     pkg_data = correct_data.get("result", {}).get("data", [])
     assert (len(pkg_data) == 1)
@@ -24,7 +27,9 @@ def test_single_pkg():
 
 
 def test_multiple_user_tags():
-    with open("data/multiple_user.json") as rd:
+    data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'data', 'multiple_user.json')
+    with open(data) as rd:
         correct_data = json.load(rd)
     pkg_data = correct_data.get("result", {}).get("data", [])
     assert (len(pkg_data) == 1)
@@ -45,7 +50,9 @@ def test_multiple_user_tags():
 
 
 def test_double_pkg():
-    with open("data/double_pkg.json") as rd:
+    data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'data', 'double_pkg.json')
+    with open(data) as rd:
         correct_data = json.load(rd)
     pkg_data = correct_data.get("result", {}).get("data", [])
     assert (len(pkg_data) == 2)
