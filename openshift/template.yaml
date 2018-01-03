@@ -202,7 +202,7 @@ parameters:
   displayName: Docker image
   required: true
   name: DOCKER_IMAGE
-  value: "bayesian/coreapi-jobs"
+  value: "fabric8-analytics/coreapi-jobs"
 
 - description: Image tag
   displayName: Image tag

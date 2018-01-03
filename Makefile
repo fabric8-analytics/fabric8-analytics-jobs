@@ -1,5 +1,5 @@
 REGISTRY?=registry.devshift.net
-REPOSITORY?=bayesian/coreapi-jobs
+REPOSITORY?=fabric8-analytics/coreapi-jobs
 DEFAULT_TAG=latest
 
 .PHONY: all docker-build fast-docker-build test get-image-name get-image-repository
