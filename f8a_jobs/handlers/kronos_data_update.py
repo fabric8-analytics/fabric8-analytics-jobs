@@ -32,7 +32,7 @@ class KronosDataUpdater(BaseHandler):
         :param bucket_name: The source where data is to be added.
         :param ecosystem: The ecosystem for which data is to be added.
         :param user_persona: The User type for which data is to be added.
-        :param past_days: The number of days for sync. 
+        :param past_days: The number of days for sync.
         """
         self.ecosystem = ecosystem
         self.past_days = past_days
