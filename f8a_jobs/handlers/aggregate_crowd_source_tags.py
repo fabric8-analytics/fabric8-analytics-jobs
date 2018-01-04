@@ -136,11 +136,13 @@ class AggregateCrowdSourceTags(BaseHandler):
                 pkg_name = users_tag_data["name"][0]
                 pkg_tags, raw_tags = self._filter_users_tag(users_tag=users_tag)
                 if not pkg_tags:
-                    query += self._set_user_tags_query\
-                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=raw_tags)
+                    query += self._set_user_tags_query(ecosystem=ecosystem,
+                                                       pkg_name=pkg_name,
+                                                       tags=raw_tags)
                 else:
-                    query += self._set_usercount_query\
-                        (ecosystem=ecosystem, pkg_name=pkg_name, tags=pkg_tags)
+                    query += self._set_usercount_query(ecosystem=ecosystem,
+                                                       pkg_name=pkg_name,
+                                                       tags=pkg_tags)
                 package_topic_list[pkg_name] = list(pkg_tags)
             self._execute_query(query)
             self.log.info("Package in the Graph has been updated")
@@ -168,7 +170,8 @@ class AggregateCrowdSourceTags(BaseHandler):
                 pkg_tags = pkg_tags & set(tags)
         return pkg_tags, raw_tags
 
-    def _process_tags(self, tags):
+    @staticmethod
+    def process_tags(tags):
         """
         Preprocesing and Data cleansing task on raw-tags
         :param tags: End-user suggested raw-tags
