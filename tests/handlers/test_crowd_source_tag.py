@@ -1,11 +1,15 @@
+"""Tests for AggregateCrowdSourceTags class."""
+
 import json
 import os.path
 from f8a_jobs.handlers.aggregate_crowd_source_tags import AggregateCrowdSourceTags as ACST
 
 
-class TestCrowdSourceTag(object):
+class TestCrowdSourceTags(object):
+    """Tests for AggregateCrowdSourceTags class."""
 
     def test_filter_user_tags_single_pkg(self):
+        """Test for filter_user_tags()."""
         data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                             'data', 'single_pkg.json')
         with open(data) as rd:
@@ -19,6 +23,7 @@ class TestCrowdSourceTag(object):
         assert (set(pkg_tags) == {'database', 'scm'})
 
     def test_filter_user_tags_multiple_user_tags(self):
+        """Test for filter_user_tags()."""
         data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                             'data', 'multiple_user.json')
         with open(data) as rd:
@@ -32,6 +37,7 @@ class TestCrowdSourceTag(object):
         assert (set(pkg_tags) == {'database'})
 
     def test_filter_user_tags_double_pkg(self):
+        """Test for filter_user_tags()."""
         data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                             'data', 'double_pkg.json')
         with open(data) as rd:

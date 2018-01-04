@@ -310,6 +310,7 @@ def github_manifests(scheduler, **kwargs):
 @requires_auth
 @uses_scheduler
 def aggregate_crowd_source_tags(scheduler, **kwargs):
+    """Aggregate crowd source tags."""
     return post_schedule_job(scheduler, handlers.AggregateCrowdSourceTags.__name__, **kwargs)
 
 

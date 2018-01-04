@@ -1,3 +1,5 @@
+"""Job to read tags from graph and apply a verification logic on them."""
+
 from botocore.exceptions import ClientError
 import json
 import os
@@ -7,12 +9,12 @@ from f8a_jobs.handlers.base import BaseHandler
 
 
 class AggregateCrowdSourceTags(BaseHandler):
+    """Job to read tags from graph and apply a verification logic on them."""
 
     def execute(self, ecosystem):
-        """
-        Process raw-tags and update the existing package_topic.json file in S3 bucket
+        """Process raw-tags and update existing package_topic.json file on S3.
+
         :param ecosystem: Name of ecosystem
-        :return: Updated package_topic.json file
         """
         s3 = StoragePool.get_connected_storage('S3CrowdSourceTags')
 
@@ -36,10 +38,7 @@ class AggregateCrowdSourceTags(BaseHandler):
                        "has been stored for %s", ecosystem)
 
     def _get_graph_url(self):
-        """
-         Provide the graph database url
-         :return: graph-url
-         """
+        """Get graph database url."""
         url = "http://{host}:{port}".\
             format(host=os.getenv("BAYESIAN_GREMLIN_HTTP_SERVICE_HOST", "localhost"),
                    port=os.getenv("BAYESIAN_GREMLIN_HTTP_SERVICE_PORT", "8182"))
@@ -47,11 +46,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         return url
 
     def _execute_query(self, query):
-        """
-        Run the graph queries
-        :param query:
-        :return: query response
-        """
+        """Run the graph query."""
         payload = {'gremlin': query}
         graph_url = self._get_graph_url()
         self.log.debug(query)
@@ -62,9 +57,10 @@ class AggregateCrowdSourceTags(BaseHandler):
             self.log.error('Graph is not responding.')
             return {}
 
-    def _get_usertags_query(self, ecosystem, usercount):
-        """
-        Create a gremlin-query to fetch tags suggested by end-user
+    @staticmethod
+    def _get_usertags_query(ecosystem, usercount):
+        """Create a gremlin-query to fetch tags suggested by end-user.
+
         :param ecosystem: name of the ecosystem
         :param usercount: number of end-user who has suggested had tags
         :return: gremlin-query to fetch package-names, user-count and raw-tags
@@ -78,13 +74,11 @@ class AggregateCrowdSourceTags(BaseHandler):
 
     @staticmethod
     def _set_user_tags_query(ecosystem, pkg_name, tags):
-        """
-        When pkg_tags is empty,
-        Create gremlin-query to aggregate raw tags as an user tags
+        """Create gremlin-query to aggregate raw tags as an user tags.
+
         :param ecosystem: Name of the ecosystem
         :param pkg_name: Package name
         :param tags: Processed tags list
-        :return: gremlin-query to append tags into graph
         """
         query = "g.V()." \
                 "has('ecosystem', '{ecosystem}')." \
@@ -100,14 +94,11 @@ class AggregateCrowdSourceTags(BaseHandler):
 
     @staticmethod
     def _set_usercount_query(ecosystem, pkg_name, tags):
-        """
-        When pkg_tags is not empty, Create gremlin-query to rest
-        the manual_tagging_requirement property false after successful
-        tagging of a package.
+        """Create gremlin-query to set tags into graph and make manual tagging requirement false.
+
         :param ecosystem: Name of the ecosystem
         :param pkg_name: Package name
         :param tags: Processed tags list
-        :return: gremlin-query to set tags into graph and make manual tagging requirement false
         """
         query = "g.V()." \
                 "has('ecosystem', '{ecosystem}')." \
@@ -116,16 +107,15 @@ class AggregateCrowdSourceTags(BaseHandler):
                 "pkg = g.V().has('ecosystem', '{ecosystem}')." \
                 "has('name', '{pkg_name}').next();" \
                 "pkg.property('manual_tagging_required', false);"\
-            .format(ecosystem=ecosystem,pkg_name=pkg_name)
+            .format(ecosystem=ecosystem, pkg_name=pkg_name)
         query += "".join(["pkg.property('tags', '{}');".format(t) for t in tags])
         return query
 
     def _update_tags_from_graph(self, ecosystem, results):
-        """
-        Read user-tags from graph, process tags, update graph and return package_topic file
+        """Read user-tags from graph, process tags, update graph and return updated package topics.
+
         :param ecosystem: ecosystem name
         :param results: package topics map
-        :return:
         """
         usercount = os.getenv("CROWDSOURCE_USER_COUNT", 2)
         query = self._get_usertags_query(ecosystem=ecosystem, usercount=usercount)
@@ -157,8 +147,8 @@ class AggregateCrowdSourceTags(BaseHandler):
 
     @staticmethod
     def filter_user_tags(user_tags):
-        """
-        Filter tags and apply verification logic on it
+        """Filter tags and apply verification logic on it.
+
         :param user_tags: list of tags provided by end-users for one package
         :return: pkg_tags for package_topic_map, raw_tags to update graph
         """
