@@ -4,7 +4,7 @@ ENV LANG=en_US.UTF-8 \
     PV_DIR='/pv' \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
     MAVEN_INDEX_CHECKER_DATA_PATH='/pv/index-checker' \
-    F8A_WORKER_VERSION=9f5c1c3
+    F8A_WORKER_VERSION=add_kronos_worker
 
 RUN useradd coreapi
 
@@ -23,7 +23,7 @@ RUN /tmp/install_deps/install_maven-index-checker.sh
 RUN mkdir -p /etc/pcp /var/run/pcp /var/lib/pcp /var/log/pcp  && \
     chmod -R a+rwX /etc/pcp /var/run/pcp /var/lib/pcp /var/log/pcp
 
-RUN pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${F8A_WORKER_VERSION} &&\
+RUN pip3 install git+https://github.com/sara-02/fabric8-analytics-worker.git@${F8A_WORKER_VERSION} &&\
     mkdir ${PV_DIR} &&\
     chmod 777 ${PV_DIR}
 
