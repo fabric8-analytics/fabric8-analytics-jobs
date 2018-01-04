@@ -29,7 +29,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         if not results:
             self.log.error("Unable to retrieve package_topic_map for %s", ecosystem)
 
-        results = self._read_tags_from_graph(ecosystem=ecosystem, results=results)
+        results = self._update_tags_from_graph(ecosystem=ecosystem, results=results)
 
         s3.store_package_topic(ecosystem, results)
         self.log.debug("The file crowd_sourcing_package_topic.json "
@@ -54,6 +54,7 @@ class AggregateCrowdSourceTags(BaseHandler):
         """
         payload = {'gremlin': query}
         graph_url = self._get_graph_url()
+        self.log.debug(query)
         response = get_session_retry().post(graph_url, data=json.dumps(payload))
         if response.status_code == 200:
             return response.json()
@@ -75,7 +76,8 @@ class AggregateCrowdSourceTags(BaseHandler):
                 .format(ecosystem=ecosystem, usercount=usercount)
         return query
 
-    def _set_user_tags_query(self, ecosystem, pkg_name, tags):
+    @staticmethod
+    def _set_user_tags_query(ecosystem, pkg_name, tags):
         """
         When pkg_tags is empty,
         Create gremlin-query to aggregate raw tags as an user tags
@@ -96,7 +98,8 @@ class AggregateCrowdSourceTags(BaseHandler):
         query += "".join(["pkg.property('tags', '{}');".format(t) for t in tags])
         return query
 
-    def _set_usercount_query(self, ecosystem, pkg_name, tags):
+    @staticmethod
+    def _set_usercount_query(ecosystem, pkg_name, tags):
         """
         When pkg_tags is not empty, Create gremlin-query to rest
         the manual_tagging_requirement property false after successful
@@ -117,24 +120,24 @@ class AggregateCrowdSourceTags(BaseHandler):
         query += "".join(["pkg.property('tags', '{}');".format(t) for t in tags])
         return query
 
-    def _read_tags_from_graph(self, ecosystem, results):
+    def _update_tags_from_graph(self, ecosystem, results):
         """
         Read user-tags from graph, process tags, update graph and return package_topic file
         :param ecosystem: ecosystem name
         :param results: package topics map
         :return:
         """
-        usercount = os.environ.get("CROWDSOURCE_USER_COUNT", 2)
+        usercount = os.getenv("CROWDSOURCE_USER_COUNT", 2)
         query = self._get_usertags_query(ecosystem=ecosystem, usercount=usercount)
         correct_data = self._execute_query(query=query)
         package_topic_list = results
         graph_data = correct_data.get("result", {}).get("data", [])
         if graph_data:
             query = ""
-            for users_tag_data in graph_data:
-                users_tag = users_tag_data.get("user_tags", [])
-                pkg_name = users_tag_data["name"][0]
-                pkg_tags, raw_tags = self._filter_users_tag(users_tag=users_tag)
+            for user_tags_data in graph_data:
+                user_tags = user_tags_data.get("user_tags", [])
+                pkg_name = user_tags_data["name"][0]
+                pkg_tags, raw_tags = self.filter_user_tags(user_tags=user_tags)
                 if not pkg_tags:
                     query += self._set_user_tags_query(ecosystem=ecosystem,
                                                        pkg_name=pkg_name,
@@ -143,7 +146,7 @@ class AggregateCrowdSourceTags(BaseHandler):
                     query += self._set_usercount_query(ecosystem=ecosystem,
                                                        pkg_name=pkg_name,
                                                        tags=pkg_tags)
-                package_topic_list[pkg_name] = list(pkg_tags)
+                package_topic_list[pkg_name] = pkg_tags
             self._execute_query(query)
             self.log.info("Package in the Graph has been updated")
         results = {
@@ -152,29 +155,34 @@ class AggregateCrowdSourceTags(BaseHandler):
         }
         return results
 
-    def _filter_users_tag(self, users_tag):
+    @staticmethod
+    def filter_user_tags(user_tags):
         """
         Filter tags and apply verification logic on it
-        :param users_tag: list of tags provided by end-users for one package
+        :param user_tags: list of tags provided by end-users for one package
         :return: pkg_tags for package_topic_map, raw_tags to update graph
         """
         pkg_tags = set()
-        tags = []
-        raw_tags = []
-        for user_tag in users_tag:
-            tags = self._process_tags(user_tag)
-            raw_tags.extend(tags)
+        raw_tags = set()
+        for user_tags_ in user_tags:
+            tags = AggregateCrowdSourceTags.process_tags(user_tags_)
+            raw_tags = raw_tags | tags
             if not pkg_tags:
-                pkg_tags = set(tags)
+                pkg_tags = tags
             else:
-                pkg_tags = pkg_tags & set(tags)
-        return pkg_tags, raw_tags
+                pkg_tags = pkg_tags & tags
+        return list(pkg_tags), list(raw_tags)
 
     @staticmethod
-    def process_tags(tags):
+    def process_tags(user_tags):
+        """Preprocessing and data cleansing of raw-tags.
+
+        Currently we just split the string into a set of individual tags.
+        TODO: The processing should consist of
+              - filtering out punctuation from tags
+              - filtering out stop-words from tags
+              - performing stemming on tags
+        :param user_tags: semicolon separated string with end-user suggested raw-tags
+        :return set of cleaned tags
         """
-        Preprocesing and Data cleansing task on raw-tags
-        :param tags: End-user suggested raw-tags
-        :return: List of cleaned tags
-        """
-        return tags.split(";")
+        return set(user_tags.split(";"))
