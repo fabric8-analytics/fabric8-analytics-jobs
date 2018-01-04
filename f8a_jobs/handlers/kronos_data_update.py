@@ -33,10 +33,14 @@ class KronosDataUpdater(BaseHandler):
         return self.processing()
 
     def _generate_query(self):
-        query = "select all_details -> 'ecosystem' as ecosystem, all_details -> '_resolved' as deps from worker_results"
-        query += " cross join jsonb_array_elements(worker_results.task_result -> 'result')"
-        query += " all_results cross join jsonb_array_elements(all_results -> 'details') all_details where worker = 'GraphAggregatorTask'"
-        query += " and EXTRACT(DAYS FROM age(to_timestamp(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))"
+        query = "select all_details -> 'ecosystem' as ecosystem,"
+        query += "all_details -> '_resolved' as deps from worker_results"
+        query += " cross join jsonb_array_elements"
+        query += "(worker_results.task_result -> 'result')"
+        query += " all_results cross join jsonb_array_elements"
+        query += "(all_results -> 'details') all_details where worker = 'GraphAggregatorTask'"
+        query += " and EXTRACT(DAYS FROM age(to_timestamp"
+        query += "(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))"
         query += "<={} and all_details->>'ecosystem'='{}';".format(
             self.past_days, self.ecosystem)
         return query
