@@ -27,6 +27,13 @@ class KronosDataUpdater(BaseHandler):
                 ecosystem="maven",
                 user_persona=1,
                 past_days=7):
+        """Append new data for Kronos training.
+
+        :param bucket_name: The source where data is to be added.
+        :param ecosystem: The ecosystem for which data is to be added.
+        :param user_persona: The User type for which data is to be added.
+        :param past_days: The number of days for sync. 
+        """
         self.ecosystem = ecosystem
         self.past_days = past_days
         self.user_persona = user_persona
