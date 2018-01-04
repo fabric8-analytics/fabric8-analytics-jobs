@@ -417,6 +417,6 @@ def bookkeeping_epv(ecosystem, package, version):
 
 @requires_auth
 @uses_scheduler
-def kronos_data_update(scheduler, **kwargs):
+def post_kronos_data_update(scheduler, **kwargs):
     """Aggregate package names from GitHub manifests."""
     return post_schedule_job(scheduler, handlers.KronosDataUpdater.__name__, **kwargs)

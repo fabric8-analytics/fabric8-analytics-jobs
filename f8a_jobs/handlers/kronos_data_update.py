@@ -3,6 +3,8 @@
 from selinon import StoragePool
 from sqlalchemy.exc import SQLAlchemyError
 from selinon import StoragePool
+from f8a_worker.storages import AmazonS3
+
 # from f8a_worker.models import WorkerResult, Analysis
 
 from .base import BaseHandler
