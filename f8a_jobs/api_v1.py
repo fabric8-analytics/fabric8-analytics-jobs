@@ -373,23 +373,27 @@ def put_maven_releases(offset):
 
 @requires_auth
 def bookkeeping_all():
+    """Retrieve BookKeeping data for all Ecosystems."""
     result = retrieve_bookkeeping_all()
     return result
 
 
 @requires_auth
 def bookkeeping_ecosystem(ecosystem):
+    """Retrieve BookKeeping data for given Ecosystem."""
     result = retrieve_bookkeeping_for_ecosystem(ecosystem)
     return result
 
 
 @requires_auth
 def bookkeeping_ecosystem_package(ecosystem, package):
+    """Retrieve BookKeeping data for given Package and Ecosystem."""
     result = retrieve_bookkeeping_for_ecosystem_package(ecosystem, package)
     return result
 
 
 @requires_auth
 def bookkeeping_epv(ecosystem, package, version):
+    """Retrieve BookKeeping data for the given ecosystem, package, and version."""
     result = retrieve_bookkeeping_for_epv(ecosystem, package, version)
     return result

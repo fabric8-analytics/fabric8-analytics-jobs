@@ -1,3 +1,5 @@
+"""Functions to retrieve BookKeeping data ."""
+
 from selinon import StoragePool
 from f8a_worker.models import (Analysis, Ecosystem, Package, Version,
                                WorkerResult, PackageWorkerResult, PackageAnalysis)
@@ -7,10 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 def retrieve_bookkeeping_all():
-    """
-    Retrieve BookKeeping data for all Ecosystems
-    """
-
+    """Retrieve BookKeeping data for all Ecosystems."""
     rdb = StoragePool.get_connected_storage('BayesianPostgres')
     db = rdb.session
     try:
@@ -35,12 +34,10 @@ def retrieve_bookkeeping_all():
 
 
 def retrieve_bookkeeping_for_ecosystem(ecosystem):
-    """
-    Retrieve BookKeeping data for given Ecosystem
+    """Retrieve BookKeeping data for given Ecosystem.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     """
-
     rdb = StoragePool.get_connected_storage('BayesianPostgres')
     db = rdb.session
     try:
@@ -63,13 +60,11 @@ def retrieve_bookkeeping_for_ecosystem(ecosystem):
 
 
 def retrieve_bookkeeping_for_ecosystem_package(ecosystem, package):
-    """
-    Retrieve BookKeeping data for given Package and Ecosystem
+    """Retrieve BookKeeping data for given Package and Ecosystem.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     :param package: package for which the data should be retrieved
     """
-
     rdb = StoragePool.get_connected_storage('BayesianPostgres')
     db = rdb.session
 
@@ -113,13 +108,12 @@ def retrieve_bookkeeping_for_ecosystem_package(ecosystem, package):
 
 
 def retrieve_bookkeeping_for_epv(ecosystem, package, version):
-    """Retrieve BookKeeping data
+    """Retrieve BookKeeping data for the given ecosystem, package, and version.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     :param package: package for which the data should be retrieved
     :param version: package version for which the data should be retrieved
     """
-
     rdb = StoragePool.get_connected_storage('BayesianPostgres')
     db = rdb.session
     try:
