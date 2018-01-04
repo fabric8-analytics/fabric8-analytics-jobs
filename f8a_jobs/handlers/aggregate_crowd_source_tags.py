@@ -1,7 +1,8 @@
+from botocore.exceptions import ClientError
 import json
 import os
-from f8a_worker.utils import get_session_retry
 from selinon import StoragePool
+from f8a_worker.utils import get_session_retry
 from f8a_jobs.handlers.base import BaseHandler
 
 
@@ -14,22 +15,25 @@ class AggregateCrowdSourceTags(BaseHandler):
         :return: Updated package_topic.json file
         """
         s3 = StoragePool.get_connected_storage('S3CrowdSourceTags')
-        bucket_name = s3.get_object_key_path(ecosystem)
-        self.log.info("Connected with S3 bucket: {bucket_name}", bucket_name=bucket_name)
-        results = {}
-        try:
-            obj = bucket_name + "package_topic.json"
-            package_topic = s3.retrieve_dict(obj)
-            if package_topic:
-                results = package_topic.get("package_topic_map")
 
-        except Exception as e:
-            self.log.error('Unable to collect package_topic for {ecosystem}: {reason}'.
-                           format(ecosystem=ecosystem, reason=str(e)))
+        package_topic = []
+        try:
+            package_topic = s3.retrieve_package_topic(ecosystem)
+        except ClientError:
+            self.log.error("Unable to retrieve package_topic.json for %s", ecosystem)
+
+        results = {}
+        for record in package_topic:
+            if record.get("ecosystem") == ecosystem and record.get("package_topic_map"):
+                results = record["package_topic_map"]
+        if not results:
+            self.log.error("Unable to retrieve package_topic_map for %s", ecosystem)
+
         results = self._read_tags_from_graph(ecosystem=ecosystem, results=results)
-        s3.store(results)
-        self.log.info("The file crowd_sourcing_package_topic."
-                      "json has been stored for ecosystem: {ecosystem}", ecosystem=ecosystem)
+
+        s3.store_package_topic(ecosystem, results)
+        self.log.debug("The file crowd_sourcing_package_topic.json "
+                       "has been stored for %s", ecosystem)
 
     def _get_graph_url(self):
         """
@@ -37,8 +41,8 @@ class AggregateCrowdSourceTags(BaseHandler):
          :return: graph-url
          """
         url = "http://{host}:{port}".\
-            format(host=os.environ.get("BAYESIAN_GREMLIN_HTTP_SERVICE_HOST", "localhost"),
-                   port=os.environ.get("BAYESIAN_GREMLIN_HTTP_SERVICE_PORT", "8182"))
+            format(host=os.getenv("BAYESIAN_GREMLIN_HTTP_SERVICE_HOST", "localhost"),
+                   port=os.getenv("BAYESIAN_GREMLIN_HTTP_SERVICE_PORT", "8182"))
         self.log.debug("Graph url is: {}".format(url))
         return url
 
