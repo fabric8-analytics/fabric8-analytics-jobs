@@ -34,7 +34,7 @@ class KronosDataUpdater(BaseHandler):
         self.ecosystem = ecosystem
         self.past_days = past_days
         self.user_persona = user_persona
-        return self.processing()
+        return self._processing()
 
     def _generate_query(self):
         query = "select all_details -> 'ecosystem' as ecosystem,"
