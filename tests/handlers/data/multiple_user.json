@@ -1,0 +1,36 @@
+{
+	"requestId": "659fb915-4109-4181-8ae3-1bf972e70885",
+	"status": {
+		"message": "",
+		"code": 200,
+		"attributes": {}
+	},
+	"result": {
+		"data": [{
+			"gh_issues_last_year_closed": [-1],
+			"gh_issues_last_month_opened": [-1],
+			"gh_prs_last_year_closed": [-1],
+			"last_updated": [1.50106888816E9],
+			"gh_prs_last_month_closed": [-1],
+			"ecosystem": ["maven"],
+			"vertex_label": ["Package"],
+			"gh_issues_last_year_opened": [-1],
+			"gh_issues_last_month_closed": [-1],
+			"gh_prs_last_year_opened": [-1],
+			"manual_tagging_required": [true],
+			"user_tags": ["database;scm", "git;scm;version-control;database", "database"],
+			"latest_version": [""],
+			"tags_count": [2],
+			"name": ["org.abcongit:eclipse.jgit"],
+			"tokens": ["eclipse", "jgit", "org"],
+			"package_relative_used": ["not used"],
+			"gh_stargazers": [-1],
+			"gh_forks": [-1],
+			"package_dependents_count": [-1],
+			"gh_prs_last_month_opened": [-1]
+		}
+		
+	],
+		"meta": {}
+	}
+}

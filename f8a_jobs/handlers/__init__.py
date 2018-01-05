@@ -2,6 +2,7 @@
 
 """Module containing all handlers supported by the job service."""
 
+from .aggregate_crowd_source_tags import AggregateCrowdSourceTags
 from .clean_postgres import CleanPostgres
 from .error import ErrorHandler
 from .flow import FlowScheduling
