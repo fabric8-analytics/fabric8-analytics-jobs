@@ -81,7 +81,7 @@ class KronosDataUpdater(BaseHandler):
 
     def _processing(self):
         try:
-            result = self._execute_query(query).fetchall()
+            result = self._execute_query(self._generate_query()).fetchall()
             self.log.info("Query executed.")
             for each_row in result:
                 package_list = []
