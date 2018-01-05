@@ -31,9 +31,9 @@ class KronosDataUpdater(BaseHandler):
         :param user_persona: The User type for which data is to be added.
         :param past_days: The number of days for sync.
         """
-        self.ecosystem = ecosystem
+        self.ecosystem = str(ecosystem)
         self.past_days = past_days
-        self.user_persona = user_persona
+        self.user_persona = str(user_persona)
         return self._processing()
 
     def _generate_query(self):
