@@ -420,9 +420,9 @@ paths:
           description: No suitable permissions
   '/jobs/aggregate-topics':
     post:
-      tags: [Add new jobs - Sara Local]
+      tags: [Add new jobs]
       operationId: f8a_jobs.api_v1.post_aggregate_topics
-      summary: Aggregate all topics collected from GitHub and store them on S3 sarah local
+      summary: Aggregate all topics collected from GitHub and store them on S3
       parameters:
         - $ref: "#/parameters/job_id"
         - $ref: "#/parameters/periodically"
@@ -438,7 +438,7 @@ paths:
         - auth_token: []
       responses:
         201:
-          description: Aggregate gathered topics and store them on S3 Sarah
+          description: Aggregate gathered topics and store them on S3
         401:
           description: No suitable permissions
   '/jobs/kronos-data-update':
