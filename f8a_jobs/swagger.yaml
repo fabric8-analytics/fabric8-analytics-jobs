@@ -443,7 +443,7 @@ paths:
           description: No suitable permissions
   '/jobs/kronos-data-update':
     post:
-      tags: [Update Kronos Training Data]
+      tags: [Add new jobs]
       operationId: f8a_jobs.api_v1.post_kronos_data_update
       summary: All 
       parameters:
