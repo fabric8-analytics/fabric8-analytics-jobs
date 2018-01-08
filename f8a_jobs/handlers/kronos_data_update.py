@@ -37,7 +37,7 @@ class KronosDataUpdater(BaseHandler):
         return self._processing()
 
     def _generate_query(self):
-        query = "select all_details -> 'ecosystem' as ecosystem,"
+        query = "all_details -> 'ecosystem' as ecosystem,"
         query += "all_details -> '_resolved' as deps from worker_results"
         query += " cross join jsonb_array_elements"
         query += "(worker_results.task_result -> 'result')"
