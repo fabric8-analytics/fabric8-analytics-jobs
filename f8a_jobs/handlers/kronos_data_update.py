@@ -56,7 +56,8 @@ class KronosDataUpdater(BaseHandler):
         manifest_path = os.path.join(self.ecosystem,
                                      "github/data_input_manifest_file_list",
                                      self.user_persona, "manifest.json")
-        self.log.info("Key {}".format(manifest_path))
+        self.log.info("Bucket name == {}".format(s3.bucket_name))
+        self.log.info("Key === {}".format(manifest_path))
         manifest_data = s3.fetch_existing_data(manifest_path)
         for each in manifest_data:
             if each.get('ecosystem') == self.ecosystem:
