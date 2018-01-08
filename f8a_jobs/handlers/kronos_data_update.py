@@ -84,24 +84,24 @@ class KronosDataUpdater(BaseHandler):
     def _processing(self):
         try:
             s3 = StoragePool.get_connected_storage('S3KronosAppend')
-            self._append_mainfest(s3)
-            self._append_package_topic(s3)
-            # result = self._execute_query(self._generate_query()).fetchall()
-            # self.log.info("Query executed.")
-            # for each_row in result:
-            #     package_list = []
-            #     if len(each_row) != 2 or each_row[0] != self.ecosystem:
-            #         continue
-            #     for dep in each_row[1]:
-            #         package_name = dep.get('package')
-            #         package_list.append(package_name)
-            #         self.unique_packages.add(package_name)
-            #         self.extra_manifest_list.append(package_list)
-
-            # s3 = StoragePool.get_connected_storage('S3KronosAppend')
             # self._append_mainfest(s3)
             # self._append_package_topic(s3)
-            # self.log.info("User Input Stacks appended.")
+            result = self._execute_query(self._generate_query()).fetchall()
+            self.log.info("Query executed.")
+            for each_row in result:
+                package_list = []
+                if len(each_row) != 2 or each_row[0] != self.ecosystem:
+                    continue
+                for dep in each_row[1]:
+                    package_name = dep.get('package')
+                    package_list.append(package_name)
+                    self.unique_packages.add(package_name)
+                    self.extra_manifest_list.append(package_list)
+
+            # s3 = StoragePool.get_connected_storage('S3KronosAppend')
+            self._append_mainfest(s3)
+            self._append_package_topic(s3)
+            self.log.info("User Input Stacks appended.")
         except Exception as e:
             self.log.exception('Unable to append input stack for ecosystem {ecosystem}: {reason}'.
                                format(ecosystem=self.ecosystem, reason=str(e)))
