@@ -86,7 +86,7 @@ class KronosDataUpdater(BaseHandler):
             s3 = StoragePool.get_connected_storage('S3KronosAppend')
             # self._append_mainfest(s3)
             # self._append_package_topic(s3)
-            result = self._execute_query(self._generate_query()).fetchall()
+            result = self._execute_query(self._generate_query()).all()
             self.log.info("Query executed.")
             for each_row in result:
                 package_list = []
