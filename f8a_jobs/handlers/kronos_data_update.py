@@ -11,6 +11,10 @@ import os
 class KronosDataUpdater(BaseHandler):
     """Class to append new data for Kronos training."""
 
+    _MANIFEST_PATH = "github/data_input_manifest_file_list"
+    _PACKAGE_TOPIC_PATH = "github/data_input_raw_package_list/package_topic.json"
+    _MANIFEST_FILE = "manifest.json"
+
     def __init__(self, *args, **kwargs):
         """Initialize instance of the GitHubMostStarred class."""
         super().__init__(*args, **kwargs)
@@ -37,27 +41,32 @@ class KronosDataUpdater(BaseHandler):
         return self._processing()
 
     def _generate_query(self):
-        """Generate Query to fetch erequired data"""
-        query = "select all_details -> 'ecosystem' as ecosystem,"
-        query += "all_details -> '_resolved' as deps from worker_results"
-        query += " cross join jsonb_array_elements"
-        query += "(worker_results.task_result -> 'result')"
-        query += " all_results cross join jsonb_array_elements"
-        query += "(all_results -> 'details') all_details where worker = 'GraphAggregatorTask'"
-        query += " and EXTRACT(DAYS FROM age(to_timestamp"
-        query += "(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))"
-        query += "<={} and all_details->>'ecosystem'='{}';".format(
-            self.past_days, self.ecosystem)
+        """Generate Query to fetch required data."""
+        query = "SELECT all_details -> 'ecosystem' as ecosystem," \
+            "all_details -> '_resolved' as deps from worker_results" \
+            " cross join jsonb_array_elements" \
+            "(worker_results.task_result -> 'result')" \
+            " all_results cross join jsonb_array_elements" \
+            "(all_results -> 'details') all_details where worker = 'GraphAggregatorTask'" \
+            " and EXTRACT(DAYS FROM age(to_timestamp" \
+            "(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))" \
+            "<={} and all_details->>'ecosystem'='{}';".format(
+                self.past_days, self.ecosystem)
         self.log.info("Genrated Query is \n {}".format(query))
         return query
 
     def _execute_query(self, query):
+        """Execute the query and return the ResultProxy."""
         return self.postgres.session.execute(query)
 
     def _append_mainfest(self, s3):
+        """For each extra manifest list, append it to existing list.
+
+        :param s3: The S3 datastore object.
+        """
         manifest_path = os.path.join(self.ecosystem,
-                                     "github/data_input_manifest_file_list",
-                                     self.user_persona, "manifest.json")
+                                     _MANIFEST_PATH,
+                                     self.user_persona, _MANIFEST_FILE)
         manifest_data = s3.fetch_existing_data(manifest_path)
         for each in manifest_data:
             if each.get('ecosystem') == self.ecosystem:
@@ -68,8 +77,13 @@ class KronosDataUpdater(BaseHandler):
         s3.store_updated_data(manifest_data, manifest_path)
 
     def _append_package_topic(self, s3):
+        """For each extra package, append it to existing package_topic.
+
+        Default topic list for new packages is an empty list [].
+        :param s3: The S3 datastore object.
+        """
         package_topic_path = os.path.join(self.ecosystem,
-                                          "github/data_input_raw_package_list/package_topic.json")
+                                          _PACKAGE_TOPIC_PATH)
         package_topic = s3.fetch_existing_data(package_topic_path)
         for each in package_topic:
             if each.get('ecosystem') == self.ecosystem:
@@ -82,6 +96,7 @@ class KronosDataUpdater(BaseHandler):
         s3.store_updated_data(package_topic, package_topic_path)
 
     def _processing(self):
+        """Append new data for Kronos training."""
         try:
             s3 = StoragePool.get_connected_storage('S3KronosAppend')
             result = self._execute_query(self._generate_query()).fetchall()
