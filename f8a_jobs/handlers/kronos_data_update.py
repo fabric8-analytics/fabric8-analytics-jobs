@@ -32,12 +32,12 @@ class KronosDataUpdater(BaseHandler):
         :param past_days: The number of days for sync.
         """
         self.ecosystem = str(ecosystem)
-        self.past_days = past_days
+        self.past_days = int(past_days)
         self.user_persona = str(user_persona)
         return self._processing()
 
     def _generate_query(self):
-        query = "all_details -> 'ecosystem' as ecosystem,"
+        query = "select all_details -> 'ecosystem' as ecosystem,"
         query += "all_details -> '_resolved' as deps from worker_results"
         query += " cross join jsonb_array_elements"
         query += "(worker_results.task_result -> 'result')"
@@ -47,17 +47,16 @@ class KronosDataUpdater(BaseHandler):
         query += "(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))"
         query += "<={} and all_details->>'ecosystem'='{}';".format(
             self.past_days, self.ecosystem)
+        self.log.info("Genrated Query is \n {}".format(query))
         return query
 
     def _execute_query(self, query):
-        return self.postgres.session.query(query)
+        return self.postgres.session.execute(query)
 
     def _append_mainfest(self, s3):
         manifest_path = os.path.join(self.ecosystem,
                                      "github/data_input_manifest_file_list",
                                      self.user_persona, "manifest.json")
-        self.log.info("Bucket name == {}".format(s3.bucket_name))
-        self.log.info("Key === {}".format(manifest_path))
         manifest_data = s3.fetch_existing_data(manifest_path)
         for each in manifest_data:
             if each.get('ecosystem') == self.ecosystem:
@@ -84,24 +83,25 @@ class KronosDataUpdater(BaseHandler):
     def _processing(self):
         try:
             s3 = StoragePool.get_connected_storage('S3KronosAppend')
-            # self._append_mainfest(s3)
-            # self._append_package_topic(s3)
-            result = self._execute_query(self._generate_query()).all()
+            result = self._execute_query(self._generate_query()).fetchall()
+            result_len = len(result)
+            self.log.info("Results is {}".format(result))
             self.log.info("Query executed.")
-            for each_row in result:
-                package_list = []
-                if len(each_row) != 2 or each_row[0] != self.ecosystem:
-                    continue
-                for dep in each_row[1]:
-                    package_name = dep.get('package')
-                    package_list.append(package_name)
-                    self.unique_packages.add(package_name)
-                    self.extra_manifest_list.append(package_list)
+            self.log.info("Number of results = {}".format(result_len))
+            if result_len > 0:
+                for each_row in result:
+                    package_list = []
+                    if len(each_row) != 2 or each_row[0] != self.ecosystem:
+                        continue
+                    for dep in each_row[1]:
+                        package_name = dep.get('package')
+                        package_list.append(package_name)
+                        self.unique_packages.add(package_name)
+                        self.extra_manifest_list.append(package_list)
 
-            # s3 = StoragePool.get_connected_storage('S3KronosAppend')
-            self._append_mainfest(s3)
-            self._append_package_topic(s3)
-            self.log.info("User Input Stacks appended.")
-        except Exception as e:
-            self.log.exception('Unable to append input stack for ecosystem {ecosystem}: {reason}'.
-                               format(ecosystem=self.ecosystem, reason=str(e)))
+                self._append_mainfest(s3)
+                self._append_package_topic(s3)
+                self.log.info("User Input Stacks appended.")
+            except Exception as e:
+                self.log.exception('Unable to append input stack for ecosystem {ecosystem}: {reason}'.
+                                   format(ecosystem=self.ecosystem, reason=str(e)))
