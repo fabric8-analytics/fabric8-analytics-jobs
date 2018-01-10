@@ -102,6 +102,6 @@ class KronosDataUpdater(BaseHandler):
                 self._append_mainfest(s3)
                 self._append_package_topic(s3)
                 self.log.info("User Input Stacks appended.")
-            except Exception as e:
-                self.log.exception('Unable to append input stack for ecosystem {ecosystem}: {reason}'.
-                                   format(ecosystem=self.ecosystem, reason=str(e)))
+        except Exception as e:
+            self.log.exception('Unable to append input stack for ecosystem {ecosystem}: {reason}'.
+                               format(ecosystem=self.ecosystem, reason=str(e)))
