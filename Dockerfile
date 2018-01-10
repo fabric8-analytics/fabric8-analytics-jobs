@@ -8,15 +8,20 @@ ENV LANG=en_US.UTF-8 \
 
 RUN useradd coreapi
 
+# https://copr.fedorainfracloud.org/coprs/fche/pcp/
+COPY hack/_copr_fche_pcp.repo /etc/yum.repos.d/
+
 RUN yum install -y epel-release && \
-    yum install -y python34-devel python34-pip postgresql-devel gcc git maven zip unzip && \
+    yum install -y python34-devel python34-pip postgresql-devel gcc git maven zip unzip pcp && \
     yum clean all
 
 # Install maven-index-checker
 COPY hack/install_maven-index-checker.sh /tmp/install_deps/
 RUN /tmp/install_deps/install_maven-index-checker.sh
 
-COPY hack/run_jobs.sh /usr/bin/
+# Create pcp dirs and make them accessible to all users. (see USER below)
+RUN mkdir -p /etc/pcp /var/run/pcp /var/lib/pcp /var/log/pcp  && \
+    chmod -R a+rwX /etc/pcp /var/run/pcp /var/lib/pcp /var/log/pcp
 
 RUN pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${F8A_WORKER_VERSION} &&\
     mkdir ${PV_DIR} &&\
@@ -27,5 +32,12 @@ RUN cd /tmp/jobs_install &&\
     pip3 install . &&\
     rm -rf /tmp/jobs_install
 
+COPY hack/run_jobs.sh hack/jobs+pmcd.sh /usr/bin/
+
+EXPOSE 44321
+
+# Even this tells docker to run the container as coreapi:coreapi
+# Openshift runs it as randomID:root anyway.
 USER coreapi
-CMD ["/usr/bin/run_jobs.sh"]
+
+CMD ["/usr/bin/jobs+pmcd.sh"]
