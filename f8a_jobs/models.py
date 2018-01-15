@@ -125,6 +125,7 @@ class JobToken(_Base):
             created_at=now
         )
         try:
+            logger.info("Storing token '%s'", str(entry.to_dict()))
             session.add(entry)
             session.commit()
         except SQLAlchemyError:
