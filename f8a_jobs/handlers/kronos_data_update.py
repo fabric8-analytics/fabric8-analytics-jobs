@@ -11,26 +11,23 @@ import os
 class KronosDataUpdater(BaseHandler):
     """Class to append new data for Kronos training."""
 
-    _MANIFEST_PATH = "github/data_input_manifest_file_list"
-    _PACKAGE_TOPIC_PATH = "github/data_input_raw_package_list/package_topic.json"
-    _MANIFEST_FILE = "manifest.json"
-
     def __init__(self, *args, **kwargs):
-        """Initialize instance of the GitHubMostStarred class."""
+        """Initialize instance of the KronosDataUpdater class."""
         super().__init__(*args, **kwargs)
+        self._MANIFEST_PATH = "github/data_input_manifest_file_list"
+        self._PACKAGE_TOPIC_PATH = "github/data_input_raw_package_list/package_topic.json"
+        self._MANIFEST_FILE = "manifest.json"
         self.ecosystem = None
         self.user_persona = None
         self.extra_manifest_list = []
         self.unique_packages = set()
         self.past_days = None
 
-    def execute(self, bucket_name="dev-stack-analysis-clean-data",
-                ecosystem="maven",
+    def execute(self, ecosystem="maven",
                 user_persona=1,
                 past_days=7):
         """Append new data for Kronos training.
 
-        :param bucket_name: The source where data is to be added.
         :param ecosystem: The ecosystem for which data is to be added.
         :param user_persona: The User type for which data is to be added.
         :param past_days: The number of days for sync.
@@ -52,29 +49,29 @@ class KronosDataUpdater(BaseHandler):
             "(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))" \
             "<={} and all_details->>'ecosystem'='{}';".format(
                 self.past_days, self.ecosystem)
-        self.log.info("Genrated Query is \n {}".format(query))
+        self.log.debug("Generated Query is \n {}".format(query))
         return query
 
     def _execute_query(self, query):
         """Execute the query and return the ResultProxy."""
         return self.postgres.session.execute(query)
 
-    def _append_mainfest(self, s3):
+    def _append_manifest(self, s3):
         """For each extra manifest list, append it to existing list.
 
         :param s3: The S3 datastore object.
         """
         manifest_path = os.path.join(self.ecosystem,
-                                     _MANIFEST_PATH,
-                                     self.user_persona, _MANIFEST_FILE)
-        manifest_data = s3.fetch_existing_data(manifest_path)
+                                     self._MANIFEST_PATH,
+                                     self.user_persona, self._MANIFEST_FILE)
+        manifest_data = s3.retrieve_dict(manifest_path)
         for each in manifest_data:
             if each.get('ecosystem') == self.ecosystem:
                 cur_package_list = each.get('package_list', [])
                 cur_package_list.extend(self.extra_manifest_list)
                 each['package_list'] = cur_package_list
                 break
-        s3.store_updated_data(manifest_data, manifest_path)
+        s3.store_dict(manifest_data, manifest_path)
 
     def _append_package_topic(self, s3):
         """For each extra package, append it to existing package_topic.
@@ -83,17 +80,17 @@ class KronosDataUpdater(BaseHandler):
         :param s3: The S3 datastore object.
         """
         package_topic_path = os.path.join(self.ecosystem,
-                                          _PACKAGE_TOPIC_PATH)
-        package_topic = s3.fetch_existing_data(package_topic_path)
+                                          self._PACKAGE_TOPIC_PATH)
+        package_topic = s3.retrieve_dict(package_topic_path)
         for each in package_topic:
             if each.get('ecosystem') == self.ecosystem:
                 cur_package_list = each.get('package_topic_map', {})
                 for each_package in self.unique_packages:
                     if each_package not in cur_package_list:
-                        cur_package_list[each_pck] = []
+                        cur_package_list[each_package] = []
                 each['package_list'] = cur_package_list
                 break
-        s3.store_updated_data(package_topic, package_topic_path)
+        s3.store_dict(package_topic, package_topic_path)
 
     def _processing(self):
         """Append new data for Kronos training."""
@@ -110,11 +107,12 @@ class KronosDataUpdater(BaseHandler):
                         continue
                     for dep in each_row[1]:
                         package_name = dep.get('package')
-                        package_list.append(package_name)
-                        self.unique_packages.add(package_name)
-                        self.extra_manifest_list.append(package_list)
+                        if package_name:
+                            package_list.append(package_name)
+                            self.unique_packages.add(package_name)
+                    self.extra_manifest_list.append(package_list)
 
-                self._append_mainfest(s3)
+                self._append_manifest(s3)
                 self._append_package_topic(s3)
                 self.log.info("User Input Stacks appended.")
         except Exception as e:
