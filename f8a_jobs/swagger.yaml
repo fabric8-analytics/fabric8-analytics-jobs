@@ -207,7 +207,7 @@ paths:
            description: A report containing queue attributes info
          401:
            description: No suitable permissions
-  '/jobs/queue-purge':
+  '/debug/queue-purge':
     post:
       tags: [Debug]
       operationId: f8a_jobs.api_v1.post_queue_purge
