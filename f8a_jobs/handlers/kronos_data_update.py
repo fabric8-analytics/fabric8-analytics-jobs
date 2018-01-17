@@ -2,6 +2,7 @@
 
 from selinon import StoragePool
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import text
 from selinon import StoragePool
 from f8a_worker.storages import AmazonS3
 from .base import BaseHandler
@@ -23,7 +24,7 @@ class KronosDataUpdater(BaseHandler):
         self.unique_packages = set()
         self.past_days = None
 
-    def execute(self, ecosystem="maven",
+    def execute(self, bucket_name, ecosystem="maven",
                 user_persona=1,
                 past_days=7):
         """Append new data for Kronos training.
@@ -35,26 +36,28 @@ class KronosDataUpdater(BaseHandler):
         self.ecosystem = str(ecosystem)
         self.past_days = int(past_days)
         self.user_persona = str(user_persona)
-        return self._processing()
+        return self._processing(bucket_name)
 
     def _generate_query(self):
         """Generate Query to fetch required data."""
-        query = "SELECT all_details -> 'ecosystem' as ecosystem," \
-            "all_details -> '_resolved' as deps from worker_results" \
-            " cross join jsonb_array_elements" \
-            "(worker_results.task_result -> 'result')" \
-            " all_results cross join jsonb_array_elements" \
-            "(all_results -> 'details') all_details where worker = 'GraphAggregatorTask'" \
-            " and EXTRACT(DAYS FROM age(to_timestamp" \
-            "(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))" \
-            "<={} and all_details->>'ecosystem'='{}';".format(
-                self.past_days, self.ecosystem)
-        self.log.debug("Generated Query is \n {}".format(query))
-        return query
+        text_query = text("SELECT all_details -> 'ecosystem' as ecosystem,"
+                          "all_details -> '_resolved' as deps from worker_results"
+                          " cross join jsonb_array_elements"
+                          "(worker_results.task_result -> 'result')"
+                          " all_results cross join jsonb_array_elements"
+                          "(all_results -> 'details') all_details"
+                          " where worker = 'GraphAggregatorTask'"
+                          " and EXTRACT(DAYS FROM age(to_timestamp"
+                          "(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))"
+                          "<=:past_days and all_details->>'ecosystem'=:ecosystem;")
+        self.log.debug("Generated Query is \n {}".format(text_query))
+        return text_query
 
-    def _execute_query(self, query):
+    def _execute_query(self, text_query):
         """Execute the query and return the ResultProxy."""
-        return self.postgres.session.execute(query)
+        return self.postgres.session.execute(text_query,
+                                             past_days=self.past_days,
+                                             ecosystem=self.ecosystem)
 
     def _append_manifest(self, s3):
         """For each extra manifest list, append it to existing list.
@@ -92,10 +95,14 @@ class KronosDataUpdater(BaseHandler):
                 break
         s3.store_dict(package_topic, package_topic_path)
 
-    def _processing(self):
+    def _processing(self, bucket_name):
         """Append new data for Kronos training."""
         try:
-            s3 = StoragePool.get_connected_storage('S3KronosAppend')
+            if bucket_name:
+                s3 = AmazonS3(bucket_name=bucket_name)
+                s3.connect()
+            else:
+                s3 = StoragePool.get_connected_storage('S3KronosAppend')
             result = self._execute_query(self._generate_query()).fetchall()
             result_len = len(result)
             self.log.info("Query executed.")
