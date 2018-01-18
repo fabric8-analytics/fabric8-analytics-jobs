@@ -49,15 +49,15 @@ class KronosDataUpdater(BaseHandler):
                           " where worker = 'GraphAggregatorTask'"
                           " and EXTRACT(DAYS FROM age(to_timestamp"
                           "(task_result->'_audit'->>'started_at','YYYY-MM-DDThh24:mi:ss')))"
-                          "<=:past_days and all_details->>'ecosystem'=:ecosystem;")
+                          "<= :past_days and all_details->>'ecosystem'= :ecosystem;")
         self.log.debug("Generated Query is \n {}".format(text_query))
         return text_query
 
     def _execute_query(self, text_query):
         """Execute the query and return the ResultProxy."""
         return self.postgres.session.execute(text_query,
-                                             past_days=self.past_days,
-                                             ecosystem=self.ecosystem)
+                                             {'past_days': self.past_days,
+                                              'ecosystem': self.ecosystem})
 
     def _append_manifest(self, s3):
         """For each extra manifest list, append it to existing list.
