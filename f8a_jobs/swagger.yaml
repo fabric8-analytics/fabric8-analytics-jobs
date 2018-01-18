@@ -451,7 +451,7 @@ paths:
         - $ref: "#/parameters/state"  
         - $ref: "#/parameters/ecosystem"
         - $ref: "#/parameters/past_days"
-        - $ref: "#/parameters/bucket_name"
+        - $ref: "#/parameters/kronos_bucket"
         - $ref: "#/parameters/user_persona"
       security:
         - auth_token: []
@@ -799,6 +799,11 @@ parameters:
     description: Append user data from past how many days.
     type: integer
     default: 7
+  kronos_bucket:
+    name: kronos_bucket
+    in: query
+    description: Name of the kronos bucket to manipulate.
+    type: string
 
 definitions:
   FlowKwargs:

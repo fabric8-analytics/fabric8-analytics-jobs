@@ -3,8 +3,6 @@
 from selinon import StoragePool
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import text
-from selinon import StoragePool
-from f8a_worker.storages import AmazonS3
 from .base import BaseHandler
 import os
 
@@ -24,11 +22,13 @@ class KronosDataUpdater(BaseHandler):
         self.unique_packages = set()
         self.past_days = None
 
-    def execute(self, bucket_name, ecosystem="maven",
+    def execute(self, kronos_bucket=None,
+                ecosystem="maven",
                 user_persona=1,
                 past_days=7):
         """Append new data for Kronos training.
 
+        :param kronos_bucket: The source where data is to be added.
         :param ecosystem: The ecosystem for which data is to be added.
         :param user_persona: The User type for which data is to be added.
         :param past_days: The number of days for sync.
@@ -36,7 +36,7 @@ class KronosDataUpdater(BaseHandler):
         self.ecosystem = str(ecosystem)
         self.past_days = int(past_days)
         self.user_persona = str(user_persona)
-        return self._processing(bucket_name)
+        return self._processing(kronos_bucket)
 
     def _generate_query(self):
         """Generate Query to fetch required data."""
@@ -95,12 +95,15 @@ class KronosDataUpdater(BaseHandler):
                 break
         s3.store_dict(package_topic, package_topic_path)
 
-    def _processing(self, bucket_name):
-        """Append new data for Kronos training."""
+    def _processing(self, kronos_bucket=None):
+        """Append new data for Kronos training.
+
+        :param kronos_bucket: The source where data is to be added.
+        """
         try:
-            if bucket_name:
-                s3 = AmazonS3(bucket_name=bucket_name)
-                s3.connect()
+            if kronos_bucket:
+                s3 = StoragePool.get_connected_storage('AmazonS3')
+                s3.bucket_name = kronos_bucket
             else:
                 s3 = StoragePool.get_connected_storage('S3KronosAppend')
             result = self._execute_query(self._generate_query()).fetchall()
