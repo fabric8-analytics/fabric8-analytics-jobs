@@ -18,3 +18,4 @@ from .github_most_starred import GitHubMostStarred
 from .github_manifests import GitHubManifests
 from .aggregate_github_manifest_pkgs import AggregateGitHubManifestPackages
 from .maven_releases import MavenReleasesAnalyses
+from .kronos_data_update import KronosDataUpdater

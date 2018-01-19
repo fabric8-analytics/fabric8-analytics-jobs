@@ -441,6 +441,25 @@ paths:
           description: Aggregate gathered topics and store them on S3
         401:
           description: No suitable permissions
+  '/jobs/kronos-data-update':
+    post:
+      tags: [Add new jobs]
+      operationId: f8a_jobs.api_v1.post_kronos_data_update
+      summary: All 
+      parameters:
+        - $ref: "#/parameters/misfire_grace_time"
+        - $ref: "#/parameters/state"  
+        - $ref: "#/parameters/ecosystem"
+        - $ref: "#/parameters/past_days"
+        - $ref: "#/parameters/kronos_bucket"
+        - $ref: "#/parameters/user_persona"
+      security:
+        - auth_token: []
+      responses:
+        201:
+          description: Read User input from RDS and update Kronos S3
+        401:
+          description: No suitable permissions        
   '/jobs/github-most-starred':
     post:
       tags: [Add new jobs]
@@ -766,6 +785,25 @@ parameters:
     description: DANGEROUS! Clean also entries of unfinished analyses, no analyses should be in progress
     type: boolean
     default: false
+  user_persona:
+    name: user_persona
+    in: query
+    required: true
+    description: User type for which data is to be collected
+    type: integer
+    default: 1 
+  past_days:
+    name: past_days
+    in: query
+    required: true
+    description: Append user data from past how many days.
+    type: integer
+    default: 7
+  kronos_bucket:
+    name: kronos_bucket
+    in: query
+    description: Name of the kronos bucket to manipulate.
+    type: string
 
 definitions:
   FlowKwargs:

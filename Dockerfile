@@ -4,7 +4,7 @@ ENV LANG=en_US.UTF-8 \
     PV_DIR='/pv' \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
     MAVEN_INDEX_CHECKER_DATA_PATH='/pv/index-checker' \
-    F8A_WORKER_VERSION=9f5c1c3
+    F8A_WORKER_VERSION=ee26727
 
 RUN useradd coreapi
 

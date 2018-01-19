@@ -404,3 +404,10 @@ def bookkeeping_epv(ecosystem, package, version):
     """Retrieve BookKeeping data for the given ecosystem, package, and version."""
     result = retrieve_bookkeeping_for_epv(ecosystem, package, version)
     return result
+
+
+@requires_auth
+@uses_scheduler
+def post_kronos_data_update(scheduler, **kwargs):
+    """Aggregate package names from GitHub manifests."""
+    return post_schedule_job(scheduler, handlers.KronosDataUpdater.__name__, **kwargs)
