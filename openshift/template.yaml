@@ -86,7 +86,7 @@ objects:
           - name: PGBOUNCER_SERVICE_HOST
             value: bayesian-pgbouncer
           - name: AUTH_ORGANIZATION
-            value: fabric8-analytics
+            value: ${AUTH_ORGANIZATION}
           - name: POSTGRESQL_DATABASE
             valueFrom:
               secretKeyRef:
