@@ -430,7 +430,7 @@ def retrieve_graphsync_ecosystem(ecosystem):
 
 @requires_auth
 def retrieve_graphsync_ecosystem_package(ecosystem, package):
-    """ Retrieve Pending Graph Sync data for given ecosystem and package.
+    """Retrieve Pending Graph Sync data for given ecosystem and package.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     :param package: package for which the data should be retrieved
@@ -469,7 +469,7 @@ def invoke_graphsync_ecosystem(ecosystem):
 
 @requires_auth
 def invoke_graphsync_ecosystem_package(ecosystem, package):
-    """ Invoke Pending Graph Sync data for given ecosystem and package.
+    """Invoke Pending Graph Sync data for given ecosystem and package.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     :param package: package for which the data should be retrieved

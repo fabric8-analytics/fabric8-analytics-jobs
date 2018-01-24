@@ -26,10 +26,12 @@ def _api_call(url, params={}):
 
 
 def fetch_pending(params={}):
+    """Invoke Pending Graph Sync APIs for given parameters."""
     url = "%s%s" % (configuration.DATA_IMPORTER_ENDPOINT, "/api/v1/pending")
     return _api_call(url, params)
 
 
 def invoke_sync(params={}):
+    """Invoke Graph Sync APIs to sync for given parameters."""
     url = "%s%s" % (configuration.DATA_IMPORTER_ENDPOINT, "/api/v1/sync_all")
     return _api_call(url, params)
