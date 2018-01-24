@@ -24,14 +24,14 @@ def _api_call(url, params=None):
 
 
 def fetch_pending(params=None):
-    params = params or {}
     """Invoke Pending Graph Sync APIs for given parameters."""
+    params = params or {}
     url = urljoin(configuration.DATA_IMPORTER_ENDPOINT, "/api/v1/pending")
     return _api_call(url, params)
 
 
 def invoke_sync(params=None):
-    params = params or {}
     """Invoke Graph Sync APIs to sync for given parameters."""
+    params = params or {}
     url = urljoin(configuration.DATA_IMPORTER_ENDPOINT, "/api/v1/sync_all")
     return _api_call(url, params)
