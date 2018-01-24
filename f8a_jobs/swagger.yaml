@@ -572,6 +572,108 @@ paths:
          200:
            description: Summary of bookkeeping data for given ecosystem
 
+
+  '/graphsync/pending':
+    get:
+       tags: [GraphSync]
+       operationId: f8a_jobs.api_v1.retrieve_graphsync_all
+       summary: Retrieve Pending Graphsync data for all ecosystems
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Summary of Pending Graphsync data for all ecosystems
+  '/graphsync/pending/{ecosystem}':
+    get:
+       tags: [GraphSync]
+       operationId: f8a_jobs.api_v1.retrieve_graphsync_ecosystem
+       summary: Retrieve Pending Graphsync data for given ecosystem
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Summary of pending graphsync data for given ecosystem
+  '/graphsync/pending/{ecosystem}/{package}':
+    get:
+       tags: [GraphSync]
+       operationId: f8a_jobs.api_v1.retrieve_graphsync_ecosystem_package
+       summary: Retrieve Pending Graphsync data for given ecosystem and package
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/package_name"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Summary of pending graphsync data for given ecosystem and package
+  '/graphsync/pending/{ecosystem}/{package}/{version}':
+    get:
+       tags: [GraphSync]
+       operationId: f8a_jobs.api_v1.retrieve_graphsync_epv
+       summary: Retrieve Pending Graphsync data for given ecosystem, package and version
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/package_name"
+        - $ref: "#/parameters/version_full"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Summary of pending graphsync data for given ecosystem, package and version
+
+
+  '/graphsync/sync_all':
+    get:
+       tags: [GraphSync]
+       operationId: f8a_jobs.api_v1.invoke_graphsync_all
+       summary: Invoke Graphsync for all ecosystems
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Invoke Graphsync for all ecosystems
+  '/graphsync/sync_all/{ecosystem}':
+    get:
+       tags: [GraphSync]
+       operationId: f8a_jobs.api_v1.invoke_graphsync_ecosystem
+       summary: Invoke Graphsync for given ecosystem
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Invoke Graphsync for given ecosystem
+  '/graphsync/sync_all/{ecosystem}/{package}':
+    get:
+       tags: [GraphSync]
+       operationId: f8a_jobs.api_v1.invoke_graphsync_ecosystem_package
+       summary: Invoke Graphsync for given ecosystem and package
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/package_name"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Invoke Graphsync for given ecosystem and package
+  '/graphsync/sync_all/{ecosystem}/{package}/{version}':
+    get:
+       tags: [GraphSync]
+       operationId: f8a_jobs.api_v1.invoke_graphsync_epv
+       summary: Invoke Graphsync for given ecosystem, package and version
+       parameters:
+        - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/package_name"
+        - $ref: "#/parameters/version_full"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: Invoke Graphsync for given ecosystem, package and version
+
 parameters:
   job_id_path:
     name: job_id
