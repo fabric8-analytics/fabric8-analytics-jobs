@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 def _api_call(url, params={}):
-    url = "%s%s" % (configuration.DATA_IMPORTER_ENDPOINT, "/api/v1/pending")
     try:
         logger.info("API Call for url: %s, params: %s" % (url, params))
         r = requests.get(url, params=params)
