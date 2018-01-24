@@ -26,7 +26,7 @@ from f8a_jobs.book_keeping import retrieve_bookkeeping_all
 from f8a_jobs.book_keeping import retrieve_bookkeeping_for_ecosystem
 from f8a_jobs.book_keeping import retrieve_bookkeeping_for_ecosystem_package
 from f8a_jobs.book_keeping import retrieve_bookkeeping_for_epv
-
+from f8a_jobs import graph_sync
 
 logger = logging.getLogger(__name__)
 
@@ -411,3 +411,81 @@ def bookkeeping_epv(ecosystem, package, version):
 def post_kronos_data_update(scheduler, **kwargs):
     """Aggregate package names from GitHub manifests."""
     return post_schedule_job(scheduler, handlers.KronosDataUpdater.__name__, **kwargs)
+
+
+# Graph Sync pending list APIs
+@requires_auth
+def retrieve_graphsync_all():
+    """Retrieve Pending Graph Sync data for all Ecosystems."""
+    result = graph_sync.fetch_pending()
+    return result
+
+
+@requires_auth
+def retrieve_graphsync_ecosystem(ecosystem):
+    """Retrieve Pending Graph Sync data for given ecosystem."""
+    result = graph_sync.fetch_pending(params={'ecosystem': ecosystem})
+    return result
+
+
+@requires_auth
+def retrieve_graphsync_ecosystem_package(ecosystem, package):
+    """ Retrieve Pending Graph Sync data for given ecosystem and package.
+
+    :param ecosystem: ecosystem for which the data should be retrieved
+    :param package: package for which the data should be retrieved
+    """
+    result = graph_sync.fetch_pending(params={'ecosystem': ecosystem, 'package': package})
+    return result
+
+
+@requires_auth
+def retrieve_graphsync_epv(ecosystem, package, version):
+    """Retrieve Pending Graph Sync data for the given ecosystem, package, and version.
+
+    :param ecosystem: ecosystem for which the data should be retrieved
+    :param package: package for which the data should be retrieved
+    :param version: package version for which the data should be retrieved
+    """
+    result = graph_sync.fetch_pending(
+        params={'ecosystem': ecosystem, 'package': package, 'version': version})
+    return result
+
+
+# Graph Sync sync_all APIs
+@requires_auth
+def invoke_graphsync_all():
+    """Invoke Pending Graph Sync data for all Ecosystems."""
+    result = graph_sync.invoke_sync()
+    return result
+
+
+@requires_auth
+def invoke_graphsync_ecosystem(ecosystem):
+    """Invoke Pending Graph Sync data for given ecosystem."""
+    result = graph_sync.invoke_sync(params={'ecosystem': ecosystem})
+    return result
+
+
+@requires_auth
+def invoke_graphsync_ecosystem_package(ecosystem, package):
+    """ Invoke Pending Graph Sync data for given ecosystem and package.
+
+    :param ecosystem: ecosystem for which the data should be retrieved
+    :param package: package for which the data should be retrieved
+    """
+    result = graph_sync.invoke_sync(params={'ecosystem': ecosystem, 'package': package})
+    return result
+
+
+@requires_auth
+def invoke_graphsync_epv(ecosystem, package, version):
+    """Invoke Pending Graph Sync data for the given ecosystem, package, and version.
+
+    :param ecosystem: ecosystem for which the data should be retrieved
+    :param package: package for which the data should be retrieved
+    :param version: package version for which the data should be retrieved
+    """
+    result = graph_sync.invoke_sync(
+        params={'ecosystem': ecosystem, 'package': package, 'version': version})
+    return result
