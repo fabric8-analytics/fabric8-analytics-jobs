@@ -54,7 +54,10 @@ def authorized():
         auth_token = session.get('auth_token', (None,))[0]
 
     if auth_token:
-        return JobToken.get_info(auth_token)
+        info = JobToken.get_info(auth_token)
+        if 'token' in info and 'error' not in info:
+            # The token is already in our DB - we can trust this fella
+            return info
 
     logger.info("Authorized redirection triggered, getting authorized response from Github")
     resp = github.authorized_response()
