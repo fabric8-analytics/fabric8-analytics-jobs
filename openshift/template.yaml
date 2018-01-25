@@ -191,6 +191,7 @@ parameters:
   displayName: Github organization name
   required: false
   name: AUTH_ORGANIZATION
+  value: fabric8-analytics
 
 - description: Docker registry where the image is
   displayName: Docker registry
