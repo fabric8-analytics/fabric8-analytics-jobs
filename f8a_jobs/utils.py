@@ -107,13 +107,15 @@ def requires_auth(func):
     return wrapper
 
 
-def is_organization_member(user_data):
+def is_organization_member(user_data, access_token):
     """Check that a user is a member of organization.
 
     :param user_data: user OAuth data
     :return: True if user is a member of organization
     """
-    data = requests.get(user_data['organizations_url'], params={'access_token': get_gh_token()})
+    data = requests.get(user_data['organizations_url'],
+                        headers={"Authorization": "bearer %s" % access_token},
+                        params={'access_token': get_gh_token()})
     data.raise_for_status()
     return any(org_def['login'] == configuration.AUTH_ORGANIZATION for org_def in data.json())
 

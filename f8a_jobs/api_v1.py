@@ -75,7 +75,7 @@ def authorized():
     logger.debug("Assigning authorization token '%s' to session", resp['access_token'])
     session['auth_token'] = (resp['access_token'], '')
     oauth_info = github.get('user')
-    if not is_organization_member(oauth_info.data):
+    if not is_organization_member(oauth_info.data, resp['access_token']):
         logger.debug("User '%s' is not member of organization '%s'", oauth_info.data['login'],
                      AUTH_ORGANIZATION)
         logout()
