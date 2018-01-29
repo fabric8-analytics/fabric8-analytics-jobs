@@ -207,8 +207,9 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
 def post_show_select_query(filter_definition):
     """Show SQL query that will be used in case of filter parametrized jobs."""
     try:
+        from json2sql.select import DEFAULT_FILTER_KEY
         query = BaseHandler(job_id=None).construct_select_query(filter_definition.pop(
-            BaseHandler.DEFAULT_FILTER_KEY))
+            DEFAULT_FILTER_KEY))
     except Exception as exc:
         logger.exception(str(exc))
         return {"error": str(exc), "traceback": traceback.format_exc()}, 400
