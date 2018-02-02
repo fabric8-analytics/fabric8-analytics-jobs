@@ -4,7 +4,6 @@ from selinon import StoragePool
 from f8a_worker.models import (Analysis, Ecosystem, Package, Version,
                                WorkerResult, PackageWorkerResult, PackageAnalysis)
 from sqlalchemy.orm.exc import NoResultFound
-from f8a_jobs.analyses_report import _count
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -20,12 +19,10 @@ class BookKeeping(object):
         try:
             data = []
             for e in self.db.query(Ecosystem).all():
-                package_count = _count(self.db,
-                                       self.db.query(Package).filter(Package.ecosystem == e))
+                package_count = self.db.query(Package).filter(Package.ecosystem == e).count()
                 ecosystem_name = self.db.query(Ecosystem).get(e.id).name
-                pv_count = _count(self.db,
-                                  self.db.query(Version).join(Package).
-                                  filter(Package.ecosystem == e))
+                pv_count = self.db.query(Version).join(Package).\
+                    filter(Package.ecosystem == e).count()
                 entry = {
                     "name": ecosystem_name,
                     "package_count": package_count,
@@ -34,6 +31,7 @@ class BookKeeping(object):
                 data.append(entry)
             result = {"summary": data}
         except SQLAlchemyError:
+            self.db.session.rollback()
             result = {"error": "Error encountered while fetching data. Please check logs."}
 
         return result
@@ -45,10 +43,8 @@ class BookKeeping(object):
         """
         try:
             e = Ecosystem.by_name(self.db, ecosystem)
-            package_count = _count(self.db,
-                                   self.db.query(Package).filter(Package.ecosystem == e))
-            pv_count = _count(self.db,
-                              self.db.query(Version).join(Package).filter(Package.ecosystem == e))
+            package_count = self.db.query(Package).filter(Package.ecosystem == e).count()
+            pv_count = self.db.query(Version).join(Package).filter(Package.ecosystem == e).count()
             result = {
                 "summary": {
                     "ecosystem": e.name,
@@ -59,6 +55,7 @@ class BookKeeping(object):
         except NoResultFound:
             result = {"error": "No such ecosystem: %s" % ecosystem}
         except SQLAlchemyError:
+            self.db.session.rollback()
             result = {"error": "Error encountered while fetching data. Please check logs."}
 
         return result
@@ -72,14 +69,12 @@ class BookKeeping(object):
         try:
             e = Ecosystem.by_name(self.db, ecosystem)
             p = Package.by_name(self.db, package)
-            version_count = _count(self.db,
-                                   self.db.query(Version).join(Package).
-                                   filter(Package.ecosystem == e).
-                                   filter(Version.package == p))
+            version_count = self.db.query(Version).join(Package).\
+                filter(Package.ecosystem == e).\
+                filter(Version.package == p).count()
             stat = self.db.query(PackageWorkerResult.worker, PackageWorkerResult.error,
                                  PackageWorkerResult.task_result).join(PackageAnalysis). \
-                filter(PackageAnalysis.package == p). \
-                all()
+                filter(PackageAnalysis.package == p).all()
 
             worker_stats = []
             for worker_name, has_error, task_result in stat:
@@ -104,6 +99,7 @@ class BookKeeping(object):
         except NoResultFound:
             result = {"error": "No such package: %s/%s" % (ecosystem, package)}
         except SQLAlchemyError:
+            self.db.session.rollback()
             result = {"error": "Error encountered while fetching data. Please check logs."}
 
         return result
@@ -122,7 +118,6 @@ class BookKeeping(object):
                 filter(Package.ecosystem == e). \
                 filter(Version.package == p). \
                 filter(Version.identifier == version).one()
-
             stat = self.db.query(WorkerResult.worker,
                                  WorkerResult.error,
                                  WorkerResult.task_result).join(Analysis).join(Version).\
@@ -146,6 +141,7 @@ class BookKeeping(object):
         except NoResultFound:
             return {"error": "No such version: %s/%s/%s" % (ecosystem, package, version)}
         except SQLAlchemyError:
+            self.db.session.rollback()
             result = {"error": "Error encountered while fetching data. Please check logs."}
 
         return result
