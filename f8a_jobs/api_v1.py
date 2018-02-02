@@ -407,6 +407,13 @@ def bookkeeping_epv(ecosystem, package, version):
 
 
 @requires_auth
+def bookkeeping_upstreams():
+    """Retrieve list of monitored upstreams."""
+    result = handlers.BookKeeping().retrieve_bookkeeping_upstreams()
+    return result
+
+
+@requires_auth
 @uses_scheduler
 def post_kronos_data_update(scheduler, **kwargs):
     """Aggregate package names from GitHub manifests."""

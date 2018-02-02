@@ -2,13 +2,15 @@
 
 from selinon import StoragePool
 from f8a_worker.models import (Analysis, Ecosystem, Package, Version,
-                               WorkerResult, PackageWorkerResult, PackageAnalysis)
+                               WorkerResult, PackageWorkerResult, PackageAnalysis,
+                               Upstream)
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import SQLAlchemyError
 
 
 class BookKeeping(object):
     """Class to retrieve BookKeeping data."""
+
     def __init__(self):
         """Initialize instance."""
         rdb = StoragePool.get_connected_storage('BayesianPostgres')
@@ -140,6 +142,30 @@ class BookKeeping(object):
             }
         except NoResultFound:
             return {"error": "No such version: %s/%s/%s" % (ecosystem, package, version)}
+        except SQLAlchemyError:
+            self.db.session.rollback()
+            result = {"error": "Error encountered while fetching data. Please check logs."}
+
+        return result
+
+    def retrieve_bookkeeping_upstreams(self):
+        """Retrieve BookKeeping data for monitored upstreams."""
+        try:
+            data = []
+            query = self.db.query(Upstream, Package.name, Ecosystem.name).\
+                filter(Package.id == Upstream.package_id).\
+                filter(Ecosystem.id == Package.ecosystem_id)
+            for upstream, package, ecosystem in query.all():
+                entry = {
+                    "ecosystem_package": "{e}/{p}".format(e=ecosystem, p=package),
+                    "url": upstream.url,
+                    "updated_at": upstream.updated_at,
+                    "added_at": upstream.added_at,
+                    "deactivated_at": upstream.deactivated_at,
+                    "active": upstream.active
+                }
+                data.append(entry)
+            result = {"summary": data}
         except SQLAlchemyError:
             self.db.session.rollback()
             result = {"error": "Error encountered while fetching data. Please check logs."}
