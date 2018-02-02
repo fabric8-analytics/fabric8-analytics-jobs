@@ -22,10 +22,6 @@ from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
 import f8a_jobs.defaults as configuration
-from f8a_jobs.book_keeping import retrieve_bookkeeping_all
-from f8a_jobs.book_keeping import retrieve_bookkeeping_for_ecosystem
-from f8a_jobs.book_keeping import retrieve_bookkeeping_for_ecosystem_package
-from f8a_jobs.book_keeping import retrieve_bookkeeping_for_epv
 from f8a_jobs import graph_sync
 
 logger = logging.getLogger(__name__)
@@ -385,28 +381,28 @@ def put_maven_releases(offset):
 @requires_auth
 def bookkeeping_all():
     """Retrieve BookKeeping data for all Ecosystems."""
-    result = retrieve_bookkeeping_all()
+    result = handlers.BookKeeping().retrieve_bookkeeping_all()
     return result
 
 
 @requires_auth
 def bookkeeping_ecosystem(ecosystem):
     """Retrieve BookKeeping data for given Ecosystem."""
-    result = retrieve_bookkeeping_for_ecosystem(ecosystem)
+    result = handlers.BookKeeping().retrieve_bookkeeping_for_ecosystem(ecosystem)
     return result
 
 
 @requires_auth
 def bookkeeping_ecosystem_package(ecosystem, package):
     """Retrieve BookKeeping data for given Package and Ecosystem."""
-    result = retrieve_bookkeeping_for_ecosystem_package(ecosystem, package)
+    result = handlers.BookKeeping().retrieve_bookkeeping_for_ecosystem_package(ecosystem, package)
     return result
 
 
 @requires_auth
 def bookkeeping_epv(ecosystem, package, version):
     """Retrieve BookKeeping data for the given ecosystem, package, and version."""
-    result = retrieve_bookkeeping_for_epv(ecosystem, package, version)
+    result = handlers.BookKeeping().retrieve_bookkeeping_for_epv(ecosystem, package, version)
     return result
 
 
