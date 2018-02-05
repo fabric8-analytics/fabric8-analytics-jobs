@@ -407,9 +407,9 @@ def bookkeeping_epv(ecosystem, package, version):
 
 
 @requires_auth
-def bookkeeping_upstreams():
+def bookkeeping_upstreams(**kwargs):
     """Retrieve list of monitored upstreams."""
-    result = handlers.BookKeeping().retrieve_bookkeeping_upstreams()
+    result = handlers.BookKeeping().retrieve_bookkeeping_upstreams(**kwargs)
     return result
 
 

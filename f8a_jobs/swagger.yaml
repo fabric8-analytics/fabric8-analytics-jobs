@@ -576,6 +576,8 @@ paths:
        tags: [BookKeeping]
        operationId: f8a_jobs.api_v1.bookkeeping_upstreams
        summary: Retrieve BookKeeping data for monitored upstreams
+       parameters:
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:

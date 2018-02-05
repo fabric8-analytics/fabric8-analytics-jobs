@@ -86,7 +86,8 @@ class BaseHandler(object):
         return run_flow_selective(flow_name, task_names, node_args, follow_subflows,
                                   run_subsequent)
 
-    def is_filter_query(self, filter_query):
+    @staticmethod
+    def is_filter_query(filter_query):
         """Return true for queries that contains default filter key.
 
         :param filter_query: dictionary to be checked for filter_query
@@ -189,7 +190,7 @@ class AnalysesBaseHandler(BaseHandler):
         return self.run_selinon_flow('bayesianFlow', node_args)
 
     @classmethod
-    def _parse_count(cls, count=None):
+    def parse_count(cls, count=None):
         """Parse count string.
 
         :param count: string count representation
@@ -220,7 +221,7 @@ class AnalysesBaseHandler(BaseHandler):
         # type checks are transparently done by Swagger
         # try to parse count
         if kwargs.get('count') is not None:
-            cls._parse_count(kwargs['count'])
+            cls.parse_count(kwargs['count'])
         # is ecosystem handler registered?
         cls.ecosystem2handler_name(kwargs.get('ecosystem'))
         # non-negative limit
@@ -239,7 +240,7 @@ class AnalysesBaseHandler(BaseHandler):
         :param recursive_limit: number of analyses done transitively
         :param force_graph_sync: force sync to graph DB
         """
-        self.count = self._parse_count(count)
+        self.count = self.parse_count(count)
         self.ecosystem = ecosystem
         self.nversions = nversions or self._DEFAULT_NVERSIONS
         self.force = force

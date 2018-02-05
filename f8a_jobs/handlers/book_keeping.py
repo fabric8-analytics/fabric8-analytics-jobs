@@ -2,11 +2,12 @@
 
 from functools import wraps
 from selinon import StoragePool
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import SQLAlchemyError
 from f8a_worker.models import (Analysis, Ecosystem, Package, Version,
                                WorkerResult, PackageWorkerResult, PackageAnalysis,
                                Upstream)
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import SQLAlchemyError
+from .base import AnalysesBaseHandler
 
 
 def handle_sqlalchemy(func):
@@ -130,13 +131,15 @@ class BookKeeping(object):
                 "workers": worker_stats}
 
     @handle_sqlalchemy
-    def retrieve_bookkeeping_upstreams(self):
+    def retrieve_bookkeeping_upstreams(self, count=None):
         """Retrieve BookKeeping data for monitored upstreams."""
+        count = count and AnalysesBaseHandler.parse_count(count)
         data = []
         query = self.db.query(Upstream, Package.name, Ecosystem.name).\
             filter(Package.id == Upstream.package_id).\
             filter(Ecosystem.id == Package.ecosystem_id)
-        for upstream, package, ecosystem in query.all():
+        for upstream, package, ecosystem in \
+                query[count.min - 1:count.max] if count else query.all():
             entry = {
                     "ecosystem_package": "{e}/{p}".format(e=ecosystem, p=package),
                     "url": upstream.url,
