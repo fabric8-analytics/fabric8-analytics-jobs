@@ -526,7 +526,7 @@ paths:
     get:
        tags: [BookKeeping]
        operationId: f8a_jobs.api_v1.bookkeeping_all
-       summary: Retrieve Bookeeping data
+       summary: Retrieve BookKeeping data
        security:
         - auth_token: []
        responses:
@@ -536,7 +536,7 @@ paths:
     get:
        tags: [BookKeeping]
        operationId: f8a_jobs.api_v1.bookkeeping_ecosystem
-       summary: Retrieve Bookeeping data for given ecosystem
+       summary: Retrieve BookKeeping data for given ecosystem
        parameters:
         - $ref: "#/parameters/ecosystem_path"
        security:
@@ -548,7 +548,7 @@ paths:
     get:
        tags: [BookKeeping]
        operationId: f8a_jobs.api_v1.bookkeeping_ecosystem_package
-       summary: Retrieve Bookeeping data for given ecosystem and package
+       summary: Retrieve BookKeeping data for given ecosystem and package
        parameters:
         - $ref: "#/parameters/ecosystem_path"
         - $ref: "#/parameters/package_name"
@@ -561,7 +561,7 @@ paths:
     get:
        tags: [BookKeeping]
        operationId: f8a_jobs.api_v1.bookkeeping_epv
-       summary: Retrieve Bookeeping data for given ecosystem, package and version
+       summary: Retrieve BookKeeping data for given ecosystem, package and version
        parameters:
         - $ref: "#/parameters/ecosystem_path"
         - $ref: "#/parameters/package_name"
@@ -571,6 +571,18 @@ paths:
        responses:
          200:
            description: Summary of bookkeeping data for given ecosystem
+  '/bookkeeping/upstreams':
+    get:
+       tags: [BookKeeping]
+       operationId: f8a_jobs.api_v1.bookkeeping_upstreams
+       summary: Retrieve BookKeeping data for monitored upstreams
+       parameters:
+        - $ref: "#/parameters/count"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: List of monitored upstreams
 
 
   '/graphsync/pending':
