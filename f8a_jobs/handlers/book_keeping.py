@@ -137,18 +137,10 @@ class BookKeeping(object):
 
         query = self.db.query(Upstream, Package.name, Ecosystem.name).\
             join(Package).join(Ecosystem)
-        if ecosystem and package:
-            query = query.\
-                filter(Package.name == package).\
-                filter(Ecosystem.name == ecosystem)
-        elif ecosystem:
-            query = query.\
-                filter(Package.id == Upstream.package_id).\
-                filter(Ecosystem.name == ecosystem)
-        else:
-            query = query.\
-                filter(Package.id == Upstream.package_id).\
-                filter(Ecosystem.id == Package.ecosystem_id)
+        query = query.filter(Ecosystem.name == ecosystem) if ecosystem \
+            else query.filter(Ecosystem.id == Package.ecosystem_id)
+        query = query.filter(Package.name == package) if package \
+            else query.filter(Package.id == Upstream.package_id)
 
         results = query[count.min - 1:count.max] if count else query.all()
         data = [{"ecosystem_package": "{}/{}".format(e, p),
