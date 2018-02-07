@@ -570,11 +570,11 @@ paths:
         - auth_token: []
        responses:
          200:
-           description: Summary of bookkeeping data for given ecosystem
+           description: Summary of bookkeeping data for given ecosystem, package and version
   '/bookkeeping/upstreams':
     get:
        tags: [BookKeeping]
-       operationId: f8a_jobs.api_v1.bookkeeping_upstreams
+       operationId: f8a_jobs.api_v1.bookkeeping_upstreams_all
        summary: Retrieve BookKeeping data for monitored upstreams
        parameters:
         - $ref: "#/parameters/count"
@@ -583,6 +583,33 @@ paths:
        responses:
          200:
            description: List of monitored upstreams
+  '/bookkeeping/upstreams/{ecosystem}':
+    get:
+       tags: [BookKeeping]
+       operationId: f8a_jobs.api_v1.bookkeeping_upstreams_ecosystem
+       summary: Retrieve BookKeeping data for monitored upstreams for given ecosystem
+       parameters:
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/ecosystem_path"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: List of monitored upstreams for given ecosystem
+  '/bookkeeping/upstreams/{ecosystem}/{package}':
+    get:
+       tags: [BookKeeping]
+       operationId: f8a_jobs.api_v1.bookkeeping_upstreams_ecosystem_package
+       summary: Retrieve BookKeeping data for monitored upstreams for given ecosystem and package
+       parameters:
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/package_name"
+       security:
+        - auth_token: []
+       responses:
+         200:
+           description: List of monitored upstreams for given ecosystem and package
 
 
   '/graphsync/pending':

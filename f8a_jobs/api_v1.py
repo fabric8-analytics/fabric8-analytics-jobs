@@ -407,8 +407,22 @@ def bookkeeping_epv(ecosystem, package, version):
 
 
 @requires_auth
-def bookkeeping_upstreams(**kwargs):
+def bookkeeping_upstreams_all(**kwargs):
     """Retrieve list of monitored upstreams."""
+    result = handlers.BookKeeping().retrieve_bookkeeping_upstreams(**kwargs)
+    return result
+
+
+@requires_auth
+def bookkeeping_upstreams_ecosystem(**kwargs):
+    """Retrieve list of monitored upstreams for give ecosystem."""
+    result = handlers.BookKeeping().retrieve_bookkeeping_upstreams(**kwargs)
+    return result
+
+
+@requires_auth
+def bookkeeping_upstreams_ecosystem_package(**kwargs):
+    """Retrieve list of monitored upstreams for given ecosystem and package."""
     result = handlers.BookKeeping().retrieve_bookkeeping_upstreams(**kwargs)
     return result
 
