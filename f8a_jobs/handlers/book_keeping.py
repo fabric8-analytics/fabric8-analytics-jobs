@@ -131,22 +131,30 @@ class BookKeeping(object):
                 "workers": worker_stats}
 
     @handle_sqlalchemy
-    def retrieve_bookkeeping_upstreams(self, count=None):
+    def retrieve_bookkeeping_upstreams(self, count=None, ecosystem=None, package=None):
         """Retrieve BookKeeping data for monitored upstreams."""
         count = count and AnalysesBaseHandler.parse_count(count)
-        data = []
+
         query = self.db.query(Upstream, Package.name, Ecosystem.name).\
-            filter(Package.id == Upstream.package_id).\
-            filter(Ecosystem.id == Package.ecosystem_id)
-        for upstream, package, ecosystem in \
-                query[count.min - 1:count.max] if count else query.all():
-            entry = {
-                    "ecosystem_package": "{e}/{p}".format(e=ecosystem, p=package),
-                    "url": upstream.url,
-                    "updated_at": upstream.updated_at,
-                    "added_at": upstream.added_at,
-                    "deactivated_at": upstream.deactivated_at,
-                    "active": upstream.active
-            }
-            data.append(entry)
+            join(Package).join(Ecosystem)
+        if ecosystem and package:
+            query = query.\
+                filter(Package.name == package).\
+                filter(Ecosystem.name == ecosystem)
+        elif ecosystem:
+            query = query.\
+                filter(Package.id == Upstream.package_id).\
+                filter(Ecosystem.name == ecosystem)
+        else:
+            query = query.\
+                filter(Package.id == Upstream.package_id).\
+                filter(Ecosystem.id == Package.ecosystem_id)
+
+        results = query[count.min - 1:count.max] if count else query.all()
+        data = [{"ecosystem_package": "{}/{}".format(e, p),
+                 "url": u.url,
+                 "updated_at": u.updated_at,
+                 "added_at": u.added_at,
+                 "deactivated_at": u.deactivated_at,
+                 "active": u.active} for u, p, e in results]
         return data
