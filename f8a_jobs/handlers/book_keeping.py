@@ -147,6 +147,5 @@ class BookKeeping(object):
                  "url": u.url,
                  "updated_at": u.updated_at,
                  "added_at": u.added_at,
-                 "deactivated_at": u.deactivated_at,
-                 "active": u.active} for u, p, e in results]
+                 "deactivated_at": u.deactivated_at} for u, p, e in results]
         return data
