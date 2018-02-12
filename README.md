@@ -486,4 +486,3 @@ Note both jobs require [authentication](#authentication-authorization).
 
 [Connexion](https://github.com/zalando/connexion) - framework used for YAML configuration of API endpoints for Flask
 [apscheduler](http://apscheduler.readthedocs.io/en/latest/) - Advanced Python Scheduler used for scheduling jobs (and job's persistence)
-
