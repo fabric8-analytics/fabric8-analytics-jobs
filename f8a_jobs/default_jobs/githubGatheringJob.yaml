@@ -31,7 +31,7 @@
           ],
           "distinct": true,
           "where": {
-            "monitored_upstreams.active": true,
+            "monitored_upstreams.deactivated_at is": null,
             "monitored_upstreams.url is not": null,
             "monitored_upstreams.url like": "%github.com%"
           },
