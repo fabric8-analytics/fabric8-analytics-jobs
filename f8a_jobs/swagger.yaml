@@ -577,6 +577,7 @@ paths:
        operationId: f8a_jobs.api_v1.bookkeeping_upstreams_all
        summary: Retrieve BookKeeping data for monitored upstreams
        parameters:
+        - $ref: "#/parameters/active_only"
         - $ref: "#/parameters/count"
        security:
         - auth_token: []
@@ -589,6 +590,7 @@ paths:
        operationId: f8a_jobs.api_v1.bookkeeping_upstreams_ecosystem
        summary: Retrieve BookKeeping data for monitored upstreams for given ecosystem
        parameters:
+        - $ref: "#/parameters/active_only"
         - $ref: "#/parameters/count"
         - $ref: "#/parameters/ecosystem_path"
        security:
@@ -602,6 +604,7 @@ paths:
        operationId: f8a_jobs.api_v1.bookkeeping_upstreams_ecosystem_package
        summary: Retrieve BookKeeping data for monitored upstreams for given ecosystem and package
        parameters:
+        - $ref: "#/parameters/active_only"
         - $ref: "#/parameters/count"
         - $ref: "#/parameters/ecosystem_path"
         - $ref: "#/parameters/package_name"
@@ -945,6 +948,13 @@ parameters:
     in: query
     description: Name of the kronos bucket to manipulate.
     type: string
+  active_only:
+    name: active_only
+    in: query
+    required: true
+    description: List active records only
+    type: boolean
+    default: false
 
 definitions:
   FlowKwargs:

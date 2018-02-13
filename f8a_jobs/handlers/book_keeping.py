@@ -131,7 +131,8 @@ class BookKeeping(object):
                 "workers": worker_stats}
 
     @handle_sqlalchemy
-    def retrieve_bookkeeping_upstreams(self, count=None, ecosystem=None, package=None):
+    def retrieve_bookkeeping_upstreams(self,
+                                       ecosystem=None, package=None, active_only=None, count=None):
         """Retrieve BookKeeping data for monitored upstreams."""
         count = count and AnalysesBaseHandler.parse_count(count)
 
@@ -141,6 +142,8 @@ class BookKeeping(object):
             else query.filter(Ecosystem.id == Package.ecosystem_id)
         query = query.filter(Package.name == package) if package \
             else query.filter(Package.id == Upstream.package_id)
+        if active_only:
+            query = query.filter(Upstream.deactivated_at.is_(None))
 
         results = query[count.min - 1:count.max] if count else query.all()
         data = [{"ecosystem_package": "{}/{}".format(e, p),
