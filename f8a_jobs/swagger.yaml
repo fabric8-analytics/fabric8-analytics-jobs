@@ -782,6 +782,7 @@ parameters:
        - all
        - failed
        - user
+     default: all
   popular:
     name: popular
     in: query
