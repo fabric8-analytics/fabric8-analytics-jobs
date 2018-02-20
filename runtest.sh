@@ -10,7 +10,7 @@ set -x
 
 here=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-IMAGE_NAME=${IMAGE_NAME:-registry.devshift.net/bayesian/coreapi-jobs}
+IMAGE_NAME=${IMAGE_NAME:-registry.devshift.net/fabric8-analytics/coreapi-jobs}
 TEST_IMAGE_NAME="jobs-tests"
 
 TIMESTAMP="$(date +%F-%H-%M-%S)"

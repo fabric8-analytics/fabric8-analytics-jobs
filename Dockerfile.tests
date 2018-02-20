@@ -1,4 +1,4 @@
-FROM registry.devshift.net/bayesian/coreapi-jobs
+FROM registry.devshift.net/fabric8-analytics/coreapi-jobs
 
 ENV PYTHONDONTWRITEBYTECODE 1
 
