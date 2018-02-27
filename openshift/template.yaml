@@ -85,6 +85,8 @@ objects:
             value: bayesian-broker
           - name: PGBOUNCER_SERVICE_HOST
             value: bayesian-pgbouncer
+          - name: SENTRY_DSN
+            value: ${SENTRY_DSN}
           - name: AUTH_ORGANIZATION
             value: ${AUTH_ORGANIZATION}
           - name: POSTGRESQL_DATABASE
@@ -192,6 +194,12 @@ parameters:
   required: false
   name: AUTH_ORGANIZATION
   value: fabric8-analytics
+
+- description: Sentry DSN
+  displayName: Sentry DSN
+  required: false
+  name: SENTRY_DSN
+  value: ""
 
 - description: Docker registry where the image is
   displayName: Docker registry
