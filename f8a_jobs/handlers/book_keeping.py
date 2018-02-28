@@ -83,7 +83,9 @@ class BookKeeping(object):
         for package_worker_result in stat.all():
             entry = {"worker_name": package_worker_result.worker,
                      "has_error": package_worker_result.error,
-                     "task_result": package_worker_result.task_result}
+                     "task_result": package_worker_result.task_result,
+                     "started_at": package_worker_result.started_at,
+                     "ended_at": package_worker_result.ended_at}
             worker_stats.append(entry)
 
         version_count = self.db.query(Version).join(Package).\
@@ -121,7 +123,9 @@ class BookKeeping(object):
         for worker_result in stat.all():
             entry = {"worker_name": worker_result.worker,
                      "has_error": worker_result.error,
-                     "task_result": worker_result.task_result}
+                     "task_result": worker_result.task_result,
+                     "started_at": worker_result.started_at,
+                     "ended_at": worker_result.ended_at}
             worker_stats.append(entry)
 
         return {"ecosystem": e.name,
