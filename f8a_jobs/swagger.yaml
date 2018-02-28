@@ -620,6 +620,8 @@ paths:
        tags: [GraphSync]
        operationId: f8a_jobs.api_v1.retrieve_graphsync_all
        summary: Retrieve Pending Graphsync data for all ecosystems
+       parameters:
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:
@@ -632,6 +634,7 @@ paths:
        summary: Retrieve Pending Graphsync data for given ecosystem
        parameters:
         - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:
@@ -645,6 +648,7 @@ paths:
        parameters:
         - $ref: "#/parameters/ecosystem_path"
         - $ref: "#/parameters/package_name"
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:
@@ -659,6 +663,7 @@ paths:
         - $ref: "#/parameters/ecosystem_path"
         - $ref: "#/parameters/package_name"
         - $ref: "#/parameters/version_full"
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:
@@ -671,6 +676,8 @@ paths:
        tags: [GraphSync]
        operationId: f8a_jobs.api_v1.invoke_graphsync_all
        summary: Invoke Graphsync for all ecosystems
+       parameters:
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:
@@ -683,6 +690,7 @@ paths:
        summary: Invoke Graphsync for given ecosystem
        parameters:
         - $ref: "#/parameters/ecosystem_path"
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:
@@ -696,6 +704,7 @@ paths:
        parameters:
         - $ref: "#/parameters/ecosystem_path"
         - $ref: "#/parameters/package_name"
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:
@@ -710,6 +719,7 @@ paths:
         - $ref: "#/parameters/ecosystem_path"
         - $ref: "#/parameters/package_name"
         - $ref: "#/parameters/version_full"
+        - $ref: "#/parameters/count"
        security:
         - auth_token: []
        responses:

@@ -436,77 +436,75 @@ def post_kronos_data_update(scheduler, **kwargs):
 
 # Graph Sync pending list APIs
 @requires_auth
-def retrieve_graphsync_all():
+def retrieve_graphsync_all(**kwargs):
     """Retrieve Pending Graph Sync data for all Ecosystems."""
-    result = graph_sync.fetch_pending()
+    result = graph_sync.fetch_pending(params=kwargs)
     return result
 
 
 @requires_auth
-def retrieve_graphsync_ecosystem(ecosystem):
+def retrieve_graphsync_ecosystem(**kwargs):
     """Retrieve Pending Graph Sync data for given ecosystem."""
-    result = graph_sync.fetch_pending(params={'ecosystem': ecosystem})
+    result = graph_sync.fetch_pending(params=kwargs)
     return result
 
 
 @requires_auth
-def retrieve_graphsync_ecosystem_package(ecosystem, package):
+def retrieve_graphsync_ecosystem_package(**kwargs):
     """Retrieve Pending Graph Sync data for given ecosystem and package.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     :param package: package for which the data should be retrieved
     """
-    result = graph_sync.fetch_pending(params={'ecosystem': ecosystem, 'package': package})
+    result = graph_sync.fetch_pending(params=kwargs)
     return result
 
 
 @requires_auth
-def retrieve_graphsync_epv(ecosystem, package, version):
+def retrieve_graphsync_epv(**kwargs):
     """Retrieve Pending Graph Sync data for the given ecosystem, package, and version.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     :param package: package for which the data should be retrieved
     :param version: package version for which the data should be retrieved
     """
-    result = graph_sync.fetch_pending(
-        params={'ecosystem': ecosystem, 'package': package, 'version': version})
+    result = graph_sync.fetch_pending(params=kwargs)
     return result
 
 
 # Graph Sync sync_all APIs
 @requires_auth
-def invoke_graphsync_all():
+def invoke_graphsync_all(**kwargs):
     """Invoke Pending Graph Sync data for all Ecosystems."""
-    result = graph_sync.invoke_sync()
+    result = graph_sync.invoke_sync(params=kwargs)
     return result
 
 
 @requires_auth
-def invoke_graphsync_ecosystem(ecosystem):
+def invoke_graphsync_ecosystem(**kwargs):
     """Invoke Pending Graph Sync data for given ecosystem."""
-    result = graph_sync.invoke_sync(params={'ecosystem': ecosystem})
+    result = graph_sync.invoke_sync(params=kwargs)
     return result
 
 
 @requires_auth
-def invoke_graphsync_ecosystem_package(ecosystem, package):
+def invoke_graphsync_ecosystem_package(**kwargs):
     """Invoke Pending Graph Sync data for given ecosystem and package.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     :param package: package for which the data should be retrieved
     """
-    result = graph_sync.invoke_sync(params={'ecosystem': ecosystem, 'package': package})
+    result = graph_sync.invoke_sync(params=kwargs)
     return result
 
 
 @requires_auth
-def invoke_graphsync_epv(ecosystem, package, version):
+def invoke_graphsync_epv(**kwargs):
     """Invoke Pending Graph Sync data for the given ecosystem, package, and version.
 
     :param ecosystem: ecosystem for which the data should be retrieved
     :param package: package for which the data should be retrieved
     :param version: package version for which the data should be retrieved
     """
-    result = graph_sync.invoke_sync(
-        params={'ecosystem': ecosystem, 'package': package, 'version': version})
+    result = graph_sync.invoke_sync(params=kwargs)
     return result
