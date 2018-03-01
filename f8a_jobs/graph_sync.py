@@ -5,6 +5,7 @@ import requests
 import traceback
 import logging
 from urllib.parse import urljoin
+from f8a_jobs.handlers.base import AnalysesBaseHandler
 
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,12 @@ def _api_call(url, params=None):
 def fetch_pending(params=None):
     """Invoke Pending Graph Sync APIs for given parameters."""
     params = params or {}
+    count = params.get("count", None)
+    if count:
+        count = AnalysesBaseHandler.parse_count(count)
+        params["offset"] = count.min - 1
+        params["limit"] = count.max - count.min + 1
+
     url = urljoin(configuration.DATA_IMPORTER_ENDPOINT, "/api/v1/pending")
     return _api_call(url, params)
 
@@ -33,5 +40,11 @@ def fetch_pending(params=None):
 def invoke_sync(params=None):
     """Invoke Graph Sync APIs to sync for given parameters."""
     params = params or {}
+    count = params.get("count", None)
+    if count:
+        count = AnalysesBaseHandler.parse_count(count)
+        params["offset"] = count.min - 1
+        params["limit"] = count.max - count.min + 1
+
     url = urljoin(configuration.DATA_IMPORTER_ENDPOINT, "/api/v1/sync_all")
     return _api_call(url, params)
