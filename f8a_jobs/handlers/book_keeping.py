@@ -75,20 +75,22 @@ class BookKeeping(object):
         """
         e = Ecosystem.by_name(self.db, ecosystem)
         p = Package.by_name(self.db, package)
+
+        stat = self.db.query(PackageWorkerResult).\
+            join(PackageAnalysis).\
+            filter(PackageAnalysis.package == p)
+        worker_stats = []
+        for package_worker_result in stat.all():
+            entry = {"worker_name": package_worker_result.worker,
+                     "has_error": package_worker_result.error,
+                     "task_result": package_worker_result.task_result,
+                     "started_at": package_worker_result.started_at,
+                     "ended_at": package_worker_result.ended_at}
+            worker_stats.append(entry)
+
         version_count = self.db.query(Version).join(Package).\
             filter(Package.ecosystem == e).\
             filter(Version.package == p).count()
-        stat = self.db.query(PackageWorkerResult.worker, PackageWorkerResult.error,
-                             PackageWorkerResult.task_result).join(PackageAnalysis). \
-            filter(PackageAnalysis.package == p).all()
-
-        worker_stats = []
-        for worker_name, has_error, task_result in stat:
-            entry = {"worker_name": worker_name,
-                     "has_error": has_error,
-                     "task_result": task_result}
-            worker_stats.append(entry)
-
         p_versions = self.db.query(Version).join(Package).join(Ecosystem).\
             filter(Package.ecosystem == e).\
             filter(Version.package == p)
@@ -113,16 +115,17 @@ class BookKeeping(object):
             filter(Package.ecosystem == e). \
             filter(Version.package == p). \
             filter(Version.identifier == version).one()
-        stat = self.db.query(WorkerResult.worker,
-                             WorkerResult.error,
-                             WorkerResult.task_result).join(Analysis).join(Version).\
-            filter(Analysis.version == v).all()
 
+        stat = self.db.query(WorkerResult).\
+            join(Analysis).join(Version).\
+            filter(Analysis.version == v)
         worker_stats = []
-        for worker_name, has_error, task_result in stat:
-            entry = {"worker_name": worker_name,
-                     "has_error": has_error,
-                     "task_result": task_result}
+        for worker_result in stat.all():
+            entry = {"worker_name": worker_result.worker,
+                     "has_error": worker_result.error,
+                     "task_result": worker_result.task_result,
+                     "started_at": worker_result.started_at,
+                     "ended_at": worker_result.ended_at}
             worker_stats.append(entry)
 
         return {"ecosystem": e.name,
