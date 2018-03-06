@@ -341,6 +341,13 @@ def post_sync_to_graph(scheduler, **kwargs):
 
 @requires_auth
 @uses_scheduler
+def post_invoke_graph_sync(scheduler, **kwargs):
+    """Sync all finished analyses to graph."""
+    return post_schedule_job(scheduler, handlers.InvokeGraphSync.__name__, **kwargs)
+
+
+@requires_auth
+@uses_scheduler
 def post_aggregate_topics(scheduler, **kwargs):
     """Aggregate all topics collected from GitHub and store them on S3."""
     return post_schedule_job(scheduler, handlers.AggregateTopics.__name__, **kwargs)

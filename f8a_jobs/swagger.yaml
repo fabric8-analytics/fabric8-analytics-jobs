@@ -725,6 +725,22 @@ paths:
        responses:
          200:
            description: Invoke Graphsync for given ecosystem, package and version
+  '/jobs/invoke_graph_sync':
+    post:
+       tags: [Add new jobs]
+       operationId: f8a_jobs.api_v1.post_invoke_graph_sync
+       summary: Invoke Graphsync worker for given ecosystem, package and version
+       security:
+        - auth_token: []
+       parameters:
+        - name: kwargs
+          in: body
+          description: Arguments for the GraphSync job
+          schema:
+            $ref: "#/definitions/GraphSyncKwargs"
+       responses:
+         200:
+           description: Invoke Graphsync Worker for given ecosystem, package and version
 
 parameters:
   job_id_path:
@@ -996,6 +1012,21 @@ definitions:
             force: true
             recursive_limit: 1
             force_graph_sync: false
+  GraphSyncKwargs:
+    type: object
+    properties:
+      ecosystem:
+        type: string
+        description: Ecosystem
+        example: "npm"
+      name:
+        type: string
+        description: Package name
+        example: "serve-static"
+      version:
+        type: string
+        description: Package Version
+        example: "1.7.1"
   SelectiveKwargs:
     type: object
     required:

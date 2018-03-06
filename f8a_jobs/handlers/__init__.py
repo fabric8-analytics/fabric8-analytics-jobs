@@ -18,3 +18,4 @@ from .nuget_popular_analyses import NugetPopularAnalyses
 from .python_popular_analyses import PythonPopularAnalyses
 from .selective_flow import SelectiveFlowScheduling
 from .sync_to_graph import SyncToGraph
+from .invoke_graph_sync import InvokeGraphSync
