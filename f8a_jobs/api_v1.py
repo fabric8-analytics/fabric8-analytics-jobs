@@ -21,8 +21,10 @@ from f8a_jobs.utils import parse_dates
 from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
+from f8a_jobs.defaults import DATA_IMPORTER_ENDPOINT
 import f8a_jobs.defaults as configuration
 from f8a_jobs import graph_sync
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -514,4 +516,23 @@ def invoke_graphsync_epv(**kwargs):
     :param version: package version for which the data should be retrieved
     """
     result = graph_sync.invoke_sync(params=kwargs)
+    return result
+
+
+@requires_auth
+def api_gateway_hack(**kwargs):
+    """ Call f8a service based on request parameters
+    :param service_name: service that should be called
+    :param service_endpoint: service endpoint that should be called
+    :param data_for_service: data for the service in json
+    """
+    service_endpoint = kwargs.get("service_endpoint", None)
+    uri = DATA_IMPORTER_ENDPOINT + service_endpoint
+
+    if request.method == 'POST':
+        result = requests.post(uri, json=json.dumps(kwargs.get("data_for_service", None)))
+
+    elif request.method == 'GET':
+        result = requests.get(uri, params=kwargs.get("data_for_service", None))
+
     return result
