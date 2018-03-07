@@ -61,7 +61,6 @@ class InvokeGraphSync(BaseHandler):
 
     def execute(self, **kwargs):
         """Start the synchronization of all finished analyses to Graph database."""
-
         # fetch count of pending list
         #
         # fetch windowed pending list from backend
