@@ -28,36 +28,42 @@ class InvokeGraphSync(BaseHandler):
 
     BATCH_SIZE = 10
 
-    def _fetch_all_counts(self, params={}):
+    def _fetch_all_counts(self, params=None):
+        if params is None:
+            params = {}
+
         url = "%s?%s" % (self._PENDING_API_URL, urllib.parse.urlencode(params))
-        self.log.info(url)
+        self.log.debug(url)
         response = requests.get(url)
-        self.log.info(response)
+        self.log.debug(response)
         data = response.json()
         all_counts = data["all_counts"]
-        self.log.info(data)
+        self.log.debug(data)
         return all_counts
 
-    def _fetch_package_versions(self, params={}, offset=None, limit=None):
+    def _fetch_package_versions(self, params=None, offset=None, limit=None):
+        if params is None:
+            params = {}
+
         request_params = params.copy()
         request_params.update({"offset": offset, "limit": limit})
         url = "%s?%s" % (self._PENDING_API_URL, urllib.parse.urlencode(request_params))
-        self.log.info(url)
+        self.log.debug(url)
         response = requests.get(url)
-        self.log.info(response)
+        self.log.debug(response)
         data = response.json()
         return data["pending_list"]
 
     def _perform_sync(self, packages_list):
-        self.log.info("Invoke graph importer at url: '%s' for %s", self._INGEST_API_URL,
-                      packages_list)
+        self.log.debug("Invoke graph importer at url: '%s' for %s", self._INGEST_API_URL,
+                       packages_list)
         response = requests.post(self._INGEST_API_URL, json=packages_list)
 
         if response.status_code != 200:
             raise RuntimeError("Failed to invoke graph import at '%s' for %s" % (
                 self._INGEST_API_URL, packages_list))
 
-        self.log.info("Graph import succeeded with response: %s", response.text)
+        self.log.debug("Graph import succeeded with response: %s", response.text)
 
     def execute(self, **kwargs):
         """Start the synchronization of all finished analyses to Graph database."""
@@ -70,13 +76,13 @@ class InvokeGraphSync(BaseHandler):
         # schedule graph sync for current batch
         # increase offset by query_slice
         # end
-        self.log.info(kwargs)
+        self.log.debug(kwargs)
 
         future_to_params_map = {}
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             all_counts = self._fetch_all_counts(params=kwargs)
-            self.log.info(all_counts)
+            self.log.debug(all_counts)
             offset = 0
             while all_counts > offset:
                 # for each batch of packages, send request to backend for ingesting this batch
@@ -94,7 +100,7 @@ class InvokeGraphSync(BaseHandler):
                 try:
                     response_data = future.result()
                 except Exception as exc:
-                    print("FAILURE: %s" % response_data)
-                    print('%r generated an exception: %s' % (response_data, exc))
+                    self.log.error("FAILURE: %s" % response_data)
+                    self.log.error('%r generated an exception: %s' % (response_data, exc))
                 else:
-                    print("SUCCESS: %s" % request_data)
+                    self.log.debug("SUCCESS: %s" % request_data)
