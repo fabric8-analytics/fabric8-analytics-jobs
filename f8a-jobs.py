@@ -16,7 +16,9 @@ from f8a_worker.setup_celery import init_selinon
 from f8a_jobs.models import create_models
 from f8a_jobs.auth import oauth
 
-logger = logging.getLogger(__name__)
+from raven.contrib.flask import Sentry
+from werkzeug.contrib.fixers import ProxyFix
+import logging
 
 
 class SafeJSONEncoder(json.JSONEncoder):
@@ -32,7 +34,7 @@ class SafeJSONEncoder(json.JSONEncoder):
             return repr(o)
 
 
-def init_logging():
+def init_logging(logger):
     """Initialize application logging."""
     # Initialize flask logging
     formatter = logging.Formatter('%(asctime)s - %(message)s')
@@ -53,16 +55,24 @@ def init_logging():
 
 
 app = connexion.App(__name__)
+app.app.wsgi_app = ProxyFix(app.app.wsgi_app)
+sentry = Sentry(app.app, dsn=defaults.SENTRY_DSN, logging=True, level=logging.ERROR)
+
 application = app.app
-init_logging()
+
+# Setup Logging
+logger = logging.getLogger(__name__)
+init_logging(logger)
+
 app.add_api(defaults.SWAGGER_YAML_PATH)
+
 # Expose for uWSGI
 application.json_encoder = SafeJSONEncoder
 manager = Manager(application)
-# Needed for sesion
+
+# Needed for session
 application.secret_key = defaults.APP_SECRET_KEY
 oauth.init_app(application)
-
 
 logger.debug("Initializing Selinon")
 init_selinon()
