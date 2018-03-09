@@ -41,6 +41,7 @@ if [ "$REBUILD" == "1" ] || \
 fi
 
 echo "Starting test suite"
+
 docker run -t \
   -v "${here}:/f8a_jobs:ro,Z" \
   --name=${CONTAINER_NAME} \
