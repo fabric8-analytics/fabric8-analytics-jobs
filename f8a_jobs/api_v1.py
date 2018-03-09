@@ -520,7 +520,7 @@ def invoke_graphsync_epv(**kwargs):
 
 
 @requires_auth
-def api_gateway_hack(**kwargs):
+def api_gateway(**kwargs):
     """Call f8a service based on request parameters.
 
     :param service_name: service that should be called
