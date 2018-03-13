@@ -75,6 +75,7 @@ target/
 *.swo
 *.swp
 .idea/*
+.vscode/*
 
 # Misc
 cucos-license-check-unreleased.rpm
