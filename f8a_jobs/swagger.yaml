@@ -741,8 +741,56 @@ paths:
        responses:
          200:
            description: Invoke Graphsync Worker for given ecosystem, package and version
+  '/api_gateway/{service_name}/{service_endpoint}':
+    parameters:
+      - $ref: "#/parameters/service_name"
+      - $ref: "#/parameters/service_endpoint"
+    get:
+       tags: [APIGateway]
+       
+       summary: Invoke service endpoint and forward output
+       security:
+        - auth_token: []
+       parameters:
+        - name: data_for_service
+          in: body
+          description: Arguments for the GraphSync job
+          schema:
+            $ref: "#/definitions/GraphSyncKwargs"
+       responses:
+         200:
+           description: Blah blah
+    post:
+       tags: [APIGateway]
+       summary: Invoke service endpoint and forward output
+       security:
+        - auth_token: []
+       parameters:
+        - name: data_for_service
+          in: body
+          description: Arguments for the GraphSync job
+          schema:
+            $ref: "#/definitions/GraphSyncKwargs"
+       responses:
+         200:
+           description: Blah blah
 
 parameters:
+  service_name:
+    name: service_name
+    required: true
+    type: string
+    in: path
+  service_endpoint:
+    name: service_endpoint
+    required: true
+    type: string
+    in: path
+  data_for_service:
+    name: data_for_service
+    required: true
+    type: string
+    in: query
   job_id_path:
     name: job_id
     in: path
@@ -982,6 +1030,7 @@ parameters:
     description: List active records only
     type: boolean
     default: false
+  
 
 definitions:
   FlowKwargs:
