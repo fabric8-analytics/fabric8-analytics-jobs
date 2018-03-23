@@ -794,8 +794,8 @@ parameters:
     items:
       type: string
     enum:
-      - paused
       - running
+      - paused
   job_type:
      name: job_type
      in: query
