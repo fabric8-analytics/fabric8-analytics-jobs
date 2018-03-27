@@ -522,6 +522,18 @@ paths:
           description: Sync to graph scheduled
         401:
           description: No suitable permissions
+  '/jobs/victims-check':
+    post:
+      tags: [Add new jobs]
+      operationId: f8a_jobs.api_v1.post_run_victims_check
+      summary: Run Victims CVE check
+      security:
+        - auth_token: []
+      responses:
+        201:
+          description: Victims CVE flow successfully scheduled
+        401:
+          description: No suitable permissions
   '/bookkeeping':
     get:
        tags: [BookKeeping]
