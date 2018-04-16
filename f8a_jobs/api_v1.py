@@ -8,6 +8,7 @@ import requests
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
 from flask import session, url_for, request
 from selinon import StoragePool
+from selinon import run_flow
 
 import f8a_jobs.handlers as handlers
 from f8a_jobs.handlers.base import BaseHandler
@@ -515,3 +516,11 @@ def invoke_graphsync_epv(**kwargs):
     """
     result = graph_sync.invoke_sync(params=kwargs)
     return result
+
+
+@requires_auth
+def post_run_victims_check():
+    """Run Victims CVE check."""
+    logger.info('Scheduling Victims CVE Check...')
+    handlers.FlowScheduling(job_id=None).execute('victimsFlow', flow_arguments=[None])
+    return {}, 201
