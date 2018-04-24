@@ -2,7 +2,7 @@ connexion>=1.0.31
 apscheduler
 pytimeparse
 Flask-Script
-uwsgi
+uwsgi>=2.0.17
 json2sql
 Flask-OAuthlib
 SQLAlchemy-Utils
