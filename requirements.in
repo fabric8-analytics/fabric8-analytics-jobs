@@ -7,3 +7,4 @@ json2sql
 Flask-OAuthlib
 SQLAlchemy-Utils
 raven[flask]
+radon
