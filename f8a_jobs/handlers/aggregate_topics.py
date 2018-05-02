@@ -34,6 +34,7 @@ class AggregateTopics(BaseHandler):
         :param from_date: date limitation for task result queries
         :param to_date: date limitation for taks result queries
         """
+        # TODO: reduce cyclomatic complexity
         if from_date is not None:
             from_date = parse_datetime(from_date)
         if to_date is not None:

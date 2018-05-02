@@ -16,6 +16,7 @@ class NugetPopularAnalyses(AnalysesBaseHandler):
 
     def _scrape_nuget_org(self, popular=True):
         """Schedule analyses for popular NuGet packages."""
+        # TODO: reduce cyclomatic complexity
         first_page = ((self.count.min - 1) // self._POPULAR_PACKAGES_PER_PAGE) + 1
         last_page = ((self.count.max - 1) // self._POPULAR_PACKAGES_PER_PAGE) + 1
         for page in range(first_page, last_page + 1):

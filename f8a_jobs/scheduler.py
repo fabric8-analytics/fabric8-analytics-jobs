@@ -105,6 +105,7 @@ class Scheduler(object):
         :param kwargs: handler kwargs
         :return: scheduled apscheduler.Job instance
         """
+        # TODO: reduce cyclomatic complexity
         if state not in (None, "running", "paused"):
             raise ValueError("Unknown state '%s' provided, could be 'running' or 'paused'")
 
