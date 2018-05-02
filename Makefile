@@ -1,4 +1,10 @@
-REGISTRY?=registry.devshift.net
+ifeq ($(TARGET),rhel)
+  DOCKERFILE := Dockerfile.rhel
+  REGISTRY := push.registry.devshift.net/osio-prod
+else
+  DOCKERFILE := Dockerfile
+  REGISTRY := push.registry.devshift.net
+endif
 REPOSITORY?=bayesian/coreapi-jobs
 DEFAULT_TAG=latest
 
@@ -7,13 +13,13 @@ DEFAULT_TAG=latest
 all: fast-docker-build
 
 docker-build:
-	docker build --no-cache -t $(REGISTRY)/$(REPOSITORY):$(DEFAULT_TAG) .
+	docker build --no-cache -t $(REGISTRY)/$(REPOSITORY):$(DEFAULT_TAG) -f $(DOCKERFILE) .
 
 docker-build-tests: docker-build
 	docker build --no-cache -t jobs-tests -f Dockerfile.tests .
 
 fast-docker-build:
-	docker build -t $(REGISTRY)/$(REPOSITORY):$(DEFAULT_TAG) .
+	docker build -t $(REGISTRY)/$(REPOSITORY):$(DEFAULT_TAG) -f $(DOCKERFILE) .
 
 fast-docker-build-tests: fast-docker-build
 	docker build -t jobs-tests -f Dockerfile.tests .
@@ -26,3 +32,6 @@ get-image-name:
 
 get-image-repository:
 	@echo $(REPOSITORY)
+
+get-push-registry:
+	@echo $(REGISTRY)
