@@ -25,6 +25,7 @@ class CleanPostgres(BaseHandler):
     _SLICE_SIZE = 10
 
     def _clean_package_version_data(self, from_date, to_date, clean_unfinished):
+        # TODO: reduce cyclomatic complexity
         s3 = StoragePool.get_connected_storage('S3Data')
 
         query = self.postgres.session.query(WorkerResult).\
@@ -89,6 +90,7 @@ class CleanPostgres(BaseHandler):
                 del entry
 
     def _clean_package_data(self, from_date, to_date, clean_unfinished):
+        # TODO: reduce cyclomatic complexity
         s3 = StoragePool.get_connected_storage('S3PackageData')
 
         query = self.postgres.session.query(PackageWorkerResult).\
