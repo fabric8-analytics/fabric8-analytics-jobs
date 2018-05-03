@@ -29,7 +29,7 @@ RUN pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-work
 
 COPY ./ /tmp/jobs_install/
 RUN cd /tmp/jobs_install &&\
-    pip3 install . &&\
+    pip3 install --upgrade pip>=10.0.0 && pip3 install . &&\
     rm -rf /tmp/jobs_install
 
 COPY hack/run_jobs.sh hack/jobs+pmcd.sh /usr/bin/
