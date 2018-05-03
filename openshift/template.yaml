@@ -176,7 +176,7 @@ objects:
     resources:
       requests:
         storage: 10Gi
-
+    storageClassName: bayesian-jobs-pvc
 parameters:
 - description: A hostname where the Bayesian Jobs should be exposed (will be auto-generated if empty)
   displayName: Bayesian Jobs hostname
