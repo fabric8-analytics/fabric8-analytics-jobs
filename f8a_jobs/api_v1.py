@@ -21,8 +21,11 @@ from f8a_jobs.utils import parse_dates
 from f8a_jobs.auth import github
 from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
+from f8a_jobs.defaults import DATA_IMPORTER_ENDPOINT
 import f8a_jobs.defaults as configuration
 from f8a_jobs import graph_sync
+from f8a_worker.utils import case_sensitivity_transform
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -193,6 +196,7 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
     try:
         # Translate 'kwargs' in POST to handler key-value arguments passing, if needed
         kwargs.update(kwargs.pop('kwargs', {}))
+        kwargs['name']= case_sensitivity_transform(kwargs['name'])
         job = Scheduler.schedule_job(scheduler, handler_name, **kwargs)
         return {"job": job2raw_dict(job)}, 201
     except ScheduleJobError as exc:
