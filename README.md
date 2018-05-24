@@ -1,3 +1,5 @@
+[![Build Status](https://ci.centos.org/buildStatus/icon?job=devtools-fabric8-analytics-jobs-f8a-build-master)](https://ci.centos.org/job/devtools-fabric8-analytics-jobs-f8a-build-master/)
+
 # Fabric8-Analytics core Jobs service
 
 The aim of this service is to provide a single configuration point for Fabric8-Analytics core periodic tasks or more sophisticated analyses execution (jobs).
