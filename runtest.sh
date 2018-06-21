@@ -20,16 +20,16 @@ gc() {
   retval=$?
   # FIXME: make this configurable
   echo "Stopping test containers"
-  docker stop ${CONTAINER_NAME} || :
+  docker stop "${CONTAINER_NAME}" || :
   echo "Removing test containers"
-  docker rm -v ${CONTAINER_NAME} || :
+  docker rm -v "${CONTAINER_NAME}" || :
   exit $retval
 }
 
 trap gc EXIT SIGINT
 
 if [ "$REBUILD" == "1" ] || \
-     !(docker inspect $IMAGE_NAME > /dev/null 2>&1); then
+     !(docker inspect "$IMAGE_NAME" > /dev/null 2>&1); then
   echo "Building $IMAGE_NAME for testing"
   make fast-docker-build
 fi
@@ -43,7 +43,7 @@ fi
 echo "Starting test suite"
 docker run -t \
   -v "${here}:/f8a_jobs:ro,Z" \
-  --name=${CONTAINER_NAME} \
+  --name="${CONTAINER_NAME}" \
   -u 9007 \
   ${TEST_IMAGE_NAME} /f8a_jobs/hack/exec_tests.sh $@ /f8a_jobs/tests/
 
