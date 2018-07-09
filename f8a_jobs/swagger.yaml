@@ -527,6 +527,9 @@ paths:
       tags: [Add new jobs]
       operationId: f8a_jobs.api_v1.post_run_victims_check
       summary: Run Victims CVE check
+      parameters:
+        - $ref: "#/parameters/ecosystem"
+        - $ref: "#/parameters/cve_filter"
       security:
         - auth_token: []
       responses:
@@ -994,6 +997,12 @@ parameters:
     description: List active records only
     type: boolean
     default: false
+  cve_filter:
+    name: cve_filter
+    in: query
+    required: false
+    description: Comma-separated list of CVE IDs
+    type: string
 
 definitions:
   FlowKwargs:
