@@ -519,8 +519,15 @@ def invoke_graphsync_epv(**kwargs):
 
 
 @requires_auth
-def post_run_victims_check():
+def post_run_victims_check(**kwargs):
     """Run Victims CVE check."""
     logger.info('Scheduling Victims CVE Check...')
-    handlers.FlowScheduling(job_id=None).execute('victimsFlow', flow_arguments=[None])
+
+    flow_args = {'ecosystem': kwargs.get('ecosystem')}
+
+    cve_filter = kwargs.get('cve_filter')
+    if cve_filter:
+        flow_args['cve_filter'] = [x.strip() for x in cve_filter.split(',')]
+
+    handlers.FlowScheduling(job_id=None).execute('victimsFlow', flow_arguments=[flow_args])
     return {}, 201
