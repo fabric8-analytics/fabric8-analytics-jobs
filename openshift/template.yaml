@@ -187,7 +187,7 @@ parameters:
   displayName: Disable authentication
   required: false
   name: DISABLE_AUTHENTICATION
-  value: "0" 
+  value: "0"
 
 - description: Name of GitHub organization that users have to have public membership in order to provide auth
   displayName: Github organization name
@@ -205,13 +205,13 @@ parameters:
   displayName: Docker registry
   required: true
   name: DOCKER_REGISTRY
-  value: "registry.devshift.net"
+  value: "quay.io"
 
 - description: Docker image to use
   displayName: Docker image
   required: true
   name: DOCKER_IMAGE
-  value: "bayesian/coreapi-jobs"
+  value: "openshiftio/rhel-bayesian-coreapi-jobs"
 
 - description: Image tag
   displayName: Image tag

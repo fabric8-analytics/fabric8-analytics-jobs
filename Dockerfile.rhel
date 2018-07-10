@@ -1,6 +1,6 @@
 # base image source https://github.com/rhdt/EL-Dockerfiles/blob/master/base/fabric8-analytics-jobs/Dockerfile
 
-FROM prod.registry.devshift.net/osio-prod/base/fabric8-analytics-jobs:latest
+FROM quay.io/openshiftio/rhel-base-fabric8-analytics-jobs:latest
 
 ENV LANG=en_US.UTF-8 \
     PV_DIR='/pv' \
