@@ -1,4 +1,4 @@
-FROM jobs-tests
+FROM jobs-tests-base
 
 ENV PYTHONDONTWRITEBYTECODE 1
 
