@@ -8,7 +8,7 @@ endif
 
 REGISTRY := quay.io
 DEFAULT_TAG=latest
-TEST_IMAGE=jobs-tests
+TEST_IMAGE=jobs-tests-base
 
 .PHONY: all docker-build fast-docker-build test get-image-name get-image-repository
 
