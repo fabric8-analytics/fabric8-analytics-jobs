@@ -1,4 +1,4 @@
-FROM bayesian/coreapi-jobs
+FROM jobs-tests
 
 ENV PYTHONDONTWRITEBYTECODE 1
 
