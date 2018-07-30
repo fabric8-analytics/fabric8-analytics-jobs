@@ -47,8 +47,9 @@ class MavenReleasesAnalyses(BaseHandler):
 
         with cwd(maven_index_checker_dir):
             try:
-                output = TimedCommand.get_command_output(cmd, is_json=True, graceful=False,
-                                                         timeout=1200)
+                output = TimedCommand.get_command_output(
+                    cmd, is_json=True, graceful=False, timeout=3600
+                )
 
                 current_count = output['count']
                 new_timestamp = int(os.stat(timestamp_path).st_mtime)
@@ -76,8 +77,9 @@ class MavenReleasesAnalyses(BaseHandler):
                        '-DcentralIndexDir={}'.format(central_index_dir),
                        '-jar', 'maven-index-checker.jar',
                        '-r', '0-{}'.format(to_schedule_count)]
-                output = TimedCommand.get_command_output(cmd, is_json=True, graceful=False,
-                                                         timeout=1200)
+                output = TimedCommand.get_command_output(
+                    cmd, is_json=True, graceful=False, timeout=3600
+                )
             except TaskError as e:
                 self.log.exception(e)
                 raise
