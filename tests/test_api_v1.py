@@ -1,8 +1,7 @@
 """Tests for the module 'api_v1'."""
 
-import pytest
-
-from f8a_jobs.api_v1 import *
+# TODO enable when new test(s) will be added
+# from f8a_jobs.api_v1 import *
 
 
 class TestApiV1Functions(object):

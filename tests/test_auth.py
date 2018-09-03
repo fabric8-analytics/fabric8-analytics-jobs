@@ -1,8 +1,7 @@
 """Tests for the module 'auth'."""
 
-import pytest
-
-from f8a_jobs.auth import *
+# TODO enable when new test(s) will be added
+# from f8a_jobs.auth import *
 
 
 class TestAuthFunctions(object):

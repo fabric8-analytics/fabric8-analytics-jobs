@@ -1,8 +1,7 @@
 """Tests for the module 'analyses_report'."""
 
-import pytest
-
-from f8a_jobs.analyses_report import *
+# TODO enable when new test(s) will be added
+# from f8a_jobs.analyses_report import *
 
 
 class TestAnalysesReport(object):

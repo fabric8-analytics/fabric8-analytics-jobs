@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # test coverage threshold
-COVERAGE_THRESHOLD=20
+COVERAGE_THRESHOLD=15
 
 set -e
 DIR=$(dirname "${BASH_SOURCE[0]}")
