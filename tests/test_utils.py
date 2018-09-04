@@ -10,11 +10,11 @@ class TestUtilFunctions(object):
 
     def setup_method(self, method):
         """Set up any state tied to the execution of the given method in a class."""
-        pass
+        assert method
 
     def teardown_method(self, method):
         """Teardown any state that was previously setup with a setup_method call."""
-        pass
+        assert method
 
     def test_parse_dates(self):
         """Test for the function parse_dates."""
