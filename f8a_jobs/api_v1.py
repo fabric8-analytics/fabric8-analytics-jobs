@@ -197,7 +197,7 @@ def post_schedule_job(scheduler, handler_name, **kwargs):
     try:
         # Translate 'kwargs' in POST to handler key-value arguments passing, if needed
         kwargs.update(kwargs.pop('kwargs', {}))
-        kwargs['name']= case_sensitivity_transform(kwargs['name'])
+        kwargs['name'] = case_sensitivity_transform(kwargs['name'])
         job = Scheduler.schedule_job(scheduler, handler_name, **kwargs)
         return {"job": job2raw_dict(job)}, 201
     except ScheduleJobError as exc:
