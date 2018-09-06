@@ -8,7 +8,6 @@ import requests
 from apscheduler.schedulers.base import STATE_STOPPED, JobLookupError
 from flask import session, url_for, request
 from selinon import StoragePool
-from selinon import run_flow
 
 import f8a_jobs.handlers as handlers
 from f8a_jobs.handlers.base import BaseHandler
