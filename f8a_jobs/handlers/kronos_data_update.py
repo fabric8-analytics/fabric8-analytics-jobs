@@ -1,7 +1,6 @@
 """Class to append new data for Kronos training."""
 
 from selinon import StoragePool
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import text
 from .base import BaseHandler
 import os

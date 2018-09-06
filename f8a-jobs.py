@@ -18,7 +18,6 @@ from f8a_jobs.auth import oauth
 
 from raven.contrib.flask import Sentry
 from werkzeug.contrib.fixers import ProxyFix
-import logging
 
 
 class SafeJSONEncoder(json.JSONEncoder):
