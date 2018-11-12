@@ -92,13 +92,12 @@ class GitHubMostStarred(BaseHandler):
                 continue
             yield repo_name
 
-    def execute(self, ecosystem, popular=True, count=None, nversions=None, force=False,
+    def execute(self, ecosystem, count=None, nversions=None, force=False,
                 recursive_limit=None, min_stars=None, max_stars=None, skip_if_exists=True,
                 start_from=0):
         """Process the parameters and start analyses on the most-starred GitHub projects.
 
         :param ecosystem: ecosystem name
-        :param popular: boolean, sort index by popularity
         :param count: int, number of projects to analyse
         :param nversions: how many (most popular) versions of each project to schedule
         :param force: force analyses scheduling
