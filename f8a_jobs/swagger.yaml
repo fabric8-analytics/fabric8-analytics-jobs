@@ -522,21 +522,6 @@ paths:
           description: Sync to graph scheduled
         401:
           description: No suitable permissions
-  '/jobs/victims-check':
-    post:
-      tags: [Add new jobs]
-      operationId: f8a_jobs.api_v1.post_run_victims_check
-      summary: Run Victims CVE check
-      parameters:
-        - $ref: "#/parameters/ecosystem"
-        - $ref: "#/parameters/cve_filter"
-      security:
-        - auth_token: []
-      responses:
-        201:
-          description: Victims CVE flow successfully scheduled
-        401:
-          description: No suitable permissions
   '/bookkeeping':
     get:
        tags: [BookKeeping]
@@ -997,12 +982,6 @@ parameters:
     description: List active records only
     type: boolean
     default: false
-  cve_filter:
-    name: cve_filter
-    in: query
-    required: false
-    description: Comma-separated list of CVE IDs
-    type: string
 
 definitions:
   FlowKwargs:
