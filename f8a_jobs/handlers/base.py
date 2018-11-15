@@ -15,6 +15,8 @@ from selinon import run_flow
 from selinon import run_flow_selective
 from selinon import StoragePool
 from f8a_worker.setup_celery import init_celery
+from f8a_worker.utils import normalize_package_name
+from f8a_worker.models import Ecosystem
 from sqlalchemy.exc import SQLAlchemyError
 
 CountRange = namedtuple('CountRange', ['min', 'max'])
@@ -49,6 +51,14 @@ class BaseHandler(object):
             init_celery(result_backend=False)
             self._initialized_celery = True
 
+    def _normalize_package_name(self, node_args):
+        """Normalize package name in node arguments."""
+        if 'name' in node_args and 'ecosystem' in node_args:
+            ecosystem = Ecosystem.by_name(self.postgres.session, node_args['ecosystem'])
+            node_args['name'] = normalize_package_name(
+                ecosystem_backend=ecosystem.backend.name, name=node_args['name']
+            )
+
     def run_selinon_flow(self, flow_name, node_args):
         """Connect to broker, if not connected, and run Selinon flow.
 
@@ -57,6 +67,8 @@ class BaseHandler(object):
         """
         self.log.debug("Scheduling Selinon flow '%s' with node_args: '%s', job '%s'",
                        flow_name, node_args, self.job_id)
+
+        self._normalize_package_name(node_args)
 
         if self.job_id:
             node_args['job_id'] = self.job_id
@@ -80,6 +92,8 @@ class BaseHandler(object):
         if flow_name in ('bayesianPackageFlow', 'bayesianPackageAnalysisFlow'):
             task_names = list(set(task_names) | {'PackageFinalizeTask', 'PackageResultCollector',
                                                  'PackageGraphImporterTask'})
+
+        self._normalize_package_name(node_args)
 
         self.log.debug("Scheduling selective Selinon flow '%s' with tasks '%s' and node_args: "
                        "'%s', job '%s'", flow_name, task_names, node_args, self.job_id)
