@@ -26,3 +26,5 @@ echo "*****************************************"
 # we need no:cacheprovider, otherwise pytest will try to write to directory .cache which is in /usr under unprivileged
 # user and will cause exception
 py.test -p no:cacheprovider --cov=/f8a_jobs/f8a_jobs/ --cov-report term-missing --cov-fail-under=$COVERAGE_THRESHOLD -vv $@
+
+codecov --token=1fb5003d-7ea0-4487-8397-139ab1314b4b

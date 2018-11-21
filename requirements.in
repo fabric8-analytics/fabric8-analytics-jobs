@@ -8,5 +8,6 @@ Flask-OAuthlib
 SQLAlchemy-Utils
 raven[flask]
 radon
+codecov
 flask>=1.0
 requests>=2.20.0
