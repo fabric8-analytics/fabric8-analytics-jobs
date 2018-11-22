@@ -53,6 +53,9 @@ class BaseHandler(object):
 
     def _normalize_package_name(self, node_args):
         """Normalize package name in node arguments."""
+        if not node_args:
+            return
+
         if 'name' in node_args and 'ecosystem' in node_args:
             ecosystem = Ecosystem.by_name(self.postgres.session, node_args['ecosystem'])
             node_args['name'] = normalize_package_name(
