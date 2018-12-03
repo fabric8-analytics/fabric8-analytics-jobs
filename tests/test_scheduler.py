@@ -1,5 +1,7 @@
 """Tests for the module 'api_v1'."""
 
+import pytest
+
 from f8a_jobs.scheduler import ScheduleJobError
 
 
