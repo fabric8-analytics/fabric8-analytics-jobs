@@ -11,8 +11,6 @@ prep() {
 prep
 ./detect-common-errors.sh
 ./detect-dead-code.sh
-# enable when the last remaining issue will be solved
-# https://fabric8-analytics.github.io/dashboard/fabric8-analytics-jobs.cc.D.html
-# ./measure-cyclomatic-complexity.sh --fail-on-error
+./measure-cyclomatic-complexity.sh --fail-on-error
 ./measure-maintainability-index.sh --fail-on-error
 ./run-linter.sh
