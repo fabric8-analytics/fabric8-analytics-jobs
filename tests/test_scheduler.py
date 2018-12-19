@@ -39,10 +39,16 @@ class TestScheduler(object):
             Scheduler.schedule_job(None, handlers.ErrorHandler.__name__, when="xyzzy")
 
     def test_schedule_job_method_missfirre_grace_time_parsing(self):
-        """Basic test for the schedule_job method: parsing the 'missfire_grace_time' parameter."""
+        """Basic test for the schedule_job method: parsing the 'misfire_grace_time' parameter."""
         with pytest.raises(ScheduleJobError):
             Scheduler.schedule_job(None, handlers.ErrorHandler.__name__,
-                                   missfire_grace_time="foo bar baz")
+                                   misfire_grace_time="foo bar baz")
+
+    def test_schedule_job_method_misfire_grace_time_parsing_2(self):
+        """Basic test for the schedule_job method: parsing the 'periodically' parameter."""
+        with pytest.raises(ScheduleJobError):
+            Scheduler.schedule_job(None, handlers.ErrorHandler.__name__,
+                                   misfire_grace_time="32m", periodically="foo bar baz")
 
     def test_schedule_job_method_periodically_parsing(self):
         """Basic test for the schedule_job method: parsing the 'periodically' parameter."""
