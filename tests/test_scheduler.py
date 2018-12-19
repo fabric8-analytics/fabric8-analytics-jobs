@@ -2,7 +2,8 @@
 
 import pytest
 
-from f8a_jobs.scheduler import ScheduleJobError
+from f8a_jobs.scheduler import Scheduler, ScheduleJobError
+import f8a_jobs.handlers as handlers
 
 
 class TestScheduler(object):
