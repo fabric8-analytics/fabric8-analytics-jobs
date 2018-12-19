@@ -26,22 +26,26 @@ class TestScheduler(object):
     def test_schedule_job_method_state(self):
         """Basic test for the schedule_job method: check state."""
         with pytest.raises(ValueError):
-            Scheduler.schedule_job(Scheduler.get_paused_scheduler(), "handler",
-                                   state="strange_state")
+            Scheduler.schedule_job(None, "handler", state="strange_state")
 
     def test_schedule_job_method_handler_name(self):
         """Basic test for the schedule_job method: check handler name."""
         with pytest.raises(ValueError):
-            Scheduler.schedule_job(Scheduler.get_paused_scheduler(), "unknown handler", state=None)
+            Scheduler.schedule_job(None, "unknown handler", state=None)
 
     def test_schedule_job_method_when_parsing(self):
         """Basic test for the schedule_job method: parsing the 'when' parameter."""
         with pytest.raises(ScheduleJobError):
-            Scheduler.schedule_job(Scheduler.get_paused_scheduler(), handlers.ErrorHandler,
-                                   when="xyzzy")
+            Scheduler.schedule_job(None, handlers.ErrorHandler, when="xyzzy")
 
     def test_schedule_job_method_missfirre_grace_time_parsing(self):
         """Basic test for the schedule_job method: parsing the 'missfire_grace_time' parameter."""
         with pytest.raises(ScheduleJobError):
-            Scheduler.schedule_job(Scheduler.get_paused_scheduler(), handlers.ErrorHandler,
+            Scheduler.schedule_job(None, handlers.ErrorHandler,
                                    missfire_grace_time="foo bar baz")
+
+    def test_schedule_job_method_periodically_parsing(self):
+        """Basic test for the schedule_job method: parsing the 'periodically' parameter."""
+        with pytest.raises(ScheduleJobError):
+            Scheduler.schedule_job(None, handlers.ErrorHandler,
+                                   periodically="foo bar baz")
