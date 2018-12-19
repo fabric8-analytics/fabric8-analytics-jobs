@@ -85,6 +85,44 @@ class Scheduler(object):
             scheduler.start(paused=True)
             return scheduler
 
+    @staticmethod
+    def check_job_state(state):
+        """Check the string that represented job state."""
+        if state not in (None, "running", "paused"):
+            raise ValueError("Unknown state '%s' provided, could be 'running' or 'paused'")
+
+    @staticmethod
+    def check_handler_name(handlers, handler_name):
+        """Be sure that the handler actually exists."""
+        if not hasattr(handlers, handler_name):
+            raise ValueError("Unknown handler '%s'" % handler_name)
+
+    @staticmethod
+    def process_when_parameter(when):
+        """Process the 'when' parameter when the job should be fired."""
+        if when:
+            try:
+                when = parse_datetime(when)
+            except ValueError as exc:
+                raise ScheduleJobError("Unable to parse datetime format for 'when': '%s'" % when)\
+                    from exc
+            if when < datetime.now():
+                raise ScheduleJobError("Cannot schedule event at '%s' to past" % str(when))
+        return when
+
+    @staticmethod
+    def process_misfire_grace_time(misfire_grace_time):
+        """Process the 'misfire_grace_time' parameter."""
+        if misfire_grace_time:
+            seconds = timeparse(misfire_grace_time)
+
+            if seconds is None:
+                raise ScheduleJobError("Unable to parse format for 'misfire_grace_time': '%s'" %
+                                       misfire_grace_time)
+
+            misfire_grace_time = seconds
+        return misfire_grace_time
+
     @classmethod
     def schedule_job(cls, scheduler, handler_name,
                      job_id=None, when=None, periodically=None, misfire_grace_time=None,
@@ -105,31 +143,13 @@ class Scheduler(object):
         :param kwargs: handler kwargs
         :return: scheduled apscheduler.Job instance
         """
-        # TODO: reduce cyclomatic complexity
-        if state not in (None, "running", "paused"):
-            raise ValueError("Unknown state '%s' provided, could be 'running' or 'paused'")
+        # check provided parameters
+        Scheduler.check_job_state(state)
+        Scheduler.check_handler_name(handlers, handler_name)
 
-        # just to be sure that the handler actually exists
-        if not hasattr(handlers, handler_name):
-            raise ValueError("Unknown handler '%s'" % handler_name)
-
-        if when:
-            try:
-                when = parse_datetime(when)
-            except ValueError as exc:
-                raise ScheduleJobError("Unable to parse datetime format for 'when': '%s'" % when)\
-                    from exc
-            if when < datetime.now():
-                raise ScheduleJobError("Cannot schedule event at '%s' to past" % str(when))
-
-        if misfire_grace_time:
-            seconds = timeparse(misfire_grace_time)
-
-            if seconds is None:
-                raise ScheduleJobError("Unable to parse format for 'misfire_grace_time': '%s'" %
-                                       misfire_grace_time)
-
-            misfire_grace_time = seconds
+        # parameters that needs to be parsed/processed
+        when = Scheduler.process_when_parameter(when)
+        misfire_grace_time = Scheduler.process_misfire_grace_time(misfire_grace_time)
 
         if periodically:
             seconds = timeparse(periodically)
