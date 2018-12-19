@@ -36,16 +36,16 @@ class TestScheduler(object):
     def test_schedule_job_method_when_parsing(self):
         """Basic test for the schedule_job method: parsing the 'when' parameter."""
         with pytest.raises(ScheduleJobError):
-            Scheduler.schedule_job(None, handlers.ErrorHandler, when="xyzzy")
+            Scheduler.schedule_job(None, handlers.ErrorHandler.__name__, when="xyzzy")
 
     def test_schedule_job_method_missfirre_grace_time_parsing(self):
         """Basic test for the schedule_job method: parsing the 'missfire_grace_time' parameter."""
         with pytest.raises(ScheduleJobError):
-            Scheduler.schedule_job(None, handlers.ErrorHandler,
+            Scheduler.schedule_job(None, handlers.ErrorHandler.__name__,
                                    missfire_grace_time="foo bar baz")
 
     def test_schedule_job_method_periodically_parsing(self):
         """Basic test for the schedule_job method: parsing the 'periodically' parameter."""
         with pytest.raises(ScheduleJobError):
-            Scheduler.schedule_job(None, handlers.ErrorHandler,
+            Scheduler.schedule_job(None, handlers.ErrorHandler.__name__,
                                    periodically="foo bar baz")
