@@ -80,7 +80,7 @@ If something went wrong, check failed jobs in "Jobs options", `/jobs` endpoint. 
 
 ## Job failures
 
-If a job fails, there is inserted a log entry to database. This entry is basically an empty job (when run it does nothing) with information that describe failure (traceback) and job arguments.
+If a job fails, there is inserted a log entry to database. This entry is basically an empty job (when run it does nothing) with information that describe failure (trace back) and job arguments.
 
 ## Implementing a job
  
@@ -127,7 +127,7 @@ If you wish to schedule only certain tasks in flows, feel free to post your HTTP
 }
 ````
 
-## Run graph syncs of previously analysed Ecosystem-Package-Version
+## Run graph syncs of previously analyzed Ecosystem-Package-Version
 
 Note this represents the whole job arguments in which there are only first 1000 packages synced, post this to `/api/v1/jobs/selective-flow-scheduling` endpoint.
 
@@ -543,7 +543,7 @@ Please note that only semantical problems are reported.
 
 #### Check for scripts written in BASH
 
-The script named `check-bashscripts.sh` can be used to check all BASH scripts (in fact: all files with the `.sh` extension) for various possible issues, incompatibilies, and caveats. This script can be run w/o any arguments:
+The script named `check-bashscripts.sh` can be used to check all BASH scripts (in fact: all files with the `.sh` extension) for various possible issues, incompatibilities, and caveats. This script can be run w/o any arguments:
 
 ```
 ./check-bashscripts.sh
