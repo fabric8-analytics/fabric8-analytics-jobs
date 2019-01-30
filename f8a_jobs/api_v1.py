@@ -160,7 +160,7 @@ def get_jobs(scheduler, job_type=None):
     job_type = job_type or 'all'
     for job in jobs:
         if job_type == 'failed' and is_failed_job(job):
-                job_list.append(job2raw_dict(job))
+            job_list.append(job2raw_dict(job))
         if job_type == 'user' and not is_failed_job(job):
             job_list.append(job2raw_dict(job))
         if job_type == 'all':
