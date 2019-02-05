@@ -41,7 +41,7 @@ pyparsing==2.3.0          # via packaging
 pytimeparse==1.1.6
 pytz==2016.10             # via apscheduler, babel, tzlocal
 pyyaml==3.12              # via clickclick, connexion, json2sql
-radon==2.0.0
+radon==3.0.1
 raven[flask]==6.7.0
 requests-oauthlib==0.8.0  # via flask-oauthlib
 requests==2.20.1
