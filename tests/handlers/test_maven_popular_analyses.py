@@ -8,4 +8,4 @@ class TestMavenPopularAnalyses(object):
 
     def test_constructor(self):
         """Test the MavenPopularAnalyses() constructor."""
-        assert MavenPopularAnalyses() is not None
+        assert MavenPopularAnalyses(1) is not None

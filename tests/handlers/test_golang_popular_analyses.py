@@ -8,4 +8,4 @@ class TestGolangPopularAnalyses(object):
 
     def test_constructor(self):
         """Test the GolangPopularAnalyses() constructor."""
-        assert GolangPopularAnalyses() is not None
+        assert GolangPopularAnalyses(1) is not None

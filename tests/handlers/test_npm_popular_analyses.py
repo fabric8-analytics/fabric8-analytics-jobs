@@ -8,4 +8,4 @@ class TestNpmPopularAnalyses(object):
 
     def test_constructor(self):
         """Test the NpmPopularAnalyses() constructor."""
-        assert NpmPopularAnalyses() is not None
+        assert NpmPopularAnalyses(1) is not None

@@ -8,4 +8,4 @@ class TestNugetPopularAnalyses(object):
 
     def test_constructor(self):
         """Test the NugetPopularAnalyses() constructor."""
-        assert NugetPopularAnalyses() is not None
+        assert NugetPopularAnalyses(1) is not None
