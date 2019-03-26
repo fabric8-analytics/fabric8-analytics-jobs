@@ -1,5 +1,7 @@
 """Tests for GolangPopularAnalyses class."""
 
+import pytest
+
 from f8a_jobs.handlers.golang_popular_analyses import GolangPopularAnalyses
 
 
@@ -8,4 +10,7 @@ class TestGolangPopularAnalyses(object):
 
     def test_constructor(self):
         """Test the GolangPopularAnalyses() constructor."""
-        assert GolangPopularAnalyses(1) is not None
+        with pytest.raises(Exception) as e:
+            job_id = 1
+            GolangPopularAnalyses(job_id)
+            assert e is not None

@@ -1,5 +1,7 @@
 """Tests for MavenPopularAnalyses class."""
 
+import pytest
+
 from f8a_jobs.handlers.maven_popular_analyses import MavenPopularAnalyses
 
 
@@ -8,4 +10,7 @@ class TestMavenPopularAnalyses(object):
 
     def test_constructor(self):
         """Test the MavenPopularAnalyses() constructor."""
-        assert MavenPopularAnalyses(1) is not None
+        with pytest.raises(Exception) as e:
+            job_id = 1
+            MavenPopularAnalyses(job_id)
+            assert e is not None

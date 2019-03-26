@@ -1,5 +1,7 @@
 """Tests for PythonPopularAnalyses class."""
 
+import pytest
+
 from f8a_jobs.handlers.python_popular_analyses import PythonPopularAnalyses
 
 
@@ -8,4 +10,7 @@ class TestPythonPopularAnalyses(object):
 
     def test_constructor(self):
         """Test the PythonPopularAnalyses() constructor."""
-        assert PythonPopularAnalyses(1) is not None
+        with pytest.raises(Exception) as e:
+            job_id = 1
+            PythonPopularAnalyses(job_id)
+            assert e is not None
