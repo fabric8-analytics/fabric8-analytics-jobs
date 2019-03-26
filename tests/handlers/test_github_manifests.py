@@ -1,6 +1,6 @@
 """Tests for github_manifests.py."""
 
-import pytest
+# import pytest
 
 # TODO enable when new test(s) will be added
 # from f8a_jobs.handlers.github_manifests import GitHubManifests

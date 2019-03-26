@@ -1,6 +1,6 @@
 """Tests for clean_postgres.py."""
 
-import pytest
+# import pytest
 
 # TODO enable when new test(s) will be added
 # from f8a_jobs.handlers.clean_postgres import CleanPostgres
