@@ -1,6 +1,6 @@
 """Tests for kronos_data_update.py."""
 
-import pytest
+# import pytest
 
 # TODO enable when new test(s) will be added
 # from f8a_jobs.handlers.kronos_data_update import KronosDataUpdater
