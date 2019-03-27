@@ -68,4 +68,8 @@ push_image() {
 }
 
 load_jenkins_vars
+
+# this script is copied by CI, we don't need it
+rm -f env-toolkit
+
 prep

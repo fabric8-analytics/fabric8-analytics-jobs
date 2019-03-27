@@ -3,9 +3,6 @@
 # test coverage threshold
 COVERAGE_THRESHOLD=15
 
-# this script is copied by CI, we don't need it
-rm -f env-toolkit
-
 set -e
 DIR=$(dirname "${BASH_SOURCE[0]}")
 
