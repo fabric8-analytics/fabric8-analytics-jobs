@@ -1,6 +1,7 @@
 """Tests for the module 'utils'."""
 
 import pytest
+import datetime
 
 from f8a_jobs.utils import parse_dates
 
@@ -60,5 +61,5 @@ class TestUtilFunctions(object):
         assert 'from_date' in job_kwargs
         assert 'to_date' in job_kwargs
 
-        assert job_kwargs['from_date'] == '2017-01-01'
-        assert job_kwargs['to_date'] == '2018-01-01'
+        assert job_kwargs['from_date'] == datetime.datetime(2017, 1, 1, 0, 0)
+        assert job_kwargs['to_date'] == datetime.datetime(2018, 1, 1, 0, 0)

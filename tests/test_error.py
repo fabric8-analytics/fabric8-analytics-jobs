@@ -18,6 +18,7 @@ class TestError(object):
         assert method
 
     def token_expired(self):
+        """Check the error/exception message."""
         e = TokenExpired("Message")
         assert e is not None
         assert str(e) == "Message"
