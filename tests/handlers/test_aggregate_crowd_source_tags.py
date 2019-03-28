@@ -14,6 +14,8 @@ class TestCrowdSourceTags(object):
                             'data', 'single_pkg.json')
         with open(data) as rd:
             correct_data = json.load(rd)
+            assert correct_data is not None
+
         pkg_data = correct_data.get("result", {}).get("data", [])
 
         user_tag_data = pkg_data[0]
@@ -28,6 +30,8 @@ class TestCrowdSourceTags(object):
                             'data', 'multiple_user.json')
         with open(data) as rd:
             correct_data = json.load(rd)
+            assert correct_data is not None
+
         pkg_data = correct_data.get("result", {}).get("data", [])
 
         user_tag_data = pkg_data[0]
@@ -42,6 +46,8 @@ class TestCrowdSourceTags(object):
                             'data', 'double_pkg.json')
         with open(data) as rd:
             correct_data = json.load(rd)
+            assert correct_data is not None
+
         pkg_data = correct_data.get("result", {}).get("data", [])
 
         for i, user_tag_data in enumerate(pkg_data):
