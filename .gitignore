@@ -84,3 +84,5 @@ worker/
 
 html/
 latex/
+
+.DS_Store
