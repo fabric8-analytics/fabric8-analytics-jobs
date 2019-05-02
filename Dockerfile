@@ -13,7 +13,7 @@ RUN useradd coreapi
 COPY hack/_copr_fche_pcp.repo /etc/yum.repos.d/
 
 RUN yum install -y epel-release && \
-    yum install -y python34-devel python34-pip postgresql-devel gcc git maven zip unzip pcp && \
+    yum install -y python36-devel python36-pip postgresql-devel gcc git maven zip unzip pcp && \
     yum clean all
 
 # Install maven-index-checker
