@@ -20,6 +20,8 @@ load_jenkins_vars() {
 prep() {
     yum -y update
     yum -y install docker git
+    yum -y install epel-release
+    yum -y install python36
     systemctl start docker
 }
 

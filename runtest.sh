@@ -26,6 +26,12 @@ gc() {
   exit $retval
 }
 
+check_python_version() {
+    python3 tools/check_python_version.py 3 6
+}
+
+check_python_version
+
 trap gc EXIT SIGINT
 
 if [ "$REBUILD" == "1" ] || \
