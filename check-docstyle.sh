@@ -1,6 +1,6 @@
 #!/bin/bash
 
-directories="f8a_jobs tests"
+directories="f8a_jobs tests tools"
 separate_files="f8a-jobs.py setup.py"
 pass=0
 fail=0
