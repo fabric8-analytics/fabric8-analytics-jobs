@@ -40,7 +40,7 @@ pygments==2.2.0           # via sphinx
 pyparsing==2.3.0          # via packaging
 pytimeparse==1.1.6
 pytz==2016.10             # via apscheduler, babel, tzlocal
-pyyaml==3.12              # via clickclick, connexion, json2sql
+pyyaml==4.2b1             # via clickclick, connexion, json2sql
 radon==3.0.1
 raven[flask]==6.7.0
 requests-oauthlib==0.8.0  # via flask-oauthlib
