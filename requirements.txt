@@ -25,7 +25,7 @@ flask==1.0.2
 idna==2.7                 # via requests
 imagesize==1.1.0          # via sphinx
 itsdangerous==0.24        # via flask
-jinja2==2.10              # via flask, sphinx
+jinja2==2.10.1            # via flask, sphinx
 json2sql==1.0.0rc1
 jsonschema==2.6.0         # via connexion, swagger-spec-validator
 mando==0.5                # via radon
