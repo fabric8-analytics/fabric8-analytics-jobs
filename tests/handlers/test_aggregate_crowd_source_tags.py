@@ -22,7 +22,7 @@ class TestCrowdSourceTags(object):
         user_tags = user_tag_data.get("user_tags", [])
         # "user_tags": ["database;scm", "git;scm;version-control;database"]
         pkg_tags, _ = ACST.filter_user_tags(user_tags)
-        assert (set(pkg_tags) == {'database', 'scm'})
+        assert set(pkg_tags) == {'database', 'scm'}
 
     def test_filter_user_tags_multiple_user_tags(self):
         """Test for filter_user_tags()."""
@@ -38,7 +38,7 @@ class TestCrowdSourceTags(object):
         user_tags = user_tag_data.get("user_tags", [])
         # "user_tags": ["database;scm", "git;scm;version-control;database", "database"]
         pkg_tags, _ = ACST.filter_user_tags(user_tags)
-        assert (set(pkg_tags) == {'database'})
+        assert set(pkg_tags) == {'database'}
 
     def test_filter_user_tags_double_pkg(self):
         """Test for filter_user_tags()."""
@@ -55,7 +55,7 @@ class TestCrowdSourceTags(object):
             pkg_tags, _ = ACST.filter_user_tags(user_tags)
             if i == 0:
                 # "user_tags": ["database;scm", "git;scm;version-control;database"]
-                assert (set(pkg_tags) == {'database', 'scm'})
+                assert set(pkg_tags) == {'database', 'scm'}
             else:
                 # "user_tags": ["service-discovery;client;configuration", "vert.x;client;java"]
-                assert (set(pkg_tags) == {'client'})
+                assert set(pkg_tags) == {'client'}
