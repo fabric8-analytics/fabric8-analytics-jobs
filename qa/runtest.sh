@@ -1,5 +1,9 @@
 #!/bin/bash
 
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+pushd "${SCRIPT_DIR}/.." > /dev/null
+
 # fail if smth fails
 # the whole env will be running if test suite fails so you can debug
 set -e
@@ -8,7 +12,7 @@ set -e
 # unable to prepare context: The Dockerfile (Dockerfile.tests) must be within the build context (.)
 set -x
 
-here=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
+here=$(pwd)
 
 IMAGE_NAME=${IMAGE_NAME:-registry.devshift.net/bayesian/coreapi-jobs}
 TEST_IMAGE_NAME="jobs-tests"
@@ -54,3 +58,5 @@ docker run -t \
   ${TEST_IMAGE_NAME} /f8a_jobs/hack/exec_tests.sh $@ /f8a_jobs/tests/
 
 echo "Test suite passed \\o/"
+
+popd > /dev/null
