@@ -12,7 +12,7 @@ set -e
 # unable to prepare context: The Dockerfile (Dockerfile.tests) must be within the build context (.)
 set -x
 
-here=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
+here=$(pwd)
 
 IMAGE_NAME=${IMAGE_NAME:-registry.devshift.net/bayesian/coreapi-jobs}
 TEST_IMAGE_NAME="jobs-tests"
