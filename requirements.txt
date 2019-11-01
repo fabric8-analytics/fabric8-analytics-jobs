@@ -4,51 +4,42 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-alabaster==0.7.12         # via sphinx
 apscheduler==3.3.1
-babel==2.6.0              # via sphinx
 blinker==1.4              # via raven
 certifi==2018.10.15       # via requests
 chardet==3.0.4            # via requests
 click==6.7                # via clickclick, flask, json2sql
 clickclick==1.2.1         # via connexion
-colorama==0.3.9           # via radon
 codecov==2.0.15
+colorama==0.4.1           # via radon
 connexion==1.1.5
+coverage==4.5.4           # via codecov
 daiquiri==1.3.0           # via json2sql
-docutils==0.14            # via sphinx
 flake8-polyfill==1.0.2    # via radon
 flake8==3.6.0             # via flake8-polyfill
 flask-oauthlib==0.9.3
 flask-script==2.0.5
 flask==1.0.2
 idna==2.7                 # via requests
-imagesize==1.1.0          # via sphinx
 itsdangerous==0.24        # via flask
-jinja2==2.10.1            # via flask, sphinx
+jinja2==2.10.1            # via flask
 json2sql==1.0.0rc1
 jsonschema==2.6.0         # via connexion, swagger-spec-validator
-mando==0.5                # via radon
+mando==0.6.4              # via radon
 markupsafe==0.23          # via jinja2
 mccabe==0.6.1             # via flake8
 mosql==0.11               # via json2sql
 oauthlib==2.0.2           # via flask-oauthlib, requests-oauthlib
-packaging==18.0           # via sphinx
 pycodestyle==2.4.0        # via flake8
 pyflakes==2.0.0           # via flake8
-pygments==2.2.0           # via sphinx
-pyparsing==2.3.0          # via packaging
 pytimeparse==1.1.6
-pytz==2016.10             # via apscheduler, babel, tzlocal
-pyyaml==4.2b1             # via clickclick, connexion, json2sql
+pytz==2016.10             # via apscheduler, tzlocal
+pyyaml==5.1.2             # via clickclick, connexion, json2sql
 radon==3.0.1
 raven[flask]==6.7.0
 requests-oauthlib==0.8.0  # via flask-oauthlib
 requests==2.20.1
-six==1.10.0               # via apscheduler, connexion, packaging, sphinx, sqlalchemy-utils, swagger-spec-validator
-snowballstemmer==1.2.1    # via sphinx
-sphinx==1.8.2             # via mando
-sphinxcontrib-websupport==1.1.0  # via sphinx
+six==1.10.0               # via apscheduler, connexion, mando, sqlalchemy-utils, swagger-spec-validator
 sqlalchemy-utils==0.32.14
 sqlalchemy==1.3.0         # via sqlalchemy-utils
 strict-rfc3339==0.7       # via connexion
@@ -56,4 +47,4 @@ swagger-spec-validator==2.0.2  # via connexion
 tzlocal==1.3              # via apscheduler
 urllib3==1.24.2           # via requests
 uwsgi==2.0.17
-werkzeug==0.14.1          # via flask
+werkzeug==0.15.3          # via flask
