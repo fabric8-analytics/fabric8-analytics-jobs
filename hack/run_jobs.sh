@@ -3,5 +3,5 @@
 set -ex
 
 f8a-jobs.py initjobs
-cd /usr/bin/
+cd /usr/local/bin/
 exec uwsgi --http 0.0.0.0:34000 -p 1 -w f8a-jobs --enable-threads
