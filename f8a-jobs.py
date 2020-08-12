@@ -11,13 +11,13 @@ from datetime import datetime
 from flask_script import Manager
 from f8a_jobs.scheduler import Scheduler
 import f8a_jobs.defaults as defaults
-from f8a_worker.setup_celery import init_selinon
 
 from f8a_jobs.models import create_models
 from f8a_jobs.auth import oauth
 
 from raven.contrib.flask import Sentry
 from werkzeug.contrib.fixers import ProxyFix
+from f8a_worker.setup_celery import init_celery, init_selinon
 
 
 class SafeJSONEncoder(json.JSONEncoder):
@@ -64,6 +64,7 @@ logger = logging.getLogger(__name__)
 init_logging(logger)
 
 app.add_api(defaults.SWAGGER_YAML_PATH)
+app.add_api(defaults.SWAGGER_INGESTION_YAML_PATH)
 
 # Expose for uWSGI
 application.json_encoder = SafeJSONEncoder
@@ -73,7 +74,9 @@ manager = Manager(application)
 application.secret_key = defaults.APP_SECRET_KEY
 oauth.init_app(application)
 
+# Initializing Selinon and Celery while starting the application
 logger.debug("Initializing Selinon")
+init_celery(result_backend=False)
 init_selinon()
 logger.debug("Selinon initialized successfully")
 
