@@ -63,6 +63,7 @@ application = app.app
 
 # Setup Logging
 logger = logging.getLogger(__name__)
+init_logging(logger)
 
 app.add_api(defaults.SWAGGER_YAML_PATH)
 
