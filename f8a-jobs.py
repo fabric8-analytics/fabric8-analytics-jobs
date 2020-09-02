@@ -6,7 +6,7 @@ import os
 import json
 import connexion
 import logging
-from flask import redirect, jsonify, request
+from flask import redirect, jsonify
 from datetime import datetime
 from flask_script import Manager
 from f8a_jobs.scheduler import Scheduler
@@ -17,9 +17,7 @@ from f8a_jobs.auth import oauth
 
 from raven.contrib.flask import Sentry
 from werkzeug.contrib.fixers import ProxyFix
-import flask
 from f8a_worker.setup_celery import init_celery, init_selinon
-from selinon import run_flow
 
 
 class SafeJSONEncoder(json.JSONEncoder):
@@ -99,49 +97,6 @@ def api_v1():
             paths.append(rule)
 
     return jsonify({'paths': paths})
-
-
-@app.route('/api/v1/ingest-epv', methods=['POST'])
-def ingest_epv():
-    """Handle POST requests for triggering ingestion flow."""
-    resp = {
-        "dispacher_id": "",
-        "message": "",
-        "success": False
-    }
-
-    try:
-        input_json = request.get_json()
-        logger.info('/api/v1/ingest-epv is called for {}.'.format(input_json))
-
-        access_token = request.headers['Authorization']
-
-        if access_token != defaults.APP_SECRET_KEY:
-            resp['message'] = "Unauthorized!!"
-            return flask.jsonify(resp), 401
-
-        if input_json and 'flow_arguments' in input_json and 'flow_name' in input_json:
-            flow_args = input_json['flow_arguments']
-            flow_name = input_json['flow_name']
-
-            dispacher_id = run_server_flow(flow_name, flow_args)
-            resp['dispacher_id'] = dispacher_id.id
-            resp['message'] = "{} initiated for {}".format(flow_name, flow_args)
-            resp['success'] = True
-        else:
-            logger.info('Incorrect data sent for the flow: {p}'
-                        .format(p=input_json))
-            return flask.jsonify({"message": "Incorrect data sent."}), 400
-
-        return flask.jsonify(resp), 200
-    except Exception as e:
-        logger.error("Exception while initiating the worker flow --> {}".format(e))
-        return flask.jsonify({'message': 'Failed to initiate worker flow.'}), 500
-
-
-def run_server_flow(flow_name, flow_args):
-    """To run the worker flow via selinon."""
-    return run_flow(flow_name, flow_args)
 
 
 @manager.command
