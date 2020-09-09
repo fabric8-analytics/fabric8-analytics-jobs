@@ -7,13 +7,15 @@ from setuptools import setup, find_packages
 
 
 def get_requirements():
-    """Parse dependencies from 'requirements.in' file."""
+    """
+    Parse dependencies from 'requirements.in' file.
+
+    Collecting dependencies from 'requirements.in' as a list,
+    this list will be used by 'install_requires' to specify minimal dependencies
+    needed to run the application.
+    """
     with open('requirements.in') as fd:
-        lines = fd.read().splitlines()
-        requires = []
-        for line in lines:
-            requires.append(line)
-        return requires
+        return fd.read().splitlines()
 
 
 install_requires = get_requirements()
@@ -25,6 +27,7 @@ setup(
     package_data={
         'f8a_jobs': [
             'swagger.yaml',
+            'swagger_ingestion.yaml',
             os.path.join('default_jobs', '*.yaml'),
             os.path.join('default_jobs', '*.yml')
         ]

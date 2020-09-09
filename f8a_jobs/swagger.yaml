@@ -257,27 +257,6 @@ paths:
           description: New analyses job scheduled
         401:
           description: No suitable permissions
-  '/ingest-epv':
-    post:
-      tags: [Add new jobs]
-      operationId: f8a_jobs.api_v1.ingest_epv
-      summary: Trigger a new job for EPV ingestion.
-      parameters:
-        - name: epv_details
-          in: body
-          required: true
-          description: Details of packages to be ingested.
-          schema:
-            $ref: "#/definitions/FlowKwargs"
-      responses:
-        201:
-          description: Response with an array of Selinon dispacher IDs
-        400:
-          description: Bad Request
-        401:
-          description: Unauthorized
-        500:
-          description: Internal Server Error
   '/jobs/github-manifests':
     post:
       tags: [Add new jobs]

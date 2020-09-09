@@ -64,6 +64,7 @@ logger = logging.getLogger(__name__)
 init_logging(logger)
 
 app.add_api(defaults.SWAGGER_YAML_PATH)
+app.add_api(defaults.SWAGGER_INGESTION_YAML_PATH)
 
 # Expose for uWSGI
 application.json_encoder = SafeJSONEncoder
@@ -73,6 +74,7 @@ manager = Manager(application)
 application.secret_key = defaults.APP_SECRET_KEY
 oauth.init_app(application)
 
+# Initializing Selinon and Celery while starting the application
 logger.debug("Initializing Selinon")
 init_celery(result_backend=False)
 init_selinon()

@@ -1,0 +1,80 @@
+openapi: 3.0.1
+info:
+  title: Collection of APIs for backend processes
+  version: "0.1"
+paths:
+  '/ingestions/ingest-epv':
+    post:
+      tags: [Ingestion Process]
+      operationId: f8a_jobs.graph_ingestion.ingest_epv
+      description: API to trigger a Selinon flow for ingestion of provided EPV.
+      parameters:
+        - name: auth-token
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              '0':
+                value: |-
+                  {
+                    "npm": [{
+                        "package": "serve-static",
+                        "version": "1.7.1"
+                      }],
+                    "maven":[{
+                        "package": "net.iharder:base64",
+                        "version": "2.3.9"
+                      }]
+                    }
+      responses:
+        '201':
+          description: Response with an array of Selinon dispacher IDs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  dispacher_ids:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+              examples:
+                '0':
+                  value: >
+                    {"dispacher_ids":[
+                      "3ae8c79a-4dfb-49ee-b574-e147f1b5a95c",
+                      "95e342ff-ab5e-42a0-85c0-a22a72beb5a6"],
+                      "message":"Allingestion flows are initiated"}
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              examples:
+                '0':
+                  value: >
+                    {"message":"Unauthorized!!", "success":false}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                '0':
+                  value: >
+                    {"message":"Incorrect data sent.", "success":false}
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                '0':
+                  value: >
+                    {"message":"Failed to initiate worker flow.", "success":false}

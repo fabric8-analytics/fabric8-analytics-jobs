@@ -23,7 +23,6 @@ from f8a_jobs.models import JobToken
 from f8a_jobs.defaults import AUTH_ORGANIZATION
 import f8a_jobs.defaults as configuration
 from f8a_jobs import graph_sync
-from f8a_jobs.graph_ingestion import ingest_epv_into_graph
 
 logger = logging.getLogger(__name__)
 
@@ -516,8 +515,3 @@ def invoke_graphsync_epv(**kwargs):
     """
     result = graph_sync.invoke_sync(params=kwargs)
     return result
-
-
-def ingest_epv(**kwargs):
-    """Trigger the EPV ingestion job based on the JSON sent via request."""
-    return ingest_epv_into_graph(kwargs, headers=request.headers)

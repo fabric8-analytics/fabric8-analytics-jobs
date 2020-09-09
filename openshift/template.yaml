@@ -104,6 +104,8 @@ objects:
               secretKeyRef:
                 name: coreapi-postgres
                 key: password
+          - name: INVOKE_API_WORKERS
+            value: "1"
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
           name: bayesian-jobs
           ports:
