@@ -2,10 +2,9 @@
 
 from selinon import run_flow
 import logging
-import f8a_jobs.defaults as defaults
 import flask
-from flask import request
 import os
+from f8a_jobs.utils import validate_user
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ _SUPPORTED_ECOSYSTEMS = {'npm', 'maven', 'pypi'}
 
 
 def ingest_epv_into_graph(epv_details):
-    """Handle POST requests for triggering ingestion flow.
+    """Handle implementation of API for triggering ingestion flow.
 
     :param epv_details: A dictionary object having list of packages/version as a nested object.
     Ex:
@@ -28,8 +27,7 @@ def ingest_epv_into_graph(epv_details):
     'eco2': [{"package": "p1", "version": "v1"},{"package": "p2", "version": "v2"}]
     }
     """
-    resp = {}
-    dispacher_ids = []
+    response = {}
 
     try:
         logger.info('graph_ingestion_:_ingest_epv_into_graph() is called.')
@@ -37,51 +35,54 @@ def ingest_epv_into_graph(epv_details):
 
         # Check if EPV ingestion is enabled.
         if _INVOKE_API_WORKERS:
-            # Check if requested ecosystem for ingestion is supported.
-            if not set(input_data.keys()).issubset(_SUPPORTED_ECOSYSTEMS):
-                logger.info('Unsupported ecosystem provided.')
-                return flask.jsonify({'message': 'Unsupported ecosystem provided.',
-                                      'success': False}), 400
 
             # Iterate through ecosystem present in input data
             for eco, items in input_data.items():
 
-                # Iterate through packages given for current ecosystem.
-                for item in items:
-                    # Check if required keys are present in input data
-                    if {'package', 'version'}.issubset(item.keys()):
-                        node_arguments = {
-                            "ecosystem": eco,
-                            "force": True,
-                            "force_graph_sync": False,
-                            "name": item['package'],
-                            "recursive_limit": 0,
-                            "version": item['version']
-                        }
+                # Check if requested ecosystem for ingestion is supported,
+                # if not then set an error message.
+                if eco in _SUPPORTED_ECOSYSTEMS:
+                    dispacher_ids = []
+                    incorrect_epv = []
+                    response[eco] = {
+                        'dispacher_ids': dispacher_ids,
+                    }
 
-                        # Initiate Selinon flow for current EPV ingestion.
-                        dispacher_id = run_server_flow(_FLOW_NAME, node_arguments)
-                        dispacher_ids.append(dispacher_id.id)
+                    # Iterate through packages given for current ecosystem.
+                    for item in items:
+                        # Check if required keys are present in input data,
+                        # if not then add item in filed list.
+                        if {'package', 'version'}.issubset(item.keys()):
+                            node_arguments = {
+                                "ecosystem": eco,
+                                "force": True,
+                                "force_graph_sync": False,
+                                "name": item['package'],
+                                "recursive_limit": 0,
+                                "version": item['version']
+                            }
 
-                        logger.info('A {} in initiated for eco: {}, pkg: {}, ver: {}'
-                                    .format(_FLOW_NAME, eco, item['package'], item['version']))
-                    else:
-                        logger.info('Incorrect data sent for {}: {}'.format(eco, items))
-                        message = {'message': 'Incorrect data sent for {}::{}'.format(eco, items),
-                                   'success': False}
+                            # Initiate Selinon flow for current EPV ingestion.
+                            dispacher_id = run_server_flow(_FLOW_NAME, node_arguments)
+                            dispacher_ids.append(dispacher_id.id)
 
-                        if dispacher_ids:
-                            message['dispacher_ids'] = dispacher_ids
-                        return flask.jsonify(message), 400
+                            logger.info('A {} in initiated for eco: {}, pkg: {}, ver: {}'
+                                        .format(_FLOW_NAME, eco, item['package'], item['version']))
+                        else:
+                            logger.error('Incorrect data sent for {}: {}'.format(eco, item))
+                            incorrect_epv.append(item)
 
-            resp['dispacher_ids'] = dispacher_ids
-            resp['message'] = 'All ingestion flows are initiated'
-            resp['success'] = True
+                    # Check if any of the epv had incorrect data,
+                    # if yes then send list of them in response.
+                    if incorrect_epv:
+                        response[eco]['incorrect_epv'] = incorrect_epv
+                else:
+                    response[eco] = 'Unsupported ecosystem'
 
-            return flask.jsonify(resp), 201
+            return flask.jsonify(response), 201
     except Exception as e:
         logger.error('Exception while initiating the worker flow {}'.format(e))
-        return flask.jsonify({'message': 'Failed to initiate worker flow.', 'success': False}), 500
+        return flask.jsonify({'message': 'Failed to initiate worker flow.'}), 500
 
 
 def run_server_flow(flow_name, node_args):
@@ -94,14 +95,7 @@ def run_server_flow(flow_name, node_args):
     return run_flow(flow_name, node_args)
 
 
+@validate_user
 def ingest_epv(**kwargs):
-    """To handle requests for end point '/ingestions/ingest-epv'."""
-    # Check if user authentication is disabled,
-    # if not then validate the token provided by the user.
-    if not defaults.DISABLE_AUTHENTICATION:
-        auth_token = request.headers.get('auth_token', '')
-
-        if auth_token != defaults.APP_SECRET_KEY:
-            return flask.jsonify({'message': 'Unauthorized!!', 'success': False}), 401
-
+    """To handle POST requests for end point '/ingestions/epv'."""
     return ingest_epv_into_graph(kwargs)

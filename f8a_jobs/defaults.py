@@ -9,7 +9,7 @@ _BAYESIAN_JOBS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 DEFAULT_SERVICE_PORT = 34000
 SWAGGER_YAML_PATH = os.path.join(_BAYESIAN_JOBS_DIR, 'swagger.yaml')
-SWAGGER_INGESTION_YAML_PATH = os.path.join(_BAYESIAN_JOBS_DIR, 'swagger_ingestion.yaml')
+SWAGGER_INGESTION_YAML_PATH = os.path.join(_BAYESIAN_JOBS_DIR, 'api_spec.yaml')
 DEFAULT_JOB_DIR = os.path.join(_BAYESIAN_JOBS_DIR, 'default_jobs')
 TOKEN_VALID_TIME = timedelta(days=14)
 AUTH_ORGANIZATION = os.getenv('AUTH_ORGANIZATION', 'fabric8-analytics')

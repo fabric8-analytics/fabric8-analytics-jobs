@@ -1,0 +1,126 @@
+openapi: 3.0.1
+info:
+  title: Collection of APIs for backend processes
+  version: "0.1"
+paths:
+  '/ingestions/epv':
+    post:
+      tags: [Ingestion Process]
+      operationId: f8a_jobs.graph_ingestion.ingest_epv
+      description: API to trigger a Selinon flow for ingestion of provided EPV.
+      parameters:
+        - name: auth-token
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              '0':
+                value: |-
+                  {
+                    "npm": [{
+                        "package": "serve-static",
+                        "version": "1.7.1"
+                      }],
+                    "maven":[{
+                        "package": "net.iharder:base64",
+                        "version": "2.3.9"
+                      }]
+                    }
+              '1':
+                value: |-
+                  {
+                    "npm": [{
+                        "package": "esiglobal-components",
+                        "version": "1.1.6"
+                      }, {
+                        "package": "@atmc/core",
+                        "version": "0.1.16"
+                      }],
+
+                    "maven":[{
+                        "pkg": "com.amazonaws:aws-java-sdk-sqs",
+                        "ver": "1.11.825"
+                      }, {
+                        "pkg": "com.amazonaws:aws-java-sdk-dynamodb",
+                        "ver": "1.11.825"
+                      }],
+
+                      "nuget": [{
+                        "package": "microsoft.chakracore",
+                        "version": "1.11.22"
+                      }]
+                    }
+      responses:
+        '201':
+          description: Response with an array of Selinon dispacher IDs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  dispacher_ids:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+              examples:
+                '0':
+                  value: >
+                    {
+                      "dispacher_ids": [
+                        "3ae8c79a-4dfb-49ee-b574-e147f1b5a95c",
+                        "95e342ff-ab5e-42a0-85c0-a22a72beb5a6"],
+                      "message":"Allingestion flows are initiated"
+                    }
+
+                '1':
+                   value: >
+                    {
+                      "maven": {
+                        "dispacher_ids": [
+                          "8330e99e-9779-4eaf-b25c-aa8637210207"
+                          ],
+                          "incorrect_epv": [{
+                                "pkg": "com.amazonaws:aws-java-sdk-sqs",
+                                "ver": "1.11.825"
+                            }]
+                        },
+
+                        "npm": {
+                            "dispacher_ids": [
+                                "67ecf2c9-150a-4eec-80ab-3f2a0c03c970",
+                                "2be64b68-635d-48fa-ae75-18386ba5229e"
+                            ]
+                        },
+
+                        "nuget": "Unsupported ecosystem"
+                    }
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              examples:
+                '0':
+                  value: >
+                   {"detail": "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.",
+                   "status": 401,
+                   "title": "Unauthorized",
+                   "type": "about:blank"}
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              examples:
+                '0':
+                  value: >
+                    {"message":"Failed to initiate worker flow."}

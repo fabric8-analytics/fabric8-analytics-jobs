@@ -27,7 +27,7 @@ setup(
     package_data={
         'f8a_jobs': [
             'swagger.yaml',
-            'swagger_ingestion.yaml',
+            'api_spec.yaml',
             os.path.join('default_jobs', '*.yaml'),
             os.path.join('default_jobs', '*.yml')
         ]
