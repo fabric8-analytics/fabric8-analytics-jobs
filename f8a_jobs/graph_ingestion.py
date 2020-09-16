@@ -2,7 +2,6 @@
 
 from selinon import run_flow
 import logging
-import flask
 import os
 from f8a_jobs.utils import validate_user
 
@@ -42,14 +41,11 @@ def ingest_epv_into_graph(epv_details):
                 # Check if requested ecosystem for ingestion is supported,
                 # if not then set an error message.
                 if eco in _SUPPORTED_ECOSYSTEMS:
-                    dispacher_ids = []
-                    incorrect_epv = []
-                    response[eco] = {
-                        'dispacher_ids': dispacher_ids,
-                    }
+                    response[eco] = []
 
                     # Iterate through packages given for current ecosystem.
                     for item in items:
+                        temp_result = {}
                         # Check if required keys are present in input data,
                         # if not then add item in filed list.
                         if {'package', 'version'}.issubset(item.keys()):
@@ -64,25 +60,24 @@ def ingest_epv_into_graph(epv_details):
 
                             # Initiate Selinon flow for current EPV ingestion.
                             dispacher_id = run_server_flow(_FLOW_NAME, node_arguments)
-                            dispacher_ids.append(dispacher_id.id)
+                            temp_result['package'] = item['package']
+                            temp_result['version'] = item['version']
+                            temp_result['dispacher_id'] = dispacher_id.id
 
                             logger.info('A {} in initiated for eco: {}, pkg: {}, ver: {}'
                                         .format(_FLOW_NAME, eco, item['package'], item['version']))
                         else:
                             logger.error('Incorrect data sent for {}: {}'.format(eco, item))
-                            incorrect_epv.append(item)
-
-                    # Check if any of the epv had incorrect data,
-                    # if yes then send list of them in response.
-                    if incorrect_epv:
-                        response[eco]['incorrect_epv'] = incorrect_epv
+                            temp_result.update(item)
+                            temp_result['error_message'] = 'Incorrect data.'
+                        response[eco].append(temp_result)
                 else:
-                    response[eco] = 'Unsupported ecosystem'
+                    response[eco] = [{'error_message': 'Unsupported ecosystem.'}]
 
-            return flask.jsonify(response), 201
+            return response, 201
     except Exception as e:
         logger.error('Exception while initiating the worker flow {}'.format(e))
-        return flask.jsonify({'message': 'Failed to initiate worker flow.'}), 500
+        return {'message': 'Failed to initiate worker flow.'}, 500
 
 
 def run_server_flow(flow_name, node_args):
