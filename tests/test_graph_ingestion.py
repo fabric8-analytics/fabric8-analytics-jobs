@@ -5,7 +5,6 @@ from f8a_jobs.graph_ingestion import \
     ingest_epv_into_graph, \
     run_server_flow, \
     ingest_epv
-import json
 
 data_v1 = {
             'body': {
