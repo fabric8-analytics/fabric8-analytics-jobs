@@ -62,46 +62,58 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  success:
-                    type: boolean
-                  dispacher_ids:
-                    type: array
-                    items:
-                      type: string
-                  message:
-                    type: string
               examples:
                 '0':
                   value: >
                     {
-                      "dispacher_ids": [
-                        "3ae8c79a-4dfb-49ee-b574-e147f1b5a95c",
-                        "95e342ff-ab5e-42a0-85c0-a22a72beb5a6"],
-                      "message":"Allingestion flows are initiated"
+                      "maven": [
+                          {
+                              "dispacher_id": "75eeff32-23a5-405f-b83e-ef56155d8a4f",
+                              "package": "net.iharder:base64",
+                              "version": "2.3.9"
+                          }
+                      ],
+                      "npm": [
+                          {
+                              "dispacher_id": "e36e9537-2c07-4817-adb1-f0169ac1105c",
+                              "package": "serve-static",
+                              "version": "1.7.1"
+                          }
+                      ]
                     }
 
                 '1':
                    value: >
                     {
-                      "maven": {
-                        "dispacher_ids": [
-                          "8330e99e-9779-4eaf-b25c-aa8637210207"
-                          ],
-                          "incorrect_epv": [{
+                        "maven": [
+                            {
+                                "error_message": "Incorrect data.",
                                 "pkg": "com.amazonaws:aws-java-sdk-sqs",
                                 "ver": "1.11.825"
-                            }]
-                        },
-
-                        "npm": {
-                            "dispacher_ids": [
-                                "67ecf2c9-150a-4eec-80ab-3f2a0c03c970",
-                                "2be64b68-635d-48fa-ae75-18386ba5229e"
-                            ]
-                        },
-
-                        "nuget": "Unsupported ecosystem"
+                            },
+                            {
+                                "error_message": "Incorrect data.",
+                                "pkg": "com.amazonaws:aws-java-sdk-dynamodb",
+                                "ver": "1.11.825"
+                            }
+                        ],
+                        "npm": [
+                            {
+                                "dispacher_id": "2d491fa9-9d53-4db8-8de0-df910e414442",
+                                "package": "esiglobal-components",
+                                "version": "1.1.6"
+                            },
+                            {
+                                "dispacher_id": "e1355144-4638-4686-b023-c44a4a2ca334",
+                                "package": "@atmc/core",
+                                "version": "0.1.16"
+                            }
+                        ],
+                        "nuget": [
+                            {
+                                "error_message": "Unsupported ecosystem."
+                            }
+                        ]
                     }
 
         '401':
