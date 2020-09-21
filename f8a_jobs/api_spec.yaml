@@ -1,138 +1,110 @@
 openapi: 3.0.1
 info:
   title: Collection of APIs for backend processes
-  version: "0.1"
+  version: '0.1'
 paths:
-  '/ingestions/epv':
+  /ingestions/epv:
     post:
-      tags: [Ingestion Process]
-      operationId: f8a_jobs.graph_ingestion.ingest_epv
+      tags:
+      - Ingestion Process
       description: API to trigger a Selinon flow for ingestion of provided EPV.
+      operationId: f8a_jobs.graph_ingestion.ingest_epv
+
       parameters:
-        - name: auth-token
-          in: header
-          schema:
-            type: string
+      - name: auth-token
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-            examples:
-              '0':
-                value: |-
-                  {
-                    "npm": [{
-                        "package": "serve-static",
-                        "version": "1.7.1"
-                      }],
-                    "maven":[{
-                        "package": "net.iharder:base64",
-                        "version": "2.3.9"
-                      }]
-                    }
-              '1':
-                value: |-
-                  {
-                    "npm": [{
-                        "package": "esiglobal-components",
-                        "version": "1.1.6"
-                      }, {
-                        "package": "@atmc/core",
-                        "version": "0.1.16"
-                      }],
+              $ref: '#/components/schemas/RequestData'
 
-                    "maven":[{
-                        "pkg": "com.amazonaws:aws-java-sdk-sqs",
-                        "ver": "1.11.825"
-                      }, {
-                        "pkg": "com.amazonaws:aws-java-sdk-dynamodb",
-                        "ver": "1.11.825"
-                      }],
-
-                      "nuget": [{
-                        "package": "microsoft.chakracore",
-                        "version": "1.11.22"
-                      }]
-                    }
       responses:
-        '201':
-          description: Response with an array of Selinon dispacher IDs.
+        201:
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseData"
+
+        500:
+          description: Internal Server Error
           content:
             application/json:
               schema:
                 type: object
-              examples:
-                '0':
-                  value: >
-                    {
-                      "maven": [
-                          {
-                              "dispacher_id": "75eeff32-23a5-405f-b83e-ef56155d8a4f",
-                              "package": "net.iharder:base64",
-                              "version": "2.3.9"
-                          }
-                      ],
-                      "npm": [
-                          {
-                              "dispacher_id": "e36e9537-2c07-4817-adb1-f0169ac1105c",
-                              "package": "serve-static",
-                              "version": "1.7.1"
-                          }
-                      ]
-                    }
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
 
-                '1':
-                   value: >
-                    {
-                        "maven": [
-                            {
-                                "error_message": "Incorrect data.",
-                                "pkg": "com.amazonaws:aws-java-sdk-sqs",
-                                "ver": "1.11.825"
-                            },
-                            {
-                                "error_message": "Incorrect data.",
-                                "pkg": "com.amazonaws:aws-java-sdk-dynamodb",
-                                "ver": "1.11.825"
-                            }
-                        ],
-                        "npm": [
-                            {
-                                "dispacher_id": "2d491fa9-9d53-4db8-8de0-df910e414442",
-                                "package": "esiglobal-components",
-                                "version": "1.1.6"
-                            },
-                            {
-                                "dispacher_id": "e1355144-4638-4686-b023-c44a4a2ca334",
-                                "package": "@atmc/core",
-                                "version": "0.1.16"
-                            }
-                        ],
-                        "nuget": [
-                            {
-                                "error_message": "Unsupported ecosystem."
-                            }
-                        ]
-                    }
+components:
+  schemas:
+    RequestBase:
+      title: Request Base
+      type: object
+      properties:
+        package:
+          type: string
+          example: <a_package_of_respective_ecosystem>
+        version:
+          type: string
+          example: <verison_of_package>
 
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              examples:
-                '0':
-                  value: >
-                   {"detail": "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.",
-                   "status": 401,
-                   "title": "Unauthorized",
-                   "type": "about:blank"}
+    ResponseBase:
+      title: Response Base
+      type: object
+      properties:
+        dispacher_id:
+          type: string
+          example: <a_unique_id>
+      allOf:
+        - $ref: '#/components/schemas/RequestBase'
 
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              examples:
-                '0':
-                  value: >
-                    {"message":"Failed to initiate worker flow."}
+    RequestData:
+      title: API Request Body
+      type: object
+      properties:
+        maven:
+          type: array
+          items:
+            $ref: "#/components/schemas/RequestBase"
+        pypi:
+          type: array
+          items:
+            $ref: "#/components/schemas/RequestBase"
+        npm:
+          type: array
+          items:
+            $ref: "#/components/schemas/RequestBase"
+        golang:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestBase'
+
+    ResponseData:
+      title: API Response Body
+      type: object
+      properties:
+        maven:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseBase'
+        pypi:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseBase'
+        npm:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseBase'
+        golang:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseBase'
