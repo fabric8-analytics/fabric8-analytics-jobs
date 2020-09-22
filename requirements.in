@@ -20,4 +20,4 @@ uwsgi
 psycopg2-binary
 jsonschema<=2.6.0
 f8a_utils @ git+https://github.com/fabric8-analytics/fabric8-analytics-utils.git@44c123b#egg=f8a_utils
-f8a_worker @ git+https://github.com/jparsai/fabric8-analytics-worker.git@ff3133d#egg=f8a_worker
+f8a_worker @ git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@32bf84c#egg=f8a_worker
