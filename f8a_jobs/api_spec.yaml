@@ -67,6 +67,21 @@ components:
       allOf:
         - $ref: '#/components/schemas/RequestBase'
 
+    ResponseErrorBase:
+      title: Response Error Base
+      description: If different keys are provided, error will be thrown.
+      type: object
+      properties:
+        pkg:
+          type: string
+          example: <a_package_of_respective_ecosystem>
+        ver:
+          type: string
+          example: <verison_of_package>
+        error_message:
+          type: string
+          example: Incorrect data.
+
     RequestData:
       title: API Request Body
       type: object
@@ -95,16 +110,24 @@ components:
         maven:
           type: array
           items:
-            $ref: '#/components/schemas/ResponseBase'
+            anyOf:
+              - $ref: '#/components/schemas/ResponseBase'
+              - $ref: '#/components/schemas/ResponseErrorBase'
         pypi:
           type: array
           items:
-            $ref: '#/components/schemas/ResponseBase'
+            anyOf:
+              - $ref: '#/components/schemas/ResponseBase'
+              - $ref: '#/components/schemas/ResponseErrorBase'
         npm:
           type: array
           items:
-            $ref: '#/components/schemas/ResponseBase'
+            anyOf:
+              - $ref: '#/components/schemas/ResponseBase'
+              - $ref: '#/components/schemas/ResponseErrorBase'
         golang:
           type: array
           items:
-            $ref: '#/components/schemas/ResponseBase'
+            anyOf:
+              - $ref: '#/components/schemas/ResponseBase'
+              - $ref: '#/components/schemas/ResponseErrorBase'
