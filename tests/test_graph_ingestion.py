@@ -8,61 +8,45 @@ from f8a_jobs.graph_ingestion import \
 
 data_v1 = {
             'body': {
-                "npm": [{
+                "ecosystem": "npm",
+                "packages": [{
                     "package": "pkg1",
                     "version": "ver1"
-                }],
-                "maven": [{
-                    "package": "pkg1",
-                    "version": "ver1"
-                }]
+                }
+                ],
+                "force": False,
+                "force_graph_sync": True,
+                "recursive_limit": 0
             }
         }
 
+
 data_v2 = {
             'body': {
-                "npm": [{
-                    "package": "pkg1",
-                    "version": "ver1"
-                }],
-                "maven": [{
+                "ecosystem": "npm",
+                "packages": [{
                     "pkg": "pkg1",
                     "ver": "ver1"
-                }]
+                }],
+                "force": False,
+                "force_graph_sync": True,
+                "recursive_limit": 0
             }
         }
 
 data_v3 = {
             'body': {
-                "npm": [{
+                "ecosystem": "nuget",
+                "packages": [{
                     "package": "pkg1",
                     "version": "ver1"
-                }],
-                "maven": [{
-                    "package": "pkg1",
-                    "version": "ver1"
-                }, {
-                    "pkg": "pkg2",
-                    "ver": "ver2"
-                }]
+                }
+                ],
+                "force": False,
+                "force_graph_sync": True,
+                "recursive_limit": 0
             }
         }
-
-data_v4 = {
-            'body': {
-                "npm": [{
-                    "package": "pkg1",
-                    "version": "ver1"
-                }],
-                "nuget": [{
-                    "package": "pkg1",
-                    "version": "ver1"
-                }]
-            }
-        }
-
-
-data_v5 = {'nuget': []}
 
 
 class Dispacher:
@@ -76,18 +60,15 @@ def test_ingest_epv_into_graph(_mock):
     """Tests for 'ingest_epv_into_graph'."""
     result = ingest_epv_into_graph(data_v1)
     expected = ({
-                    'maven': [
-                        {
-                            'dispacher_id': 'dummy_dispacher_id',
-                            'package': 'pkg1',
-                            'version': 'ver1'
-                        }],
-                    'npm': [
-                        {
-                            'dispacher_id': 'dummy_dispacher_id',
-                            'package': 'pkg1',
-                            'version': 'ver1'}
-                    ]}, 201)
+                    'ecosystem': 'npm',
+                    'force': False,
+                    'force_graph_sync': True,
+                    'packages': [{
+                        'dispacher_id': 'dummy_dispacher_id',
+                        'package': 'pkg1',
+                        'version': 'ver1'}],
+                    'recursive_limit': 0
+                }, 201)
     assert result == expected
 
 
@@ -96,59 +77,14 @@ def test_ingest_epv_into_graph1(_mock):
     """Tests for 'ingest_epv_into_graph'."""
     result = ingest_epv_into_graph(data_v2)
     expected = ({
-                    'maven': [
-                        {
-                            'error_message': 'Incorrect data.',
-                            'pkg': 'pkg1',
-                            'ver': 'ver1'
-                        }],
-                    'npm': [
-                        {
-                            'dispacher_id': 'dummy_dispacher_id',
-                            'package': 'pkg1',
-                            'version': 'ver1'
-                        }]}, 201)
-    assert result == expected
-
-
-@mock.patch('f8a_jobs.graph_ingestion.run_server_flow', return_value=Dispacher())
-def test_ingest_epv_into_graph2(_mock):
-    """Tests for 'ingest_epv_into_graph'."""
-    result = ingest_epv_into_graph(data_v3)
-    expected = ({
-                    'maven': [
-                        {
-                            'dispacher_id': 'dummy_dispacher_id',
-                            'package': 'pkg1',
-                            'version': 'ver1'
-                        }, {
-                            'error_message': 'Incorrect data.',
-                            'pkg': 'pkg2',
-                            'ver': 'ver2'
-                        }],
-                    'npm': [
-                        {
-                            'dispacher_id': 'dummy_dispacher_id',
-                            'package': 'pkg1',
-                            'version': 'ver1'
-                        }]}, 201)
-    assert result == expected
-
-
-@mock.patch('f8a_jobs.graph_ingestion.run_server_flow', return_value=Dispacher())
-def test_ingest_epv_into_graph3(_mock):
-    """Tests for 'ingest_epv_into_graph'."""
-    result = ingest_epv_into_graph(data_v4)
-    expected = ({
-                    'npm': [{
-                        'dispacher_id': 'dummy_dispacher_id',
-                        'package': 'pkg1',
-                        'version': 'ver1'
-                    }],
-                    'nuget': [{
-                        'error_message': 'Unsupported ecosystem.'
-                    }]
-                }, 201)
+                     'ecosystem': 'npm',
+                     'force': False,
+                     'force_graph_sync': True,
+                     'packages': [{
+                         'error_message': 'Incorrect data.',
+                         'pkg': 'pkg1',
+                         'ver': 'ver1'}],
+                     'recursive_limit': 0}, 201)
     assert result == expected
 
 
@@ -168,9 +104,18 @@ def test_run_server_flow(_mock1):
 
 def test_ingest_epv():
     """Tests for 'ingest_epv'."""
-    result = ingest_epv(body=data_v5)
+    result = ingest_epv(body=data_v3)
     expected = ({
-                    "nuget": [
-                        {'error_message': 'Unsupported ecosystem.'}
-                    ]}, 201)
+                    'body': {
+                        'ecosystem': 'nuget',
+                        'force': False,
+                        'force_graph_sync': True,
+                        'packages': [{
+                            'package': 'pkg1',
+                            'version': 'ver1'
+                        }],
+                        'recursive_limit': 0},
+                    'error_message': 'Unsupported ecosystem.'
+                }, 201)
+
     assert result == expected
