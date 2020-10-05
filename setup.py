@@ -7,11 +7,18 @@ from setuptools import setup, find_packages
 
 
 def get_requirements():
-    """Parse all packages mentioned in the 'requirements.txt' file."""
-    requirements_txt = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'requirements.txt')
-    with open(requirements_txt) as fd:
+    """
+    Parse dependencies from 'requirements.in' file.
+
+    Collecting dependencies from 'requirements.in' as a list,
+    this list will be used by 'install_requires' to specify minimal dependencies
+    needed to run the application.
+    """
+    with open('requirements.in') as fd:
         return fd.read().splitlines()
 
+
+install_requires = get_requirements()
 
 setup(
     name='fabric8_analytics_jobs',
@@ -20,12 +27,13 @@ setup(
     package_data={
         'f8a_jobs': [
             'swagger.yaml',
+            'api_spec.yaml',
             os.path.join('default_jobs', '*.yaml'),
             os.path.join('default_jobs', '*.yml')
         ]
     },
     scripts=['f8a-jobs.py'],
-    install_requires=get_requirements(),
+    install_requires=install_requires,
     include_package_data=True,
     author='Fridolin Pokorny',
     author_email='fridolin@redhat.com',

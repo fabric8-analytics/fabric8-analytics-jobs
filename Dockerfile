@@ -3,9 +3,7 @@ FROM registry.centos.org/centos/centos:7
 ENV LANG=en_US.UTF-8 \
     PV_DIR='/pv' \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
-    MAVEN_INDEX_CHECKER_DATA_PATH='/pv/index-checker' \
-    F8A_WORKER_VERSION=5c383a7 \
-    F8A_UTILS_VERSION=33df0cc
+    MAVEN_INDEX_CHECKER_DATA_PATH='/pv/index-checker'
 
 RUN useradd coreapi
 
@@ -26,10 +24,11 @@ RUN mkdir -p /etc/pcp /var/run/pcp /var/lib/pcp /var/log/pcp  && \
 
 RUN pip3 install --upgrade pip>=10.0.0
 
-RUN pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${F8A_WORKER_VERSION} &&\
-    mkdir ${PV_DIR} &&\
+COPY requirements.txt ./
+RUN pip3 install -r requirements.txt
+
+RUN mkdir ${PV_DIR} &&\
     chmod 777 ${PV_DIR}
-RUN pip3 install git+https://github.com/fabric8-analytics/fabric8-analytics-utils.git@${F8A_UTILS_VERSION}
 
 COPY ./ /tmp/jobs_install/
 RUN cd /tmp/jobs_install &&\

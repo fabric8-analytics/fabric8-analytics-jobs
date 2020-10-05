@@ -1,0 +1,130 @@
+openapi: 3.0.1
+info:
+  title: Collection of APIs for backend processes
+  version: '0.1'
+paths:
+  /ingestions/epv:
+    post:
+      tags:
+      - Ingestion Process
+      description: API to trigger a Selinon flow for ingestion of provided EPV.
+      operationId: f8a_jobs.graph_ingestion.ingest_epv
+
+      parameters:
+      - name: auth-token
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestPackageDetails"
+
+      responses:
+        201:
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/ResponsePackageErrorDetails"
+                - $ref: "#/components/schemas/ResponsePackageDetails"
+
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
+
+components:
+  schemas:
+    RequestPackageDetails:
+      title: API Request Body
+      type: object
+      required:
+        - ecosystem
+        - packages
+      properties:
+        ecosystem:
+          type: string
+          enum: [maven, pypi, npm, golang]
+          example: <ecosystem_name>
+        packages:
+          type: array
+          items:
+            type: object
+            required:
+              - package
+              - version
+            properties:
+                package:
+                  type: string
+                  example: <package_name>
+                version:
+                  type: string
+                  example: <package_version>
+        force:
+          type: boolean
+          example: false
+        force_graph_sync:
+          type: boolean
+          example: true
+        recursive_limit:
+          type: integer
+          example: 0
+
+    ResponsePackageDetails:
+      title: API Response Body
+      type: object
+      properties:
+        ecosystem:
+          type: string
+          enum: [maven, pypi, npm, golang]
+          example: <eco_system_name>
+        packages:
+          type: array
+          items:
+            type: object
+            properties:
+                package:
+                  type: string
+                  example: <package_name>
+                version:
+                  type: string
+                  example: <package_version>
+                dispacher_id:
+                  type: string
+                  example: <selinon_dispacher_id>
+
+    ResponsePackageErrorDetails:
+      title: API Error Response Body
+      type: object
+      properties:
+        ecosystem:
+          type: string
+          enum: [maven, pypi, npm, golang]
+          example: <eco_system_name>
+        packages:
+          type: array
+          items:
+            type: object
+            properties:
+                pkg:
+                  type: string
+                  example: <package_name>
+                ver:
+                  type: string
+                  example: <package_version>
+                error_message:
+                  type: string
+                  example: Incorrect data sent.
