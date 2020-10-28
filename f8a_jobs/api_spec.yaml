@@ -23,50 +23,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RequestPackageDetailsEPV"
-
-      responses:
-        201:
-          description: Response with Selinon dispacher ID.
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: "#/components/schemas/ResponsePackageErrorDetails"
-                - $ref: "#/components/schemas/ResponsePackageDetails"
-
-        500:
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Failed to initiate worker flow.
-
-  /ingestions/epv-selective:
-    post:
-      tags:
-      - Ingestion Process
-      description: API to trigger a Selinon partial flow for ingestion of provided EPV.
-      operationId: f8a_jobs.graph_ingestion.ingest_selective_epv
-
-      parameters:
-      - name: auth-token
-        in: header
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RequestPackageDetailsSelctiveEPV"
+              $ref: "#/components/schemas/RequestPackageDetails"
 
       responses:
         201:
@@ -91,57 +48,8 @@ paths:
 
 components:
   schemas:
-    ResponsePackageDetails:
-      title: API Response Body
-      description: If request is procesed successfully, Selinon dispacher ID will be sent back.
-      type: object
-      properties:
-        ecosystem:
-          type: string
-          enum: [maven, pypi, npm, golang]
-          example: <eco_system_name>
-        packages:
-          type: array
-          items:
-            type: object
-            properties:
-                package:
-                  type: string
-                  example: <package_name>
-                version:
-                  type: string
-                  example: <package_version>
-                dispacher_id:
-                  type: string
-                  example: <selinon_dispacher_id>
-
-    ResponsePackageErrorDetails:
-      title: API Error Response Body
-      description: If request json data is not in desired format, error will be thrown.
-      type: object
-      properties:
-        ecosystem:
-          type: string
-          enum: [maven, pypi, npm, golang]
-          example: <eco_system_name>
-        packages:
-          type: array
-          items:
-            type: object
-            properties:
-                pkg:
-                  type: string
-                  example: <package_name>
-                ver:
-                  type: string
-                  example: <package_version>
-                error_message:
-                  type: string
-                  example: Incorrect data sent.
-
-    RequestPackageDetailsEPV:
+    RequestPackageDetails:
       title: API Request Body
-      description: Request JSON where few keys are mandatory and few are optional.
       type: object
       required:
         - ecosystem
@@ -174,30 +82,19 @@ components:
         recursive_limit:
           type: integer
           example: 0
-        flow_name:
-          type: string
-          example: <flow_name>
 
-    RequestPackageDetailsSelctiveEPV:
-      title: Selective API Request Body
-      description: Request JSON where few keys are mandatory and few are optional.
+    ResponsePackageDetails:
+      title: API Response Body
       type: object
-      required:
-        - ecosystem
-        - packages
-        - task_names
-        - flow_name
       properties:
         ecosystem:
           type: string
           enum: [maven, pypi, npm, golang]
-          example: <ecosystem_name>
+          example: <eco_system_name>
         packages:
           type: array
           items:
             type: object
-            required:
-              - package
             properties:
                 package:
                   type: string
@@ -205,20 +102,29 @@ components:
                 version:
                   type: string
                   example: <package_version>
-        flow_name:
+                dispacher_id:
+                  type: string
+                  example: <selinon_dispacher_id>
+
+    ResponsePackageErrorDetails:
+      title: API Error Response Body
+      type: object
+      properties:
+        ecosystem:
           type: string
-          example: <flow_name>
-        task_names:
+          enum: [maven, pypi, npm, golang]
+          example: <eco_system_name>
+        packages:
           type: array
           items:
-            type: string
-          example: [TASK_1, TASK_2, TASK_3, TASK_4]
-        follow_subflows:
-          type: boolean
-          example: True
-        run_subsequent:
-          type: boolean
-          example: False
-        force:
-          type: boolean
-          example: true
+            type: object
+            properties:
+                pkg:
+                  type: string
+                  example: <package_name>
+                ver:
+                  type: string
+                  example: <package_version>
+                error_message:
+                  type: string
+                  example: Incorrect data sent.
