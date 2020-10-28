@@ -66,15 +66,17 @@ def ingest_epv_into_graph(epv_details):
                             "recursive_limit": recursive_limit,
                             "version": item.get('version')
                         }
+
+                        flow_name = _FLOW_NAME
                         if 'flow_name' in input_data:
-                            _FLOW_NAME =  input_data['flow_name']
+                            flow_name = input_data['flow_name']
 
                         # Initiate Selinon flow for current EPV ingestion.
-                        dispacher_id = run_server_flow(_FLOW_NAME, node_arguments)
+                        dispacher_id = run_server_flow(flow_name, node_arguments)
                         item['dispacher_id'] = dispacher_id.id
 
                         logger.info('A {} in initiated for eco: {}, pkg: {}, ver: {}'
-                                    .format(_FLOW_NAME,
+                                    .format(flow_name,
                                             ecosystem,
                                             item['package'],
                                             item['version']))
@@ -91,6 +93,33 @@ def ingest_epv_into_graph(epv_details):
 
 
 def ingest_selective_epv_into_graph(epv_details):
+    """Handle implementation of API for triggering selective ingestion for any flow.
+
+    :param epv_details: A dictionary having list of packages/version/tasks as a nested object.
+    Ex:
+    {
+          "ecosystem": "<ecosystem_name>",     (*required)
+          "packages": [
+            {
+              "package": "<package_name_1>",   (*required)
+              "version": "<package_version_1>" (*required)
+            }, {
+              "package": "<package_name_2>",   (*required)
+              "version": "<package_version_2>" (optional)
+            }
+          ],
+          "task_names": [                      (*required)
+            "TASK_1",
+            "TASK_2",
+            "TASK_3",
+            "TASK_4"
+          ],
+          "force": false,              (optional)
+          "recursive_limit": 0         (optional)
+          "follow_subflows": true,     (optional)
+          "run_subsequent": false,     (optional)
+        }
+    """
     try:
         logger.info('graph_ingestion_:_ingest_selective_epv_into_graph is called.')
         input_data = epv_details.get('body', {})
@@ -124,10 +153,15 @@ def ingest_selective_epv_into_graph(epv_details):
                     node_arguments['version'] = item['version']
 
                 # Initiate Selinon flow for current EPV ingestion.
-                dispacher_id = run_flow_selective(flow_name, task_names, node_arguments, follow_subflows, run_subsequent)
+                dispacher_id = run_flow_selective(flow_name,
+                                                  task_names,
+                                                  node_arguments,
+                                                  follow_subflows,
+                                                  run_subsequent)
                 item['dispacher_id'] = dispacher_id.id
 
-                logger.info('A selective flow "{}" in initiated for eco: {}, pkg: {}, for task list: {}'
+                logger.info('A selective flow "{}" in initiated for '
+                            'eco: {}, pkg: {}, for task list: {}'
                             .format(flow_name,
                                     ecosystem,
                                     item['package'],
@@ -158,5 +192,3 @@ def ingest_epv(**kwargs):
 def ingest_selective_epv(**kwargs):
     """To handle POST requests for end point '/ingestions/epv-selective'."""
     return ingest_selective_epv_into_graph(kwargs)
-
-
