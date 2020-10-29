@@ -117,7 +117,7 @@ objects:
               port: 34000
               scheme: HTTP
             initialDelaySeconds: 10
-            periodSeconds: 60
+            periodSeconds: 100
             timeoutSeconds: 30
           livenessProbe:
             httpGet:
@@ -125,7 +125,7 @@ objects:
               port: 34000
               scheme: HTTP
             initialDelaySeconds: 60
-            periodSeconds: 60
+            periodSeconds: 100
             timeoutSeconds: 30
           resources:
             requests:

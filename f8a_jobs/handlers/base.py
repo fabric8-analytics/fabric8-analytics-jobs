@@ -68,9 +68,6 @@ class BaseHandler(object):
         :param flow_name: flow that should be run
         :param node_args: flow arguments
         """
-        self.log.debug("Scheduling Selinon flow '%s' with node_args: '%s', job '%s'",
-                       flow_name, node_args, self.job_id)
-
         self._normalize_package_name(node_args)
 
         if self.job_id:
