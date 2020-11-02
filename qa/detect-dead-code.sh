@@ -21,8 +21,12 @@ function prepare_venv() {
         # python36 which is in CentOS does not have virtualenv binary
         VIRTUALENV="$(which virtualenv-3)"
     fi
-
-    ${VIRTUALENV} -p python3 venv && source venv/bin/activate && python3 "$(which pip3)" install vulture
+    if [ $? -eq 1 ]; then
+        # still don't have virtual environment -> use python3 directly
+        python3 -m venv venv && source venv/bin/activate && python3 "$(which pip3)" install vulture
+    else
+        ${VIRTUALENV} -p python3 venv && source venv/bin/activate && python3 "$(which pip3)" install vulture
+    fi
 }
 
 pushd "${SCRIPT_DIR}/.."
@@ -85,4 +89,3 @@ else
     echo "$fail source files out of $total files seems to contain dead code and/or unused imports"
     exit 1
 fi
-

@@ -21,8 +21,12 @@ function prepare_venv() {
         # python36 which is in CentOS does not have virtualenv binary
         VIRTUALENV="$(which virtualenv-3)"
     fi
-
-    ${VIRTUALENV} -p python3 venv && source venv/bin/activate && python3 "$(which pip3)" install pydocstyle
+    if [ $? -eq 1 ]; then
+        # still don't have virtual environment -> use python3 directly
+        python3 -m venv venv && source venv/bin/activate && python3 "$(which pip3)" install pydocstyle
+    else
+        ${VIRTUALENV} -p python3 venv && source venv/bin/activate && python3 "$(which pip3)" install pydocstyle
+    fi
 }
 
 pushd "${SCRIPT_DIR}/.."
@@ -85,4 +89,3 @@ else
     echo "Documentation strings should be added and/or fixed in $fail source files out of $total files"
     exit 1
 fi
-
