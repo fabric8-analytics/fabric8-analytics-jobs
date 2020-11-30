@@ -10,9 +10,6 @@ logger = logging.getLogger(__name__)
 _INVOKE_API_WORKERS = True \
     if os.environ.get('INVOKE_API_WORKERS', '1') == '1' \
     else False
-_FLOW_NAME = 'bayesianApiFlow' \
-    if os.environ.get('WORKER_ADMINISTRATION_REGION', 'api') == 'api' \
-    else 'bayesianFlow'
 _SUPPORTED_ECOSYSTEMS = {'npm', 'maven', 'pypi', 'golang'}
 
 
@@ -67,7 +64,10 @@ def ingest_epv_into_graph(epv_details):
                             "version": item.get('version')
                         }
 
-                        flow_name = _FLOW_NAME
+                        flow_name = 'newPackageFlow' \
+                            if ecosystem == 'golang' \
+                            else 'bayesianApiFlow'
+
                         if 'flow_name' in input_data:
                             flow_name = input_data['flow_name']
 
