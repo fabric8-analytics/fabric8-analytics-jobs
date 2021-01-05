@@ -59,7 +59,8 @@ def ingest_epv_into_graph(epv_details):
                     # if not then add item in filed list.
                     if {'package', 'version'}.issubset(item.keys()):
                         if ecosystem == 'golang':
-                            _, clean_version = GolangDependencyTreeGenerator.clean_version(item.get('version'))
+                            _, clean_version = GolangDependencyTreeGenerator.\
+                                clean_version(item.get('version'))
                             if gh.is_pseudo_version(clean_version):
                                 logger.error('Golang pseudo version ingestion is not supported.')
                                 item['error_message'] = 'Golang pseudo version is not supported.'
