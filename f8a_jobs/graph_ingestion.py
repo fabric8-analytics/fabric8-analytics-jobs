@@ -4,6 +4,8 @@ from selinon import run_flow, run_flow_selective
 import logging
 import os
 from f8a_jobs.utils import validate_user
+from f8a_utils.gh_utils import GithubUtils
+from f8a_utils.tree_generator import GolangDependencyTreeGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -49,12 +51,20 @@ def ingest_epv_into_graph(epv_details):
             # if not then set an error message.
             if ecosystem in _SUPPORTED_ECOSYSTEMS:
                 package_list = input_data.get('packages')
+                gh = GithubUtils()
 
                 # Iterate through packages given for current ecosystem.
                 for item in package_list:
                     # Check if required keys are present in input data,
                     # if not then add item in filed list.
                     if {'package', 'version'}.issubset(item.keys()):
+                        if ecosystem == 'golang':
+                            _, clean_version = GolangDependencyTreeGenerator.clean_version(item.get('version'))
+                            if gh.is_pseudo_version(clean_version):
+                                logger.error('Golang pseudo version ingestion is not supported.')
+                                item['error_message'] = 'Golang pseudo version is not supported.'
+                                return input_data, 201
+
                         node_arguments = {
                             "ecosystem": ecosystem,
                             "force": force,
