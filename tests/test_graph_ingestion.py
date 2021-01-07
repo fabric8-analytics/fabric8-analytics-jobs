@@ -118,6 +118,17 @@ data_v7 = {
             }
         }
 
+data_v8 = {
+            'body': {
+                "ecosystem": "golang",
+                "packages": [{
+                    "package": "pkg1",
+                    "version": "ver1"
+                }
+                ]
+            }
+        }
+
 
 class Dispacher:
     """Dispatcher class returned by Selinon.run_flow."""
@@ -254,4 +265,18 @@ def test_ingest_selective_epv():
                     'message': 'Failed to initiate worker flow.'
                 }, 500)
 
+    assert result == expected
+
+
+@mock.patch('f8a_jobs.graph_ingestion.GithubUtils.is_pseudo_version', return_value=True)
+def test_ingest_epv_into_graph6(_mock):
+    """Tests for 'ingest_epv_into_graph'."""
+    result = ingest_epv_into_graph(data_v8)
+
+    expected = ({'ecosystem': 'golang',
+                 'packages': [{
+                     'error_message': 'Golang pseudo version is not supported.',
+                     'package': 'pkg1',
+                     'version': 'ver1'}]},
+                201)
     assert result == expected
