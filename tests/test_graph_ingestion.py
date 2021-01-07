@@ -277,7 +277,6 @@ def test_ingest_epv_into_graph6(_mock):
                  'packages': [{
                      'error_message': 'Golang pseudo version is not supported.',
                      'package': 'pkg1',
-                     'version': 'ver1'}
-                 ]},
+                     'version': 'ver1'}]},
                 201)
     assert result == expected
