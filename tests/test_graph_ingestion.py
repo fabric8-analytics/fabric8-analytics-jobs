@@ -1,12 +1,13 @@
 """Tests for the module 'graph_ingestion'."""
 
 from unittest import mock
-from f8a_jobs.graph_ingestion import \
-    ingest_epv_into_graph, \
-    run_server_flow, \
-    ingest_epv, \
-    ingest_selective_epv_into_graph, \
-    ingest_selective_epv
+from f8a_jobs.graph_ingestion import (ingest_epv_into_graph,
+                                      run_server_flow,
+                                      ingest_epv,
+                                      ingest_selective_epv_into_graph,
+                                      ingest_selective_epv,
+                                      ingest_epv_internal,
+                                      ingest_selective_epv_internal)
 
 data_v1 = {
             'body': {
@@ -126,6 +127,18 @@ data_v8 = {
                     "version": "ver1"
                 }
                 ]
+            }
+        }
+
+data_v9 = {
+            'body': {
+                "ecosystem": "npm",
+                "packages": [{
+                    "package": "pkg1",
+                    "version": "ver1"
+                }
+                ],
+                "source": "api"
             }
         }
 
@@ -278,5 +291,49 @@ def test_ingest_epv_into_graph6(_mock):
                      'error_message': 'Golang pseudo version is not supported.',
                      'package': 'pkg1',
                      'version': 'ver1'}]},
+                201)
+    assert result == expected
+
+
+def test_ingest_epv_internal():
+    """Tests for 'ingest_epv_internal'."""
+    result = ingest_epv_internal(body=data_v3)
+    expected = ({
+                    'body': {
+                        'ecosystem': 'nuget',
+                        'force': False,
+                        'force_graph_sync': True,
+                        'packages': [{
+                            'package': 'pkg1',
+                            'version': 'ver1'
+                        }],
+                        'recursive_limit': 0},
+                    'error_message': 'Unsupported ecosystem.'
+                }, 201)
+
+    assert result == expected
+
+
+def test_ingest_selective_epv_internal():
+    """Tests for 'ingest_epv_internal'."""
+    result = ingest_selective_epv_internal(body=data_v7)
+    expected = ({
+                    'message': 'Failed to initiate worker flow.'
+                }, 500)
+
+    assert result == expected
+
+
+@mock.patch('f8a_jobs.graph_ingestion.run_server_flow', return_value=Dispacher())
+@mock.patch("f8a_jobs.graph_ingestion._DISABLE_UNKNOWN_PACKAGE_FLOW", return_value=True)
+def test_ingest_epv_into_graph7(_mock1, _mock2):
+    """Tests for 'ingest_epv_into_graph'."""
+    result = ingest_epv_into_graph(data_v9)
+    expected = ({'ecosystem': 'npm',
+                 'message': 'Unknown package ingestion is disabled.',
+                 'packages': [{
+                     'package': 'pkg1',
+                     'version': 'ver1'}],
+                 'source': 'api'},
                 201)
     assert result == expected

@@ -89,6 +89,74 @@ paths:
                     type: string
                     example: Failed to initiate worker flow.
 
+  /internal/ingestions/epv:
+    post:
+      tags:
+        - Ingestion Process
+      description: Internal API to trigger a Selinon flow for ingestion of provided EPV.
+      operationId: f8a_jobs.graph_ingestion.ingest_epv_internal
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestPackageDetailsEPV"
+
+      responses:
+        201:
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ResponsePackageErrorDetails"
+                  - $ref: "#/components/schemas/ResponsePackageDetails"
+
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
+
+  /internal/ingestions/epv-selective:
+    post:
+      tags:
+        - Ingestion Process
+      description: Internal API to trigger a Selinon partial flow for ingestion of provided EPV.
+      operationId: f8a_jobs.graph_ingestion.ingest_selective_epv_internal
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestPackageDetailsSelctiveEPV"
+
+      responses:
+        201:
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ResponsePackageErrorDetails"
+                  - $ref: "#/components/schemas/ResponsePackageDetails"
+
+        500:
+          description: Internal Server Error
+          content:info
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
+
 components:
   schemas:
     ResponsePackageDetails:
@@ -177,6 +245,9 @@ components:
         flow_name:
           type: string
           example: <flow_name>
+        source:
+          type: string
+          example: <name_of_consumer>
 
     RequestPackageDetailsSelctiveEPV:
       title: Selective API Request Body

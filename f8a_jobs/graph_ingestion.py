@@ -12,6 +12,11 @@ logger = logging.getLogger(__name__)
 _INVOKE_API_WORKERS = True \
     if os.environ.get('INVOKE_API_WORKERS', '1') == '1' \
     else False
+
+_DISABLE_UNKNOWN_PACKAGE_FLOW = True \
+    if os.environ.get('DISABLE_UNKNOWN_PACKAGE_FLOW', '0') == '1' \
+    else False
+
 _SUPPORTED_ECOSYSTEMS = {'npm', 'maven', 'pypi', 'golang'}
 
 
@@ -39,6 +44,12 @@ def ingest_epv_into_graph(epv_details):
     try:
         logger.info('graph_ingestion_:_ingest_epv_into_graph() is called.')
         input_data = epv_details.get('body', {})
+        source = input_data.get('source', '')
+
+        if source in ['api'] and _DISABLE_UNKNOWN_PACKAGE_FLOW:
+            logger.debug('Unknown package ingestion is disabled.')
+            input_data['message'] = 'Unknown package ingestion is disabled.'
+            return input_data, 201
 
         # Check if EPV ingestion is enabled.
         if _INVOKE_API_WORKERS:
@@ -201,4 +212,14 @@ def ingest_epv(**kwargs):
 @validate_user
 def ingest_selective_epv(**kwargs):
     """To handle POST requests for end point '/ingestions/epv-selective'."""
+    return ingest_selective_epv_into_graph(kwargs)
+
+
+def ingest_epv_internal(**kwargs):
+    """To handle POST requests for end point '/internal/ingestions/epv'."""
+    return ingest_epv_into_graph(kwargs)
+
+
+def ingest_selective_epv_internal(**kwargs):
+    """To handle POST requests for end point '/internal/ingestions/epv-selective'."""
     return ingest_selective_epv_into_graph(kwargs)
