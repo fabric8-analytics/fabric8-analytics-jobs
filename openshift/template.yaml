@@ -107,7 +107,7 @@ objects:
           - name: INVOKE_API_WORKERS
             value: "1"
           - name: DISABLE_UNKNOWN_PACKAGE_FLOW
-            value: "0"
+            value: "False"
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
           name: bayesian-jobs
           ports:

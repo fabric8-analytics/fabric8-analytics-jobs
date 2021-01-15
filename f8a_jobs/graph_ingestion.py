@@ -14,7 +14,7 @@ _INVOKE_API_WORKERS = True \
     else False
 
 _DISABLE_UNKNOWN_PACKAGE_FLOW = True \
-    if os.environ.get('DISABLE_UNKNOWN_PACKAGE_FLOW', '0') == '1' \
+    if os.environ.get('DISABLE_UNKNOWN_PACKAGE_FLOW', 'False') == 'True' \
     else False
 
 _SUPPORTED_ECOSYSTEMS = {'npm', 'maven', 'pypi', 'golang'}
