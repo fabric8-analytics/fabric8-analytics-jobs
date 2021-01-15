@@ -10,7 +10,7 @@ from f8a_utils.tree_generator import GolangDependencyTreeGenerator
 logger = logging.getLogger(__name__)
 
 _INVOKE_API_WORKERS = True \
-    if os.environ.get('INVOKE_API_WORKERS', '1') == '1' \
+    if os.environ.get('INVOKE_API_WORKERS', 'True') == 'True' \
     else False
 
 _DISABLE_UNKNOWN_PACKAGE_FLOW = True \
