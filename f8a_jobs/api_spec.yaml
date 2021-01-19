@@ -148,7 +148,7 @@ paths:
 
         500:
           description: Internal Server Error
-          content:info
+          content:
             application/json:
               schema:
                 type: object
@@ -257,7 +257,6 @@ components:
         - ecosystem
         - packages
         - task_names
-        - flow_name
       properties:
         ecosystem:
           type: string

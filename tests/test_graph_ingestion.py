@@ -103,20 +103,18 @@ data_v6 = {
         }
 
 data_v7 = {
-            'body': {
-                "ecosystem": "nuget",
-                "packages": [{
-                    "package": "pkg1"
-                }
-                ],
-                "flow_name": "flow_name",
-                "task_names": [
-                    "TASK_1",
-                    "TASK_2",
-                    "TASK_3",
-                    "TASK_4"
-                ]
+            "ecosystem": "nuget",
+            "packages": [{
+                "package": "pkg1"
             }
+            ],
+            "source": "git-refresh",
+            "task_names": [
+                "TASK_1",
+                "TASK_2",
+                "TASK_3",
+                "TASK_4"
+            ]
         }
 
 data_v8 = {
@@ -139,6 +137,18 @@ data_v9 = {
                 }
                 ],
                 "source": "api"
+            }
+        }
+
+data_v10 = {
+            'body': {
+                "ecosystem": "npm",
+                "packages": [{
+                    "package": "pkg1",
+                    "version": "ver1"
+                }
+                ],
+                "flow_name": None
             }
         }
 
@@ -184,7 +194,7 @@ def test_ingest_epv_into_graph1(_mock):
 
 def test_ingest_epv_into_graph4():
     """Tests for 'ingest_epv_into_graph'."""
-    result = ingest_epv_into_graph(None)
+    result = ingest_epv_into_graph(data_v10)
     expected = ({"message": "Failed to initiate worker flow."}, 500)
     assert result == expected
 
@@ -261,13 +271,6 @@ def test_ingest_selective_epv_into_graph2(_mock):
                         "version": "ver1"
                     }]
                 }, 201)
-    assert result == expected
-
-
-def test_ingest_selective_epv_into_graph3():
-    """Tests for 'ingest_epv_into_graph'."""
-    result = ingest_selective_epv_into_graph(None)
-    expected = ({"message": "Failed to initiate worker flow."}, 500)
     assert result == expected
 
 

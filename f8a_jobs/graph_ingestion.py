@@ -39,31 +39,32 @@ def ingest_epv_into_graph(epv_details):
           "force": false,              (optional)
           "force_graph_sync": true,    (optional)
           "recursive_limit": 0         (optional)
+          "source": "<Consumer_of_API>"(optional)
         }
     """
-    try:
-        logger.info('graph_ingestion_:_ingest_epv_into_graph() is called.')
-        input_data = epv_details.get('body', {})
-        source = input_data.get('source', '')
+    logger.info('graph_ingestion_:_ingest_epv_into_graph() is called.')
+    input_data = epv_details.get('body', {})
+    source = input_data.get('source', '')
 
-        if source in ['api'] and _DISABLE_UNKNOWN_PACKAGE_FLOW:
-            logger.debug('Unknown package ingestion is disabled.')
-            input_data['message'] = 'Unknown package ingestion is disabled.'
-            return input_data, 201
+    if source == 'api' and _DISABLE_UNKNOWN_PACKAGE_FLOW:
+        logger.debug('Unknown package ingestion is disabled.')
+        input_data['message'] = 'Unknown package ingestion is disabled.'
+        return input_data, 201
 
-        # Check if EPV ingestion is enabled.
-        if _INVOKE_API_WORKERS:
-            ecosystem = input_data.get('ecosystem')
-            force = input_data.get('force', True)
-            force_graph_sync = input_data.get('force_graph_sync', False)
-            recursive_limit = input_data.get('recursive_limit', 0)
+    # Check if EPV ingestion is enabled.
+    if _INVOKE_API_WORKERS:
+        ecosystem = input_data.get('ecosystem')
+        force = input_data.get('force', True)
+        force_graph_sync = input_data.get('force_graph_sync', False)
+        recursive_limit = input_data.get('recursive_limit', 0)
 
-            # Check if requested ecosystem for ingestion is supported,
-            # if not then set an error message.
-            if ecosystem in _SUPPORTED_ECOSYSTEMS:
-                package_list = input_data.get('packages')
-                gh = GithubUtils()
+        # Check if requested ecosystem for ingestion is supported,
+        # if not then set an error message.
+        if ecosystem in _SUPPORTED_ECOSYSTEMS:
+            package_list = input_data.get('packages')
+            gh = GithubUtils()
 
+            try:
                 # Iterate through packages given for current ecosystem.
                 for item in package_list:
                     # Check if required keys are present in input data,
@@ -96,21 +97,18 @@ def ingest_epv_into_graph(epv_details):
                         dispacher_id = run_server_flow(flow_name, node_arguments)
                         item['dispacher_id'] = dispacher_id.id
 
-                        logger.info('A {} in initiated for eco: {}, pkg: {}, ver: {}'
-                                    .format(flow_name,
-                                            ecosystem,
-                                            item['package'],
-                                            item['version']))
+                        logger.info('A %s in initiated for eco: %s, pkg: %s, ver: %s',
+                                    flow_name, ecosystem, item['package'], item['version'])
                     else:
-                        logger.error('Incorrect data sent for {}: {}'.format(ecosystem, item))
+                        logger.error('Incorrect data sent for %s: %s:', ecosystem, item)
                         item['error_message'] = 'Incorrect data.'
-            else:
-                input_data['error_message'] = 'Unsupported ecosystem.'
+            except Exception as e:
+                logger.error('Exception while initiating the worker flow %s', e)
+                return {'message': 'Failed to initiate worker flow.'}, 500
+        else:
+            input_data['error_message'] = 'Unsupported ecosystem.'
 
-            return input_data, 201
-    except Exception as e:
-        logger.error('Exception while initiating the worker flow {}'.format(e))
-        return {'message': 'Failed to initiate worker flow.'}, 500
+        return input_data, 201
 
 
 def ingest_selective_epv_into_graph(epv_details):
@@ -139,58 +137,65 @@ def ingest_selective_epv_into_graph(epv_details):
           "recursive_limit": 0         (optional)
           "follow_subflows": true,     (optional)
           "run_subsequent": false,     (optional)
+          "source": "<Consumer_of_API>"(optional)
         }
     """
-    try:
-        logger.info('graph_ingestion_:_ingest_selective_epv_into_graph is called.')
+    logger.info('graph_ingestion_:_ingest_selective_epv_into_graph is called.')
+
+    # Check if EPV ingestion is enabled.
+    if _INVOKE_API_WORKERS:
         input_data = epv_details.get('body', {})
+        source = input_data.get('source', '')
+        ecosystem = input_data.get('ecosystem')
+        package_list = input_data.get('packages')
+        task_names = input_data.get('task_names')
+        force = input_data.get('force', True)
+        follow_subflows = input_data.get('follow_subflows', False)
+        run_subsequent = input_data.get('run_subsequent', False)
 
-        # Check if EPV ingestion is enabled.
-        if _INVOKE_API_WORKERS:
-            ecosystem = input_data.get('ecosystem')
-            package_list = input_data.get('packages')
-            flow_name = input_data.get('flow_name')
-            task_names = input_data.get('task_names')
-            force = input_data.get('force', True)
-            follow_subflows = input_data.get('follow_subflows', False)
-            run_subsequent = input_data.get('run_subsequent', False)
+        input_data.pop('follow_subflows', None)
+        input_data.pop('run_subsequent', None)
+        input_data.pop('task_names', None)
+        input_data.pop('force', None)
 
-            input_data.pop('follow_subflows', None)
-            input_data.pop('run_subsequent', None)
-            input_data.pop('task_names')
-            input_data.pop('force', None)
+        if source == 'git-refresh':
+            flow_name = 'newPackageAnalysisFlow' \
+                if ecosystem == 'golang' \
+                else 'bayesianPackageFlow'
 
-            # Iterate through packages given for current ecosystem.
-            for item in package_list:
-                node_arguments = {
-                    "ecosystem": ecosystem,
-                    "force": force,
-                    "name": item.get('package'),
-                }
+        if 'flow_name' in input_data:
+            flow_name = input_data['flow_name']
 
-                if 'url' in item:
-                    node_arguments['url'] = item['url']
-                if 'version' in item:
-                    node_arguments['version'] = item['version']
+        # Iterate through packages given for current ecosystem.
+        for item in package_list:
+            node_arguments = {
+                "ecosystem": ecosystem,
+                "force": force,
+                "name": item.get('package'),
+            }
 
+            if 'url' in item:
+                node_arguments['url'] = item['url']
+            if 'version' in item:
+                node_arguments['version'] = item['version']
+
+            try:
                 # Initiate Selinon flow for current EPV ingestion.
                 dispacher_id = run_flow_selective(flow_name,
                                                   task_names,
                                                   node_arguments,
                                                   follow_subflows,
                                                   run_subsequent)
-                item['dispacher_id'] = dispacher_id.id
+            except Exception as e:
+                logger.error('Exception while initiating the worker flow %s', e)
+                return {'message': 'Failed to initiate worker flow.'}, 500
 
-                logger.info('A selective flow "{}" in initiated for '
-                            'eco: {}, pkg: {}, for task list: {}'
-                            .format(flow_name,
-                                    ecosystem,
-                                    item['package'],
-                                    task_names))
-            return input_data, 201
-    except Exception as e:
-        logger.error('Exception while initiating the worker flow {}'.format(e))
-        return {'message': 'Failed to initiate worker flow.'}, 500
+            item['dispacher_id'] = dispacher_id.id
+
+            logger.info('A selective flow "%s" in initiated for '
+                        'eco: %s, pkg: %s, for task list: %s',
+                        flow_name, ecosystem, item['package'], task_names)
+        return input_data, 201
 
 
 def run_server_flow(flow_name, node_args):
