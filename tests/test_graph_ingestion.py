@@ -2,12 +2,12 @@
 
 from unittest import mock
 from f8a_jobs.graph_ingestion import (ingest_epv_into_graph,
-                                      run_server_flow,
                                       ingest_epv,
                                       ingest_selective_epv_into_graph,
                                       ingest_selective_epv,
                                       ingest_epv_internal,
                                       ingest_selective_epv_internal)
+from f8a_jobs import graph_ingestion
 
 data_v1 = {
             'body': {
@@ -159,7 +159,7 @@ class Dispacher:
     id = "dummy_dispacher_id"
 
 
-@mock.patch('f8a_jobs.graph_ingestion.run_server_flow', return_value=Dispacher())
+@mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
 def test_ingest_epv_into_graph(_mock):
     """Tests for 'ingest_epv_into_graph'."""
     result = ingest_epv_into_graph(data_v1)
@@ -176,22 +176,6 @@ def test_ingest_epv_into_graph(_mock):
     assert result == expected
 
 
-@mock.patch('f8a_jobs.graph_ingestion.run_server_flow', return_value=Dispacher())
-def test_ingest_epv_into_graph1(_mock):
-    """Tests for 'ingest_epv_into_graph'."""
-    result = ingest_epv_into_graph(data_v2)
-    expected = ({
-                     'ecosystem': 'npm',
-                     'force': False,
-                     'force_graph_sync': True,
-                     'packages': [{
-                         'error_message': 'Incorrect data.',
-                         'pkg': 'pkg1',
-                         'ver': 'ver1'}],
-                     'recursive_limit': 0}, 201)
-    assert result == expected
-
-
 def test_ingest_epv_into_graph4():
     """Tests for 'ingest_epv_into_graph'."""
     result = ingest_epv_into_graph(data_v10)
@@ -200,32 +184,6 @@ def test_ingest_epv_into_graph4():
 
 
 @mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
-def test_run_server_flow(_mock1):
-    """Tests for 'run_server_flow'."""
-    result = run_server_flow('flow_name', {})
-    assert result.id == 'dummy_dispacher_id'
-
-
-def test_ingest_epv():
-    """Tests for 'ingest_epv'."""
-    result = ingest_epv(body=data_v3)
-    expected = ({
-                    'body': {
-                        'ecosystem': 'nuget',
-                        'force': False,
-                        'force_graph_sync': True,
-                        'packages': [{
-                            'package': 'pkg1',
-                            'version': 'ver1'
-                        }],
-                        'recursive_limit': 0},
-                    'error_message': 'Unsupported ecosystem.'
-                }, 201)
-
-    assert result == expected
-
-
-@mock.patch('f8a_jobs.graph_ingestion.run_server_flow', return_value=Dispacher())
 def test_ingest_epv_into_graph5(_mock):
     """Tests for 'ingest_epv_into_graph'."""
     result = ingest_epv_into_graph(data_v5)
@@ -252,8 +210,9 @@ def test_ingest_selective_epv_into_graph(_mock):
                     'flow_name': 'flow_name',
                     'packages': [{
                         'dispacher_id': 'dummy_dispacher_id',
-                        'package': 'pkg1'}]
-                }, 201)
+                        'package': 'pkg1'}],
+                    'task_names': ['TASK_1', 'TASK_2', 'TASK_3', 'TASK_4']},
+                201)
     assert result == expected
 
 
@@ -267,10 +226,10 @@ def test_ingest_selective_epv_into_graph2(_mock):
                     'packages': [{
                         'dispacher_id': 'dummy_dispacher_id',
                         'package': 'pkg1',
-                        "url": "https://github.com/",
-                        "version": "ver1"
-                    }]
-                }, 201)
+                        'url': 'https://github.com/',
+                        'version': 'ver1'}],
+                    'task_names': ['TASK_1', 'TASK_2', 'TASK_3', 'TASK_4']},
+                201)
     assert result == expected
 
 
@@ -298,25 +257,6 @@ def test_ingest_epv_into_graph6(_mock):
     assert result == expected
 
 
-def test_ingest_epv_internal():
-    """Tests for 'ingest_epv_internal'."""
-    result = ingest_epv_internal(body=data_v3)
-    expected = ({
-                    'body': {
-                        'ecosystem': 'nuget',
-                        'force': False,
-                        'force_graph_sync': True,
-                        'packages': [{
-                            'package': 'pkg1',
-                            'version': 'ver1'
-                        }],
-                        'recursive_limit': 0},
-                    'error_message': 'Unsupported ecosystem.'
-                }, 201)
-
-    assert result == expected
-
-
 def test_ingest_selective_epv_internal():
     """Tests for 'ingest_epv_internal'."""
     result = ingest_selective_epv_internal(body=data_v7)
@@ -327,9 +267,9 @@ def test_ingest_selective_epv_internal():
     assert result == expected
 
 
-@mock.patch('f8a_jobs.graph_ingestion.run_server_flow', return_value=Dispacher())
-@mock.patch("f8a_jobs.graph_ingestion._DISABLE_UNKNOWN_PACKAGE_FLOW", return_value=True)
-def test_ingest_epv_into_graph7(_mock1, _mock2):
+@mock.patch('f8a_jobs.graph_ingestion._DISABLE_UNKNOWN_PACKAGE_FLOW', True)
+@mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
+def test_ingest_epv_into_graph7(_mock1):
     """Tests for 'ingest_epv_into_graph'."""
     result = ingest_epv_into_graph(data_v9)
     expected = ({'ecosystem': 'npm',
@@ -338,5 +278,72 @@ def test_ingest_epv_into_graph7(_mock1, _mock2):
                      'package': 'pkg1',
                      'version': 'ver1'}],
                  'source': 'api'},
+                201)
+    assert result == expected
+
+
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', False)
+def test_ingest_epv_into_graph8():
+    """Tests for 'ingest_epv_into_graph'."""
+    result = ingest_epv_into_graph(data_v9)
+    expected = ({
+                    'ecosystem': 'npm',
+                    'message': 'Worker flows are disabled.',
+                    'packages': [{
+                        'package': 'pkg1',
+                        'version': 'ver1'}],
+                    'source': 'api'},
+                201)
+    assert result == expected
+
+
+def test_ingest_selective_epv_into_graph3():
+    """Tests for 'ingest_selective_epv_into_graph'."""
+    graph_ingestion._INVOKE_API_WORKERS = False
+    result = ingest_selective_epv_into_graph(data_v6)
+    expected = ({
+                    'ecosystem': 'golang',
+                    'flow_name': 'flow_name',
+                    'message': 'Worker flows are disabled.',
+                    'packages': [{
+                        'dispacher_id': 'dummy_dispacher_id',
+                        'package': 'pkg1',
+                        'url': 'https://github.com/',
+                        'version': 'ver1'}],
+                    'task_names': ['TASK_1', 'TASK_2', 'TASK_3', 'TASK_4']},
+                201)
+    assert result == expected
+
+
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', False)
+def test_ingest_epv_internal():
+    """Tests for 'ingest_epv_into_graph'."""
+    result = ingest_epv_internal(body=data_v9)
+    expected = ({
+                    'body': {
+                        'ecosystem': 'npm',
+                        'message': 'Worker flows are disabled.',
+                        'packages': [{
+                            'package': 'pkg1',
+                            'version': 'ver1'}],
+                        'source': 'api'},
+                    'message': 'Worker flows are disabled.'},
+                201)
+    assert result == expected
+
+
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', False)
+def test_ingest_epv():
+    """Tests for 'ingest_epv_into_graph'."""
+    result = ingest_epv(body=data_v9)
+    expected = ({
+                    'body': {
+                        'ecosystem': 'npm',
+                        'message': 'Worker flows are disabled.',
+                        'packages': [{
+                            'package': 'pkg1',
+                            'version': 'ver1'}],
+                        'source': 'api'},
+                    'message': 'Worker flows are disabled.'},
                 201)
     assert result == expected
