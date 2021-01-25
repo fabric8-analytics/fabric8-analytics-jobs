@@ -105,7 +105,9 @@ objects:
                 name: coreapi-postgres
                 key: password
           - name: INVOKE_API_WORKERS
-            value: "1"
+            value: "True"
+          - name: DISABLE_UNKNOWN_PACKAGE_FLOW
+            value: "False"
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
           name: bayesian-jobs
           ports:
@@ -165,6 +167,7 @@ objects:
     name: bayesian-jobs
   spec:
     host: ${BAYESIAN_JOBS_HOSTNAME}
+    path: /ingestions
     to:
       kind: Service
       name: bayesian-jobs

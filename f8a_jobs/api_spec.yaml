@@ -89,17 +89,129 @@ paths:
                     type: string
                     example: Failed to initiate worker flow.
 
+  /internal/ingestions/epv:
+    post:
+      tags:
+        - Ingestion Process
+      description: Internal API to trigger a Selinon flow for ingestion of provided EPV.
+      operationId: f8a_jobs.graph_ingestion.ingest_epv_internal
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestPackageDetailsEPV"
+
+      responses:
+        201:
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ResponsePackageErrorDetails"
+                  - $ref: "#/components/schemas/ResponsePackageDetails"
+
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
+
+  /internal/ingestions/epv-selective:
+    post:
+      tags:
+        - Ingestion Process
+      description: Internal API to trigger a Selinon partial flow for ingestion of provided EPV.
+      operationId: f8a_jobs.graph_ingestion.ingest_selective_epv_internal
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestPackageDetailsSelctiveEPV"
+
+      responses:
+        201:
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ResponsePackageErrorDetails"
+                  - $ref: "#/components/schemas/ResponsePackageDetails"
+
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
+
 components:
   schemas:
+    Ecosystem:
+      title: Ecosystem
+      description: List of supported package ecosystems
+      type: string
+      enum:
+        - maven
+        - pypi
+        - npm
+        - golang
+      example: maven
+
+    Flows:
+      title: Flow Name
+      description: List of Selinon worker flow names
+      type: string
+      enum:
+        - osioAnalysisFlow
+        - bayesianFlow
+        - bayesianApiFlow
+        - bayesianPriorityFlow
+        - bayesianAnalysisFlow
+        - livenessFlow
+        - bayesianPackageFlow
+        - bayesianApiPackageFlow
+        - bayesianPriorityPackageFlow
+        - bayesianPackageAnalysisFlow
+        - componentApiFlow
+        - dependencyIngestFlow
+        - osioUserNotificationFlow
+        - gitOperationsFlow
+        - golangCVEPredictionsFlow
+        - newPackageFlow
+        - newPackageAnalysisFlow
+      example: bayesianFlow
+
+    Source:
+      title: Source
+      description: List of alias of consumers
+      type: string
+      enum:
+        - api
+        - git-refresh
+        - report
+        - monitor
+      example: api
+
     ResponsePackageDetails:
       title: API Response Body
       description: If request is procesed successfully, Selinon dispacher ID will be sent back.
       type: object
       properties:
         ecosystem:
-          type: string
-          enum: [maven, pypi, npm, golang]
-          example: <eco_system_name>
+          $ref: '#/components/schemas/Ecosystem'
         packages:
           type: array
           items:
@@ -107,13 +219,13 @@ components:
             properties:
                 package:
                   type: string
-                  example: <package_name>
+                  example: org.json
                 version:
                   type: string
-                  example: <package_version>
+                  example: 20201115
                 dispacher_id:
                   type: string
-                  example: <selinon_dispacher_id>
+                  example: a4e397bf-c55a-4fdf-86f8-cd8f71b9256d
 
     ResponsePackageErrorDetails:
       title: API Error Response Body
@@ -121,9 +233,7 @@ components:
       type: object
       properties:
         ecosystem:
-          type: string
-          enum: [maven, pypi, npm, golang]
-          example: <eco_system_name>
+          $ref: '#/components/schemas/Ecosystem'
         packages:
           type: array
           items:
@@ -131,10 +241,10 @@ components:
             properties:
                 pkg:
                   type: string
-                  example: <package_name>
+                  example: org.json
                 ver:
                   type: string
-                  example: <package_version>
+                  example: 20201115
                 error_message:
                   type: string
                   example: Incorrect data sent.
@@ -148,9 +258,7 @@ components:
         - packages
       properties:
         ecosystem:
-          type: string
-          enum: [maven, pypi, npm, golang]
-          example: <ecosystem_name>
+          $ref: '#/components/schemas/Ecosystem'
         packages:
           type: array
           items:
@@ -161,10 +269,10 @@ components:
             properties:
                 package:
                   type: string
-                  example: <package_name>
+                  example: org.json
                 version:
                   type: string
-                  example: <package_version>
+                  example: 20201115
         force:
           type: boolean
           example: false
@@ -175,8 +283,9 @@ components:
           type: integer
           example: 0
         flow_name:
-          type: string
-          example: <flow_name>
+          $ref: '#/components/schemas/Flows'
+        source:
+          $ref: '#/components/schemas/Source'
 
     RequestPackageDetailsSelctiveEPV:
       title: Selective API Request Body
@@ -186,12 +295,9 @@ components:
         - ecosystem
         - packages
         - task_names
-        - flow_name
       properties:
         ecosystem:
-          type: string
-          enum: [maven, pypi, npm, golang]
-          example: <ecosystem_name>
+          $ref: '#/components/schemas/Ecosystem'
         packages:
           type: array
           items:
@@ -201,18 +307,21 @@ components:
             properties:
                 package:
                   type: string
-                  example: <package_name>
+                  example: org.json
                 version:
                   type: string
-                  example: <package_version>
+                  example: 20201115
         flow_name:
-          type: string
-          example: <flow_name>
+          $ref: '#/components/schemas/Flows'
         task_names:
           type: array
           items:
             type: string
-          example: [TASK_1, TASK_2, TASK_3, TASK_4]
+          example: [
+            'github_details',
+            'PackageFinalizeTask',
+            'PackageResultCollector',
+            'PackageGraphImporterTask']
         follow_subflows:
           type: boolean
           example: True
@@ -222,3 +331,5 @@ components:
         force:
           type: boolean
           example: true
+        source:
+          $ref: '#/components/schemas/Source'
