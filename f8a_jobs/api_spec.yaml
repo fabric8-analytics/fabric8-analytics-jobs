@@ -159,19 +159,59 @@ paths:
 
 components:
   schemas:
+    Ecosystem:
+      title: Ecosystem
+      description: List of supported package ecosystems
+      type: string
+      enum:
+        - maven
+        - pypi
+        - npm
+        - golang
+      example: maven
+
+    Flows:
+      title: Flow Name
+      description: List of Selinon worker flow names
+      type: string
+      enum:
+        - osioAnalysisFlow
+        - bayesianFlow
+        - bayesianApiFlow
+        - bayesianPriorityFlow
+        - bayesianAnalysisFlow
+        - livenessFlow
+        - bayesianPackageFlow
+        - bayesianApiPackageFlow
+        - bayesianPriorityPackageFlow
+        - bayesianPackageAnalysisFlow
+        - componentApiFlow
+        - dependencyIngestFlow
+        - osioUserNotificationFlow
+        - gitOperationsFlow
+        - golangCVEPredictionsFlow
+        - newPackageFlow
+        - newPackageAnalysisFlow
+      example: bayesianFlow
+
+    Source:
+      title: Source
+      description: List of alias of consumers
+      type: string
+      enum:
+        - api
+        - git-refresh
+        - report
+        - monitor
+      example: api
+
     ResponsePackageDetails:
       title: API Response Body
       description: If request is procesed successfully, Selinon dispacher ID will be sent back.
       type: object
       properties:
         ecosystem:
-          type: string
-          enum:
-            - maven
-            - pypi
-            - npm
-            - golang
-          example: maven
+          $ref: '#/components/schemas/Ecosystem'
         packages:
           type: array
           items:
@@ -193,13 +233,7 @@ components:
       type: object
       properties:
         ecosystem:
-          type: string
-          enum:
-            - maven
-            - pypi
-            - npm
-            - golang
-          example: maven
+          $ref: '#/components/schemas/Ecosystem'
         packages:
           type: array
           items:
@@ -224,13 +258,7 @@ components:
         - packages
       properties:
         ecosystem:
-          type: string
-          enum:
-            - maven
-            - pypi
-            - npm
-            - golang
-          example: maven
+          $ref: '#/components/schemas/Ecosystem'
         packages:
           type: array
           items:
@@ -255,34 +283,9 @@ components:
           type: integer
           example: 0
         flow_name:
-          type: string
-          example: bayesianFlow
-          enum:
-            - osioAnalysisFlow
-            - bayesianFlow
-            - bayesianApiFlow
-            - bayesianPriorityFlow
-            - bayesianAnalysisFlow
-            - livenessFlow
-            - bayesianPackageFlow
-            - bayesianApiPackageFlow
-            - bayesianPriorityPackageFlow
-            - bayesianPackageAnalysisFlow
-            - componentApiFlow
-            - dependencyIngestFlow
-            - osioUserNotificationFlow
-            - gitOperationsFlow
-            - golangCVEPredictionsFlow
-            - newPackageFlow
-            - newPackageAnalysisFlow
+          $ref: '#/components/schemas/Flows'
         source:
-          type: string
-          enum:
-            - api
-            - git-refresh
-            - report
-            - monitor
-          example: api
+          $ref: '#/components/schemas/Source'
 
     RequestPackageDetailsSelctiveEPV:
       title: Selective API Request Body
@@ -294,13 +297,7 @@ components:
         - task_names
       properties:
         ecosystem:
-          type: string
-          enum:
-            - maven
-            - pypi
-            - npm
-            - golang
-          example: maven
+          $ref: '#/components/schemas/Ecosystem'
         packages:
           type: array
           items:
@@ -315,26 +312,7 @@ components:
                   type: string
                   example: 20201115
         flow_name:
-          type: string
-          example: bayesianPackageFlow
-          enum:
-            - osioAnalysisFlow
-            - bayesianFlow
-            - bayesianApiFlow
-            - bayesianPriorityFlow
-            - bayesianAnalysisFlow
-            - livenessFlow
-            - bayesianPackageFlow
-            - bayesianApiPackageFlow
-            - bayesianPriorityPackageFlow
-            - bayesianPackageAnalysisFlow
-            - componentApiFlow
-            - dependencyIngestFlow
-            - osioUserNotificationFlow
-            - gitOperationsFlow
-            - golangCVEPredictionsFlow
-            - newPackageFlow
-            - newPackageAnalysisFlow
+          $ref: '#/components/schemas/Flows'
         task_names:
           type: array
           items:
@@ -354,10 +332,4 @@ components:
           type: boolean
           example: true
         source:
-          type: string
-          enum:
-            - api
-            - git-refresh
-            - report
-            - monitor
-          example: git-refresh
+          $ref: '#/components/schemas/Source'
