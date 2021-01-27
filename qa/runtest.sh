@@ -52,9 +52,8 @@ fi
 
 echo "Starting test suite"
 docker run -t \
-  -v "${here}:/f8a_jobs:ro,Z" \
+  -v "${here}:/f8a_jobs:rw,Z" \
   --name="${CONTAINER_NAME}" \
-  -u 9007 \
   ${TEST_IMAGE_NAME} /f8a_jobs/hack/exec_tests.sh $@ /f8a_jobs/tests/
 
 echo "Test suite passed \\o/"
