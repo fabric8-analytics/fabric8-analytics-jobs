@@ -1,4 +1,5 @@
-[![Build Status](https://ci.centos.org/buildStatus/icon?job=devtools-fabric8-analytics-jobs-f8a-build-master)](https://ci.centos.org/job/devtools-fabric8-analytics-jobs-f8a-build-master/)
+![CI](https://github.com/fabric8-analytics/fabric8-analytics-jobs/workflows/CI/badge.svg?branch=master)
+[![codecov](https://codecov.io/gh/fabric8-analytics/fabric8-analytics-jobs/branch/master/graph/badge.svg?token=qi833miGbI)](https://codecov.io/gh/fabric8-analytics/fabric8-analytics-jobs)
 
 # Fabric8-Analytics core Jobs service
 
