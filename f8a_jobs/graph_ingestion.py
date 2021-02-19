@@ -3,7 +3,7 @@
 from selinon import run_flow, run_flow_selective
 import logging
 import os
-from f8a_jobs.utils import validate_user
+from f8a_jobs.utils import requires_auth
 from f8a_utils.gh_utils import GithubUtils
 from f8a_utils.tree_generator import GolangDependencyTreeGenerator
 
@@ -176,13 +176,13 @@ def ingest_selective_epv_into_graph(epv_details):
     return input_data, 201
 
 
-@validate_user
+@requires_auth
 def ingest_epv(**kwargs):
     """To handle POST requests for end point '/ingestions/epv'."""
     return ingest_epv_into_graph(kwargs)
 
 
-@validate_user
+@requires_auth
 def ingest_selective_epv(**kwargs):
     """To handle POST requests for end point '/ingestions/epv-selective'."""
     return ingest_selective_epv_into_graph(kwargs)
