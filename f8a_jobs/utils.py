@@ -17,7 +17,6 @@ from apscheduler.triggers.interval import IntervalTrigger
 import f8a_jobs.defaults as configuration
 from f8a_jobs.models import JobToken
 from f8a_jobs.error import TokenExpired
-import f8a_jobs.defaults as defaults
 
 logger = logging.getLogger(__name__)
 
@@ -228,24 +227,3 @@ def parse_dates(job_kwargs):
             job_kwargs['to_date'] = parse_datetime(to_date)
         except Exception as exc:
             raise ValueError("Cannot parse string format for 'to_date': %s" % str(exc)) from exc
-
-
-def validate_user(func):
-    """Verify authentication token sent in header.
-
-    :param func: function that should be called if verification succeeds
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if configuration.DISABLE_AUTHENTICATION:
-            return func(*args, **kwargs)
-
-        auth_token = request.headers.get('auth_token', '')
-
-        if auth_token != defaults.APP_SECRET_KEY:
-            logger.info("Invalid token provided: {}.".format(auth_token))
-            abort(401)
-
-        return func(*args, **kwargs)
-
-    return wrapper
