@@ -6,6 +6,7 @@ import os
 from f8a_jobs.utils import requires_auth
 from f8a_utils.gh_utils import GithubUtils
 from f8a_utils.tree_generator import GolangDependencyTreeGenerator
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +46,9 @@ def ingest_epv_into_graph(epv_details):
         input_data['message'] = 'Worker flows are disabled.'
         return input_data, 201
 
+    source = input_data.get('source', '')
     # Check if API consumer is CA or SA and unknown package ingestion flag is disabled.
-    if _DISABLE_UNKNOWN_PACKAGE_FLOW and input_data.get('source', '') == 'api':
+    if _DISABLE_UNKNOWN_PACKAGE_FLOW and source == 'api':
         logger.debug('Unknown package ingestion is disabled.')
         input_data['message'] = 'Unknown package ingestion is disabled.'
         return input_data, 201
@@ -87,8 +89,8 @@ def ingest_epv_into_graph(epv_details):
             logger.error('Exception while initiating the worker flow %s', e)
             return {'message': 'Failed to initiate worker flow.'}, 500
 
-        logger.info('A %s in initiated for eco: %s, pkg: %s, ver: %s',
-                    flow_name, ecosystem, item['package'], item['version'])
+        logger.info('Source %s initiated a %s for eco: %s, pkg: %s, ver: %s',
+                    source, flow_name, ecosystem, item['package'], item['version'])
 
     return input_data, 201
 
@@ -136,8 +138,9 @@ def ingest_selective_epv_into_graph(epv_details):
     task_names = input_data.get('task_names')
     follow_subflows = input_data.get('follow_subflows', False)
     run_subsequent = input_data.get('run_subsequent', False)
+    source = input_data.get('source', '')
 
-    if input_data.get('source', '') == 'git-refresh':
+    if source == 'git-refresh':
         flow_name = 'newPackageAnalysisFlow' \
             if ecosystem == 'golang' else 'bayesianPackageFlow'
 
@@ -170,9 +173,12 @@ def ingest_selective_epv_into_graph(epv_details):
             logger.error('Exception while initiating the worker flow %s', e)
             return {'message': 'Failed to initiate worker flow.'}, 500
 
-        logger.info('A selective flow "%s" in initiated for '
-                    'eco: %s, pkg: %s, for task list: %s',
+        logger.info('Source %s initiated a selective flow "%s" for '
+                    'eco: %s, pkg: %s, for task list: %s', source,
                     flow_name, ecosystem, item['package'], task_names)
+
+        if source == 'git-refresh':
+            time.sleep(3)
     return input_data, 201
 
 

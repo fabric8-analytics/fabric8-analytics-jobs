@@ -172,6 +172,16 @@ objects:
       kind: Service
       name: bayesian-jobs
 - apiVersion: v1
+  kind: Route
+  metadata:
+    name: bayesian-jobs-v1
+  spec:
+    host: ${BAYESIAN_JOBS_HOSTNAME}
+    path: /api/v1
+    to:
+      kind: Service
+      name: bayesian-jobs
+- apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
     name: bayesian-jobs-pvc
