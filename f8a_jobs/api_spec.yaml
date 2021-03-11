@@ -163,6 +163,40 @@ paths:
         - Ingestion Process
       description: >-
         Internal API to trigger a Selinon flow for storing data from api calls.
+      operationId: f8a_jobs.bookkeeping.component_bookkeeping_internal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Incorrect data sent.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
+
+  /ingestions/component-bookkeeping:
+    post:
+      tags:
+        - Ingestion Process
+      description: >-
+        Internal API to trigger a Selinon flow for storing data from api calls.
       operationId: f8a_jobs.bookkeeping.component_bookkeeping
       requestBody:
         content:
