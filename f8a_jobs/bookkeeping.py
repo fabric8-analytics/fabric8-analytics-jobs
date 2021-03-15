@@ -26,10 +26,10 @@ def create_component_bookkeeping(analysis_details):
     node_arguments = input_data.get('data')
     try:
         dispacher_id = run_flow(flow_name, node_arguments)
-        item['dispacher_id'] = dispacher_id.id
     except Exception as e:
+        logger.error('Exception while initiating the worker flow %s', e)
         return {'message': 'Failed to initiate worker flow.'}, 500
-    return "Incorrect data sent", 201
+    return str(dispacher_id.id), 201
 
 @requires_auth
 def component_bookkeeping(**kwargs):
