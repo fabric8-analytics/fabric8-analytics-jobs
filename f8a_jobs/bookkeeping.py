@@ -1,12 +1,9 @@
 """Module that contains functions for EPV ingestion in Graph DB."""
 
-from selinon import run_flow, run_flow_selective
+from selinon import run_flow
 import logging
 import os
 from f8a_jobs.utils import requires_auth
-from f8a_utils.gh_utils import GithubUtils
-from f8a_utils.tree_generator import GolangDependencyTreeGenerator
-import time
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +12,7 @@ _DISABLE_UNKNOWN_PACKAGE_FLOW = os.environ.get('DISABLE_UNKNOWN_PACKAGE_FLOW', '
 
 
 def create_component_bookkeeping(analysis_details):
-
+    """Handle implementation of API for triggering componentApi flow."""
     input_data = analysis_details.get('body', {})
     # Check if worker flow activation is disabled.
     if not _INVOKE_API_WORKERS:
@@ -30,6 +27,7 @@ def create_component_bookkeeping(analysis_details):
         logger.error('Exception while initiating the worker flow %s', e)
         return {'message': 'Failed to initiate worker flow.'}, 500
     return str(dispacher_id.id), 201
+
 
 @requires_auth
 def component_bookkeeping(**kwargs):
