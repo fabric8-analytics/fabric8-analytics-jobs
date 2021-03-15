@@ -20,7 +20,7 @@ def create_component_bookkeeping(analysis_details):
         input_data['message'] = 'Worker flows are disabled.'
         return input_data, 201
     flow_name = input_data.get('flowname')
-    node_arguments = input_data.get('data')
+    node_arguments = input_data
     try:
         dispacher_id = run_flow(flow_name, node_arguments)
     except Exception as e:
