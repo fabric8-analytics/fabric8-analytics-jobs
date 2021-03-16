@@ -16,23 +16,25 @@ def create_component_bookkeeping(analysis_details):
     # Check if worker flow activation is disabled.
     if not _INVOKE_API_WORKERS:
         logger.debug('Worker flows are disabled.')
-        return 'Worker flows are disabled.', 201
+        input_data['message'] = 'Worker flows are disabled.'
+        return input_data, 201
     flow_name = input_data.get('flowname')
     node_arguments = input_data
     try:
         dispacher_id = run_flow(flow_name, node_arguments)
+        input_data['dispacher_id'] = dispacher_id.id
     except Exception as e:
         logger.error('Exception while initiating the worker flow %s', e)
-        return 'Failed to initiate worker flow.', 500
-    return str(dispacher_id.id), 201
+        return {'message': 'Failed to initiate worker flow.'}, 500
+    return input_data, 201
 
 
 @requires_auth
-def component_bookkeeping(**kwargs):
-    """To handle POST requests for end point '/ingestions/component-bookkeeping'."""
+def trigger_workerflow(**kwargs):
+    """To handle POST requests for end point '/ingestions/trigger-workerflow'."""
     return create_component_bookkeeping(kwargs)
 
 
-def component_bookkeeping_internal(**kwargs):
-    """To handle POST requests for end point '/ingestions/component-bookkeeping'."""
+def trigger_workerflow_internal(**kwargs):
+    """To handle POST requests for end point '/internal/ingestions/trigger-workerflow'."""
     return create_component_bookkeeping(kwargs)

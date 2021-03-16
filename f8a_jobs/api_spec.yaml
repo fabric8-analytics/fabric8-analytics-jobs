@@ -157,13 +157,13 @@ paths:
                     type: string
                     example: Failed to initiate worker flow.
 
-  /internal/ingestions/component-bookkeeping:
+  /internal/ingestions/trigger-workerflow:
     post:
       tags:
         - Ingestion Process
       description: >-
-        Internal API to trigger a Selinon flow for storing data from api calls.
-      operationId: f8a_jobs.bookkeeping.component_bookkeeping_internal
+        Internal API to trigger a Selinon flow.
+      operationId: f8a_jobs.bookkeeping.trigger_workerflow_internal
       
       requestBody:
         content:
@@ -189,13 +189,13 @@ paths:
                     type: string
                     example: Failed to initiate worker flow.
 
-  /ingestions/component-bookkeeping:
+  /ingestions/trigger-workerflow:
     post:
       tags:
         - Ingestion Process
       description: >-
-        API to trigger a Selinon flow for storing data from api calls.
-      operationId: f8a_jobs.bookkeeping.component_bookkeeping
+        API to trigger a Selinon flow .
+      operationId: f8a_jobs.bookkeeping.trigger_workerflow
       
       parameters:
       - name: auth-token
