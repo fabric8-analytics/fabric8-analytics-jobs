@@ -164,6 +164,7 @@ paths:
       description: >-
         Internal API to trigger a Selinon flow for storing data from api calls.
       operationId: f8a_jobs.bookkeeping.component_bookkeeping_internal
+      
       requestBody:
         content:
           application/json:
@@ -176,10 +177,7 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  message:
-                    type: string
-                    example: Incorrect data sent.
+
         '500':
           description: Internal Server Error
           content:
@@ -196,8 +194,18 @@ paths:
       tags:
         - Ingestion Process
       description: >-
-        Internal API to trigger a Selinon flow for storing data from api calls.
+        API to trigger a Selinon flow for storing data from api calls.
       operationId: f8a_jobs.bookkeeping.component_bookkeeping
+      
+      parameters:
+      - name: auth-token
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+
       requestBody:
         content:
           application/json:
@@ -210,10 +218,7 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  message:
-                    type: string
-                    example: Incorrect data sent.
+
         '500':
           description: Internal Server Error
           content:
