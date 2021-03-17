@@ -10,8 +10,9 @@ logger = logging.getLogger(__name__)
 _INVOKE_API_WORKERS = os.environ.get('INVOKE_API_WORKERS', 'True') == 'True'
 
 
-def create_component_bookkeeping(analysis_details):
+def start_workflow(analysis_details):
     """Handle implementation of API for triggering componentApi flow."""
+    logger.info('Workflow is called')
     input_data = analysis_details.get('body', {})
     # Check if worker flow activation is disabled.
     if not _INVOKE_API_WORKERS:
@@ -32,9 +33,9 @@ def create_component_bookkeeping(analysis_details):
 @requires_auth
 def trigger_workerflow(**kwargs):
     """To handle POST requests for end point '/ingestions/trigger-workerflow'."""
-    return create_component_bookkeeping(kwargs)
+    return start_workflow(kwargs)
 
 
 def trigger_workerflow_internal(**kwargs):
     """To handle POST requests for end point '/internal/ingestions/trigger-workerflow'."""
-    return create_component_bookkeeping(kwargs)
+    return start_workflow(kwargs)
