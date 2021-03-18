@@ -163,7 +163,7 @@ paths:
         - Ingestion Process
       description: >-
         Internal API to trigger a Selinon flow.
-      operationId: f8a_jobs.bookkeeping.trigger_workerflow_internal
+      operationId: f8a_jobs.graph_ingestion.trigger_workerflow_internal
       
       requestBody:
         content:
@@ -195,7 +195,7 @@ paths:
         - Ingestion Process
       description: >-
         API to trigger a Selinon flow .
-      operationId: f8a_jobs.bookkeeping.trigger_workerflow
+      operationId: f8a_jobs.graph_ingestion.trigger_workerflow
       
       parameters:
       - name: auth-token
