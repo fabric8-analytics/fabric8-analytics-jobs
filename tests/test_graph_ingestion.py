@@ -441,7 +441,7 @@ def test_trigger_workerflow_2():
 
 
 @mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
-def test_trigger_workerflow_3():
+def test_trigger_workerflow_3(_mock):
     """Tests for 'trigger_workflow'."""
     result = trigger_workerflow(body=data_v12)
     expected = ({
@@ -503,7 +503,7 @@ def test_trigger_workerflow_internal_2():
 
 
 @mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
-def test_trigger_workerflow_internal_3():
+def test_trigger_workerflow_internal_3(_mock):
     """Tests for 'trigger_workflow_internal'."""
     result = trigger_workerflow_internal(body=data_v12)
     expected = ({
