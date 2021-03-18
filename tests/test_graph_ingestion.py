@@ -443,7 +443,7 @@ def test_trigger_workerflow_2():
 @mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
 def test_trigger_workerflow_3():
     """Tests for 'trigger_workflow'."""
-    result = trigger_workerflow(body=data_v11)
+    result = trigger_workerflow(body=data_v12)
     expected = ({
                     'message': 'Failed to initiate worker flow.'
                 }, 500)
