@@ -192,11 +192,36 @@ data_v12 = {
             }
         }
 
+data_v13 = {
+            "external_request_id": "ccddf6b7-34a7-4927-a273-146b17b6b1f7",
+            "flowname": "componentApiFlow",
+            "data": {
+                "api_name": "component_analyses_post",
+                "manifest_hash": "sadasdsfsdf4545dsfdsfdfdgffds",
+                "ecosystem": "pypi",
+                "packages_list": {
+                    'name': "ejs",
+                    'given_name': "ejs",
+                    'version': "1.0.0"
+                },
+                "user_id": "ccddf6b7-34a7-4927-a273-146b17b6b1f7",
+                "user_agent": "unit-test",
+                "source": "unit-test",
+                "telemetry_id": "ccddf6b7-34a7-4927-a273-146b17b6b1f7"
+            }
+        }
+
 
 class Dispacher:
     """Dispatcher class returned by Selinon.run_flow."""
 
     id = "dummy_dispacher_id"
+
+
+class DispacherError:
+    """DispatcherError class returned by Selinon.run_flow."""
+
+    dummy_id = None
 
 
 @mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
@@ -389,6 +414,7 @@ def test_ingest_epv():
     assert result == expected
 
 
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', True)
 @mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
 def test_trigger_workerflow_1(_mock):
     """Tests for 'trigger_workerflow'."""
@@ -415,9 +441,10 @@ def test_trigger_workerflow_1(_mock):
     assert result == expected
 
 
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', False)
 def test_trigger_workerflow_2():
     """Tests for 'trigger_workerflow'."""
-    result = trigger_workerflow(body=data_v11)
+    result = trigger_workerflow(body=data_v13)
     expected = ({
                     "data": {
                                 "api_name": "component_analyses_post",
@@ -440,6 +467,8 @@ def test_trigger_workerflow_2():
     assert result == expected
 
 
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', True)
+@mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=DispacherError())
 def test_trigger_workerflow_3(_mock):
     """Tests for 'trigger_workflow'."""
     result = trigger_workerflow(body=data_v12)
@@ -450,6 +479,7 @@ def test_trigger_workerflow_3(_mock):
     assert result == expected
 
 
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', True)
 @mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=Dispacher())
 def test_trigger_workerflow_internal_1(_mock):
     """Tests for 'trigger_workerflow_internal'."""
@@ -476,9 +506,10 @@ def test_trigger_workerflow_internal_1(_mock):
     assert result == expected
 
 
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', False)
 def test_trigger_workerflow_internal_2():
     """Tests for 'trigger_workerflow_internal'."""
-    result = trigger_workerflow_internal(body=data_v11)
+    result = trigger_workerflow_internal(body=data_v13)
     expected = ({
                     "data": {
                                 "api_name": "component_analyses_post",
@@ -501,6 +532,8 @@ def test_trigger_workerflow_internal_2():
     assert result == expected
 
 
+@mock.patch('f8a_jobs.graph_ingestion._INVOKE_API_WORKERS', True)
+@mock.patch('f8a_jobs.graph_ingestion.run_flow', return_value=DispacherError())
 def test_trigger_workerflow_internal_3(_mock):
     """Tests for 'trigger_workflow_internal'."""
     result = trigger_workerflow_internal(body=data_v12)
