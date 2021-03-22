@@ -182,6 +182,26 @@ def ingest_selective_epv_into_graph(epv_details):
     return input_data, 201
 
 
+def start_workflow(analysis_details):
+    """Handle implementation of API for triggering componentApi flow."""
+    logger.info('Workflow is called')
+    input_data = analysis_details.get('body', {})
+    # Check if worker flow activation is disabled.
+    if not _INVOKE_API_WORKERS:
+        logger.debug('Worker flows are disabled.')
+        input_data['message'] = 'Worker flows are disabled.'
+        return input_data, 201
+    flow_name = input_data.get('flowname')
+    node_arguments = input_data
+    try:
+        dispacher_id = run_flow(flow_name, node_arguments)
+        input_data['dispacher_id'] = dispacher_id.id
+    except Exception as e:
+        logger.error('Exception while initiating the worker flow %s', e)
+        return {'message': 'Failed to initiate worker flow.'}, 500
+    return input_data, 201
+
+
 @requires_auth
 def ingest_epv(**kwargs):
     """To handle POST requests for end point '/ingestions/epv'."""
@@ -202,3 +222,14 @@ def ingest_epv_internal(**kwargs):
 def ingest_selective_epv_internal(**kwargs):
     """To handle POST requests for end point '/internal/ingestions/epv-selective'."""
     return ingest_selective_epv_into_graph(kwargs)
+
+
+@requires_auth
+def trigger_workerflow(**kwargs):
+    """To handle POST requests for end point '/ingestions/trigger-workerflow'."""
+    return start_workflow(kwargs)
+
+
+def trigger_workerflow_internal(**kwargs):
+    """To handle POST requests for end point '/internal/ingestions/trigger-workerflow'."""
+    return start_workflow(kwargs)

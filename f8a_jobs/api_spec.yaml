@@ -157,6 +157,79 @@ paths:
                     type: string
                     example: Failed to initiate worker flow.
 
+  /internal/ingestions/trigger-workerflow:
+    post:
+      tags:
+        - Ingestion Process
+      description: >-
+        Internal API to trigger a Selinon flow.
+      operationId: f8a_jobs.graph_ingestion.trigger_workerflow_internal
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                type: object
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
+
+  /ingestions/trigger-workerflow:
+    post:
+      tags:
+        - Ingestion Process
+      description: >-
+        API to trigger a Selinon flow .
+      operationId: f8a_jobs.graph_ingestion.trigger_workerflow
+      
+      parameters:
+      - name: auth-token
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                type: object
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to initiate worker flow.
+
 components:
   schemas:
     Ecosystem:
