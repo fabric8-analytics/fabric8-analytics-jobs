@@ -18,6 +18,7 @@ from f8a_jobs.auth import oauth
 from raven.contrib.flask import Sentry
 from werkzeug.contrib.fixers import ProxyFix
 from f8a_worker.setup_celery import init_celery, init_selinon
+from f8a_jobs import user_cache
 
 
 class SafeJSONEncoder(json.JSONEncoder):
@@ -110,6 +111,8 @@ def initjobs():
     logger.debug("Initializing DB for tokens")
     create_models()
     logger.debug("DB for tokens initialized")
+    user_cache.create_cache()
+    logger.debug("user cache is created")
 
 
 @manager.command

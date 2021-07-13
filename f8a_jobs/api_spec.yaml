@@ -164,7 +164,7 @@ paths:
       description: >-
         Internal API to trigger a Selinon flow.
       operationId: f8a_jobs.graph_ingestion.trigger_workerflow_internal
-      
+
       requestBody:
         content:
           application/json:
@@ -196,7 +196,7 @@ paths:
       description: >-
         API to trigger a Selinon flow .
       operationId: f8a_jobs.graph_ingestion.trigger_workerflow
-      
+
       parameters:
       - name: auth-token
         in: header
@@ -229,6 +229,66 @@ paths:
                   message:
                     type: string
                     example: Failed to initiate worker flow.
+
+  /internal/ingestions/get-user-details/{userId}:
+    get:
+      tags:
+        - User details
+      description: >-
+        API to get details of a user.
+      operationId: f8a_jobs.graph_ingestion.get_user_details_internal
+
+      parameters:
+      - name: userId
+        in: path
+        schema:
+          type: string
+        required: true
+
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /internal/ingestions/create_or_update_user_in_cache:
+    post:
+      tags:
+        - User details
+      description: >-
+        API to update details of a user.
+      operationId: f8a_jobs.graph_ingestion.create_or_update_user_in_cache
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
 
 components:
   schemas:

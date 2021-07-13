@@ -3,7 +3,8 @@ FROM registry.centos.org/centos/centos:7
 ENV LANG=en_US.UTF-8 \
     PV_DIR='/pv' \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
-    MAVEN_INDEX_CHECKER_DATA_PATH='/pv/index-checker'
+    MAVEN_INDEX_CHECKER_DATA_PATH='/pv/index-checker' \
+    USER_CACHE_DIR='/pv/db-cache'
 
 RUN useradd coreapi
 
