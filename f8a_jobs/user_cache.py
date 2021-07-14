@@ -37,7 +37,7 @@ def create_cache():
 def get_users_from_rds():
     """Get all users from RDS table."""
     logger.info("Invoking API to get user from RDS.")
-    payload = '{\"query\":\"select user_id, snyk_api_token, status from user_details;\"}'
+    payload = "{\"query\":\"select user_id, snyk_api_token, status from user_details where status = 'REGISTERED';\"}"
 
     try:
         response = requests.request("POST", _GEMINI_API_URL,
@@ -59,6 +59,11 @@ def create_cache_files(all_users):
     try:
         if not os.path.exists(_USER_CACHE_DIR):
             os.makedirs(_USER_CACHE_DIR)
+        else:
+            # Empty the directory and create new cache
+            # as few token may have been expired and files for those users need to be deleted.
+            for f in os.listdir(_USER_CACHE_DIR):
+                os.remove(os.path.join(_USER_CACHE_DIR, f))
 
         for user in all_users:
             user_cache = {
