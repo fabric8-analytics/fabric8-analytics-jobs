@@ -37,7 +37,8 @@ def create_cache():
 def get_users_from_rds():
     """Get all users from RDS table."""
     logger.info("Invoking API to get user from RDS.")
-    payload = "{\"query\":\"select user_id, snyk_api_token, status from user_details where status = 'REGISTERED';\"}"
+    payload = "{\"query\":\"select user_id, snyk_api_token, status from user_details " \
+              "where status = 'REGISTERED';\"}"
 
     try:
         response = requests.request("POST", _GEMINI_API_URL,
