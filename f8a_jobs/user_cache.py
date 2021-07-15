@@ -75,7 +75,6 @@ def create_cache_files(all_users):
 
             # Create file for each user into PVC having details about user
             with open(_USER_CACHE_DIR + "/" + user[0] + ".json", 'w', encoding='utf-8') as file:
-                #json.dump(user_cache, file, ensure_ascii=False, indent=4, default=str)
                 file.write("")
 
         logger.info("Created cache of {} users".format(len(all_users)))
