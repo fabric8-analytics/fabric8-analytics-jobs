@@ -85,19 +85,17 @@ def create_cache_files(all_users):
 def get_user_from_cache(user_id):
     """Get User from cache."""
     logger.info("Searching user in cache files.")
-    user = {}
     try:
         db_cache_file_path = _USER_CACHE_DIR + "/" + user_id + ".json"
 
         if os.path.isfile(db_cache_file_path):
             logger.info("Found user in cache with id %s", user_id)
-            file = open(db_cache_file_path, "r")
-            user = json.loads(file.read())
-        return user
+            return True
+        return False
     except Exception as e:
         logger.info("User not found in cache with id %s", user_id)
         logger.error(e)
-        return None
+        return False
 
 
 @tenacity.retry(reraise=True, stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(1))
