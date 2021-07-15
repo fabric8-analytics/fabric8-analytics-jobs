@@ -67,12 +67,6 @@ def create_cache_files(all_users):
                 os.remove(os.path.join(_USER_CACHE_DIR, f))
 
         for user in all_users:
-            user_cache = {
-                "user_id": user[0],
-                "snyk_api_token": user[1],
-                "status": user[2]
-            }
-
             # Create file for each user into PVC having details about user
             with open(_USER_CACHE_DIR + "/" + user[0] + ".json", 'w', encoding='utf-8') as file:
                 file.write("")
