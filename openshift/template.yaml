@@ -16,7 +16,7 @@ objects:
   spec:
     replicas: 1
     strategy:
-      type: Rolling
+      type: Recreate
     selector:
       service: bayesian-jobs
     template:
