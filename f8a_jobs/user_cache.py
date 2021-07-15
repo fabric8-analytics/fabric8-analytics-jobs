@@ -68,7 +68,7 @@ def create_cache_files(all_users):
 
         for user in all_users:
             # Create file for each user into PVC having details about user
-            with open(_USER_CACHE_DIR + "/" + user[0] + ".json", 'w', encoding='utf-8') as file:
+            with open(_USER_CACHE_DIR + "/" + user[0] + ".json", 'w', encoding='utf8') as file:
                 file.write("")
 
         logger.info("Created cache of {} users".format(len(all_users)))
@@ -104,7 +104,7 @@ def update_user_in_cache(user):
 
             # Create file for each user into PVC having details about user
             with open(_USER_CACHE_DIR + "/" + user["user_id"] + ".json", 'w',
-                      encoding='utf-8') as file:
+                      encoding='utf8') as file:
                 json.dump(user, file, ensure_ascii=False, indent=4, default=str)
 
             logger.info("Created cache of {} user".format(len(user)))
