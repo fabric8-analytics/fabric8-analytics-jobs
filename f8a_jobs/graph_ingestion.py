@@ -7,6 +7,7 @@ from f8a_jobs.utils import requires_auth
 from f8a_utils.gh_utils import GithubUtils
 from f8a_utils.tree_generator import GolangDependencyTreeGenerator
 import time
+from f8a_jobs import user_cache
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +203,16 @@ def start_workflow(analysis_details):
     return input_data, 201
 
 
+def get_user_details_from_cache(userId):
+    """Handle implementation of API for getting user from cache."""
+    return user_cache.get_user_from_cache(userId), 201
+
+
+def update_user_in_cache(user):
+    """Handle implementation of API for creating user in cache."""
+    return {"message": user_cache.update_user_in_cache(user.get('body', {}))}, 201
+
+
 @requires_auth
 def ingest_epv(**kwargs):
     """To handle POST requests for end point '/ingestions/epv'."""
@@ -233,3 +244,13 @@ def trigger_workerflow(**kwargs):
 def trigger_workerflow_internal(**kwargs):
     """To handle POST requests for end point '/internal/ingestions/trigger-workerflow'."""
     return start_workflow(kwargs)
+
+
+def get_user_details_internal(userId):
+    """To handle POST requests for end point '/internal/ingestions/get-user-details/{userId}'."""
+    return get_user_details_from_cache(userId)
+
+
+def create_or_update_user_in_cache(**kwargs):
+    """To handle POST requests for end point '/internal/ingestions/get-user-details/{userId}'."""
+    return update_user_in_cache(kwargs)
