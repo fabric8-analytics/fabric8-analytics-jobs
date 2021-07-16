@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi
+FROM registry.centos.org/centos/centos:7
 
 ENV LANG=en_US.utf8 PYTHONDONTWRITEBYTECODE=1 \
     PV_DIR='/pv' \
@@ -11,8 +11,10 @@ RUN useradd coreapi
 # https://copr.fedorainfracloud.org/coprs/fche/pcp/
 COPY hack/_copr_fche_pcp.repo /etc/yum.repos.d/
 
-RUN yum install -y python36-devel postgresql-devel gcc git maven zip unzip && \
-    yum clean all && ln -s /usr/bin/python3 /usr/bin/python
+RUN yum install -y epel-release && \
+    yum install -y python36-devel python36-pip postgresql-devel gcc git maven zip unzip pcp && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    yum clean all
 
 # Install maven-index-checker
 COPY hack/install_maven-index-checker.sh /tmp/install_deps/
