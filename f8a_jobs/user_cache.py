@@ -20,23 +20,23 @@ _USER_CACHE_DIR = os.environ.get("USER_CACHE_DIR")
 def create_cache():
     """Cache all users into PVC."""
     if _ENABLE_USER_CACHING:
-        logger.info("Starting user cache creation.")
+        print("Starting user cache creation.")
 
         result = get_users_from_rds()
 
         if "data" in result:
             create_cache_files(result["data"])
         else:
-            logger.info("User caching failed.")
-            logger.info(result)
+            print("User caching failed.")
+            print(result)
     else:
-        logger.info("User caching is disabled.")
+        print("User caching is disabled.")
 
 
 @tenacity.retry(reraise=True, stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(1))
 def get_users_from_rds():
     """Get all users from RDS table."""
-    logger.info("Invoking API to get user from RDS.")
+    print("Invoking API to get user from RDS.")
     payload = "{\"query\":\"select user_id, snyk_api_token, status from user_details " \
               "where status = 'REGISTERED';\"}"
 
@@ -56,7 +56,7 @@ def get_users_from_rds():
 @tenacity.retry(reraise=True, stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(1))
 def create_cache_files(all_users):
     """Get all users and create Cache files for each user."""
-    logger.info("Creating user cache files.")
+    print("Creating user cache files.")
     try:
         if not os.path.exists(_USER_CACHE_DIR):
             os.makedirs(_USER_CACHE_DIR)
@@ -71,23 +71,23 @@ def create_cache_files(all_users):
             with open(_USER_CACHE_DIR + "/" + user[0] + ".json", 'w', encoding='utf8') as file:
                 file.write("")
 
-        logger.info("Created cache of {} users".format(len(all_users)))
+        print("Created cache of {} users".format(len(all_users)))
     except Exception as e:
         logger.error(e)
 
 
 def get_user_from_cache(user_id):
     """Get User from cache."""
-    logger.info("Searching user in cache files.")
+    print("Searching user in cache files.")
     try:
         db_cache_file_path = _USER_CACHE_DIR + "/" + user_id + ".json"
 
         if os.path.isfile(db_cache_file_path):
-            logger.info("Found user in cache with id %s", user_id)
+            print("Found user in cache with id %s", user_id)
             return True
         return False
     except Exception as e:
-        logger.info("User not found in cache with id %s", user_id)
+        print("User not found in cache with id %s", user_id)
         logger.error(e)
         return False
 
@@ -95,7 +95,7 @@ def get_user_from_cache(user_id):
 @tenacity.retry(reraise=True, stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(1))
 def update_user_in_cache(user):
     """Get all users and create Cache files for each user."""
-    logger.info("Creating user in cache files.")
+    print("Creating user in cache files.")
 
     if _ENABLE_USER_CACHING:
         try:
@@ -107,7 +107,7 @@ def update_user_in_cache(user):
                       encoding='utf8') as file:
                 json.dump(user, file, ensure_ascii=False, indent=4, default=str)
 
-            logger.info("Created cache of {} user".format(len(user)))
+            print("Created cache of {} user".format(len(user)))
             message = "User cache is created."
         except Exception as e:
             message = str(e)
