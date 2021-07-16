@@ -264,13 +264,95 @@ paths:
                     type: string
                     example: User not found in cache.
 
+  /ingestions/get-user-details/{userId}:
+    get:
+      tags:
+        - User details
+      description: >-
+        API to get details of a user.
+      operationId: f8a_jobs.graph_ingestion.get_user_details
+
+      parameters:
+      - name: userId
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: auth-token
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+
+      responses:
+        '201':
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                type: object
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found in cache.
+
   /internal/ingestions/create_or_update_user_in_cache:
     post:
       tags:
         - User details
       description: >-
         API to update details of a user.
+      operationId: f8a_jobs.graph_ingestion.create_or_update_user_in_cache_internal
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Response with Selinon dispacher ID.
+          content:
+            application/json:
+              schema:
+                type: object
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User caching is disabled.
+
+  /ingestions/create_or_update_user_in_cache:
+    post:
+      tags:
+        - User details
+      description: >-
+        API to update details of a user.
       operationId: f8a_jobs.graph_ingestion.create_or_update_user_in_cache
+
+      parameters:
+        - name: auth-token
+          in: header
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
 
       requestBody:
         content:

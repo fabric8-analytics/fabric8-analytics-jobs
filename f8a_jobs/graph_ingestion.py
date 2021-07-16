@@ -251,6 +251,18 @@ def get_user_details_internal(userId):
     return get_user_details_from_cache(userId)
 
 
+@requires_auth
+def get_user_details(userId):
+    """To handle POST requests for end point '/ingestions/get-user-details/{userId}'."""
+    return get_user_details_from_cache(userId)
+
+
+@requires_auth
 def create_or_update_user_in_cache(**kwargs):
     """To handle POST requests for end point '/internal/ingestions/get-user-details/{userId}'."""
+    return update_user_in_cache(kwargs)
+
+
+def create_or_update_user_in_cache_internal(**kwargs):
+    """To handle POST requests for end point '/ingestions/get-user-details/{userId}'."""
     return update_user_in_cache(kwargs)
