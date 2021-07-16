@@ -50,6 +50,7 @@ def get_users_from_rds():
         return response.json()
     except Exception as e:
         logger.error(e)
+        print(e)
         return {}
 
 
@@ -74,6 +75,7 @@ def create_cache_files(all_users):
         print("Created cache of {} users".format(len(all_users)))
     except Exception as e:
         logger.error(e)
+        print(e)
 
 
 def get_user_from_cache(user_id):

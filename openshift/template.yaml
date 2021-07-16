@@ -108,6 +108,11 @@ objects:
             value: "True"
           - name: DISABLE_UNKNOWN_PACKAGE_FLOW
             value: "False"
+          - name: THREESCALE_ACCOUNT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: 3scale
+                key: three_scale_account_secret
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
           name: bayesian-jobs
           ports:
