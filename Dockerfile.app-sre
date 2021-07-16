@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ubi
 
-ENV LANG=en_US.UTF-8 \
+ENV LANG=en_US.utf8 PYTHONDONTWRITEBYTECODE=1 \
     PV_DIR='/pv' \
     MAVEN_INDEX_CHECKER_PATH='/opt/maven-index-checker' \
     MAVEN_INDEX_CHECKER_DATA_PATH='/pv/index-checker' \
