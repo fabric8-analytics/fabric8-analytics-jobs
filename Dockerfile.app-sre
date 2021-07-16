@@ -23,17 +23,17 @@ RUN /tmp/install_deps/install_maven-index-checker.sh
 RUN mkdir -p /etc/pcp /var/run/pcp /var/lib/pcp /var/log/pcp  && \
     chmod -R a+rwX /etc/pcp /var/run/pcp /var/lib/pcp /var/log/pcp
 
-RUN pip3 install --upgrade --no-cache-dir
+RUN pip3 install --upgrade pip>=10.0.0
 
 COPY requirements.txt ./
-RUN pip3 install -r requirements.txt --no-cache-dir
+RUN pip3 install -r requirements.txt
 
 RUN mkdir ${PV_DIR} &&\
     chmod 777 ${PV_DIR}
 
 COPY ./ /tmp/jobs_install/
 RUN cd /tmp/jobs_install &&\
-    pip3 install . --no-cache-dir &&\
+    pip3 install . &&\
     rm -rf /tmp/jobs_install
 
 COPY hack/run_jobs.sh hack/jobs+pmcd.sh /usr/bin/
