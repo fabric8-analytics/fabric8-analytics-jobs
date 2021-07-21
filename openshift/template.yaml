@@ -113,6 +113,11 @@ objects:
               secretKeyRef:
                 name: 3scale
                 key: three_scale_account_secret
+          - name: SERVICE_ACCOUNT_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: gemini-server
+                key: gemini-sa-client-id
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
           name: bayesian-jobs
           ports:

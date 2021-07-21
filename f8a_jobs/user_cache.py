@@ -11,7 +11,7 @@ logger = logging.getLogger(__file__)
 _GEMINI_API_URL = "http://{host}:{port}/api/v1/pgsql".format(
     host=os.environ.get("GEMINI_SERVICE_HOST", "f8a-gemini-server"),
     port=os.environ.get("GEMINI_SERVICE_PORT", "5000"),)
-_APP_SECRET_KEY = os.getenv('APP_SECRET_KEY', 'not-set')
+_APP_SECRET_KEY = os.getenv('SERVICE_ACCOUNT_CLIENT_ID', 'not-set')
 _ACCOUNT_SECRET_KEY = os.getenv('THREESCALE_ACCOUNT_SECRET', 'not-set')
 _ENABLE_USER_CACHING = os.environ.get('ENABLE_USER_CACHING', 'true') == 'true'
 _USER_CACHE_DIR = os.environ.get("USER_CACHE_DIR")
@@ -37,7 +37,7 @@ def create_cache():
 def get_users_from_rds():
     """Get all users from RDS table."""
     print("Invoking API to get user from RDS.")
-    payload = "{\"query\":\"select user_id, snyk_api_token, status from user_details " \
+    payload = "{\"query\":\"select user_id from user_details " \
               "where status = 'REGISTERED';\"}"
 
     try:
