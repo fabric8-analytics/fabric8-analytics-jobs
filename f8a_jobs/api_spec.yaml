@@ -305,6 +305,69 @@ paths:
                     type: string
                     example: User not found in cache.
 
+  /ingestions/refresh_user_cache:
+    get:
+      tags:
+        - User details
+      description: >-
+        API to refresh details of a user.
+      operationId: f8a_jobs.graph_ingestion.refresh_user_cache
+
+      parameters:
+      - name: auth-token
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+
+      responses:
+        '201':
+          description: Response with a message.
+          content:
+            application/json:
+              schema:
+                type: object
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found in cache.
+
+  /internal/ingestions/refresh_user_cache:
+    get:
+      tags:
+        - User details
+      description: >-
+        API to refresh details of a user.
+      operationId: f8a_jobs.graph_ingestion.refresh_user_cache_internal
+
+      responses:
+        '201':
+          description: Response with a message.
+          content:
+            application/json:
+              schema:
+                type: object
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found in cache.
+
   /internal/ingestions/create_or_update_user_in_cache:
     post:
       tags:

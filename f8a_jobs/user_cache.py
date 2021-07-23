@@ -1,7 +1,6 @@
 """Utility functions for User caching."""
 
 import os
-import json
 import logging
 import requests
 import tenacity
@@ -26,11 +25,13 @@ def create_cache():
 
         if "data" in result:
             create_cache_files(result["data"])
+            message = "User cache is created"
         else:
-            print("User caching failed.")
-            print(result)
+            message = "User caching failed."
     else:
-        print("User caching is disabled.")
+        message = "User caching is disabled."
+    print(message)
+    return {"message": message}
 
 
 @tenacity.retry(reraise=True, stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(1))
@@ -107,9 +108,9 @@ def update_user_in_cache(user):
             # Create file for each user into PVC having details about user
             with open(_USER_CACHE_DIR + "/" + user["user_id"] + ".json", 'w',
                       encoding='utf8') as file:
-                json.dump(user, file, ensure_ascii=False, indent=4, default=str)
+                file.write("")
 
-            print("Created cache of {} user".format(len(user)))
+            print("Created cache of {} user".format(user["user_id"]))
             message = "User cache is created."
         except Exception as e:
             message = str(e)
