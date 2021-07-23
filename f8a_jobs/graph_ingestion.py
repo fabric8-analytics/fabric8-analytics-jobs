@@ -277,4 +277,3 @@ def refresh_user_cache_internal():
 def refresh_user_cache():
     """To handle POST requests for end point '/ingestions/refresh_user_cache'."""
     return user_cache.create_cache()
-
