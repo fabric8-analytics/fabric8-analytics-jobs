@@ -269,11 +269,11 @@ def create_or_update_user_in_cache_internal(**kwargs):
 
 
 def refresh_user_cache_internal():
-    """To handle POST requests for end point '/internal/ingestions/refresh_user_cache_internal'"""
+    """To handle Get requests for end point '/internal/ingestions/refresh_user_cache_internal'."""
     return user_cache.create_cache()
 
 
 @requires_auth
 def refresh_user_cache():
-    """To handle POST requests for end point '/ingestions/refresh_user_cache'."""
+    """To handle Get requests for end point '/ingestions/refresh_user_cache'."""
     return user_cache.create_cache()
