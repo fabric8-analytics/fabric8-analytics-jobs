@@ -11,13 +11,14 @@ from f8a_jobs.defaults import (USER_CACHE_DIR,
                                SERVICE_ACCOUNT_CLIENT_ID,
                                ACCOUNT_SECRET_KEY)
 
-logger = logging.getLogger(__file__)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def create_cache():
     """Cache all users into PVC."""
     if ENABLE_USER_CACHING:
-        print("Starting user cache creation.")
+        logger.info("Starting user cache creation.")
 
         result = get_users_from_rds()
 
@@ -28,14 +29,14 @@ def create_cache():
             message = "User caching failed."
     else:
         message = "User caching is disabled."
-    print(message)
+    logger.info(message)
     return {"message": message}
 
 
 @tenacity.retry(reraise=True, stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(1))
 def get_users_from_rds():
     """Get all users from RDS table."""
-    print("Invoking API to get user from RDS.")
+    logger.info("Invoking API to get user from RDS.")
     payload = "{\"query\":\"select user_id from user_details " \
               "where status = 'REGISTERED';\"}"
 
@@ -49,14 +50,14 @@ def get_users_from_rds():
         return response.json()
     except Exception as e:
         logger.error(e)
-        print(e)
+        logger.info(e)
         return {}
 
 
 @tenacity.retry(reraise=True, stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(1))
 def create_cache_files(all_users):
     """Get all users and create Cache files for each user."""
-    print("Creating user cache files.")
+    logger.info("Creating user cache files.")
     try:
         if not os.path.exists(USER_CACHE_DIR):
             os.makedirs(USER_CACHE_DIR)
@@ -71,10 +72,10 @@ def create_cache_files(all_users):
             with open(USER_CACHE_DIR + "/" + user[0] + ".json", 'w', encoding='utf8') as file:
                 file.write("")
 
-        print("Created cache of {} users".format(len(all_users)))
+        logger.info("Created cache of {} users".format(len(all_users)))
     except Exception as e:
         logger.error(e)
-        print(e)
+        logger.info(e)
 
 
 def get_user_from_cache(user_id):
