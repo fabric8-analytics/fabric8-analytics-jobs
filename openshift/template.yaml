@@ -243,3 +243,9 @@ parameters:
   required: true
   name: IMAGE_TAG
   value: "latest"  # image-tag
+
+- description: Token Authentication
+  displayName: Token Authentication
+  required: false
+  name: TOKEN_AUTHENTICATION
+  value: "true"

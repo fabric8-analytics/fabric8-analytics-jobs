@@ -441,6 +441,41 @@ paths:
                     type: string
                     example: User caching is disabled.
 
+  /ingestions/list_cached_users:
+    get:
+      tags:
+        - User details
+      description: >-
+        API to list all cache users.
+      operationId: f8a_jobs.graph_ingestion.list_cached_users
+
+      parameters:
+      - name: auth-token
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+
+      responses:
+        '201':
+          description: Response with a message.
+          content:
+            application/json:
+              schema:
+                type: object
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error.
 components:
   schemas:
     Ecosystem:
