@@ -93,9 +93,12 @@ def requires_auth(func):
     def wrapper(*args, **kwargs):
         if configuration.DISABLE_AUTHENTICATION:
             return func(*args, **kwargs)
-
-        auth_token = request.headers.get('auth_token')
         try:
+            auth_token = request.headers.get('auth_token')
+            if configuration.TOKEN_AUTHENTICATION:
+                if auth_token and auth_token == \
+                        configuration.SERVICE_ACCOUNT_CLIENT_ID:
+                    return func(*args, **kwargs)
             if not JobToken.verify(auth_token):
                 logger.info("Verification for token '%s' failed", auth_token)
                 abort(401)

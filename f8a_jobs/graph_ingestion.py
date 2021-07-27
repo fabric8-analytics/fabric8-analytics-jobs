@@ -277,3 +277,9 @@ def refresh_user_cache_internal():
 def refresh_user_cache():
     """To handle Get requests for end point '/ingestions/refresh_user_cache'."""
     return user_cache.create_cache()
+
+
+@requires_auth
+def list_cached_users():
+    """To handle Get requests for end point '/ingestions/list_cached_users'."""
+    return user_cache.list_cached_users()
