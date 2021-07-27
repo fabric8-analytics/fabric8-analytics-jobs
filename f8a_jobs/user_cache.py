@@ -122,10 +122,12 @@ def list_cached_users():
     logger.info("Listing users in cache.")
     try:
         result = []
+        # Get list of all files
         file_list = os.listdir(USER_CACHE_DIR)
         for file in file_list:
-            if os.path.isfile(USER_CACHE_DIR+"/"+file):
-                temp = os.path.getmtime(USER_CACHE_DIR+"/"+file)
+            # Get each file name and created date
+            if os.path.isfile(USER_CACHE_DIR + "/"+file):
+                temp = os.path.getmtime(USER_CACHE_DIR + "/"+file)
                 result.append([file, datetime.datetime.fromtimestamp(temp)])
         return result
     except Exception as e:
