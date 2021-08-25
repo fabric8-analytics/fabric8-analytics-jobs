@@ -107,7 +107,7 @@ objects:
           - name: INVOKE_API_WORKERS
             value: "True"
           - name: DISABLE_UNKNOWN_PACKAGE_FLOW
-            value: "False"
+            value: ${DISABLE_UNKNOWN_PACKAGE_FLOW}
           - name: THREESCALE_ACCOUNT_SECRET
             valueFrom:
               secretKeyRef:
