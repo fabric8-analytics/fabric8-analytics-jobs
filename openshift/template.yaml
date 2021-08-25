@@ -249,3 +249,9 @@ parameters:
   required: false
   name: TOKEN_AUTHENTICATION
   value: "true"
+
+- description: DISABLE_UNKNOWN_PACKAGE_FLOW
+  displayName: DISABLE_UNKNOWN_PACKAGE_FLOW
+  required: false
+  name: DISABLE_UNKNOWN_PACKAGE_FLOW
+  value: "False"
