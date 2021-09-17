@@ -8,6 +8,8 @@ from f8a_utils.gh_utils import GithubUtils
 from f8a_utils.tree_generator import GolangDependencyTreeGenerator
 import time
 from f8a_jobs import user_cache
+from f8a_utils.versions import is_pkg_public
+
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +69,13 @@ def ingest_epv_into_graph(epv_details):
 
     # Iterate through packages given for current ecosystem.
     for item in package_list:
+        # Dont try ingestion for private packages
+        if not is_pkg_public(ecosystem, item.get('package')):
+            logger.info("Private package ingestion is ignored {} {}"
+                        .format(ecosystem, item.get('package')))
+            item['error_message'] = 'Private package ingestion is ignored.'
+            continue
+
         if ecosystem == 'golang':
             _, clean_version = GolangDependencyTreeGenerator.\
                 clean_version(item.get('version'))
