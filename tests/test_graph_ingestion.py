@@ -309,7 +309,8 @@ def test_ingest_selective_epv():
 
 
 @mock.patch('f8a_jobs.graph_ingestion.GithubUtils.is_pseudo_version', return_value=True)
-def test_ingest_epv_into_graph6(_mock):
+@mock.patch('f8a_jobs.graph_ingestion.is_pkg_public', return_value=True)
+def test_ingest_epv_into_graph6(_mock, _mock1):
     """Tests for 'ingest_epv_into_graph'."""
     result = ingest_epv_into_graph(data_v8)
 
