@@ -25,6 +25,15 @@ class MavenReleasesAnalyses(BaseHandler):
         central_index_dir = os.path.join(maven_index_checker_data_dir, 'central-index')
         timestamp_path = os.path.join(central_index_dir, 'timestamp')
 
+        self.log.info("{}__:__{}__:__{}".format(
+            "MavenReleasesAnalyses", "maven_index_checker_dir", maven_index_checker_dir))
+        self.log.info("{}__:__{}__:__{}".format(
+            "MavenReleasesAnalyses", "maven_index_checker_data_dir", maven_index_checker_data_dir))
+        self.log.info("{}__:__{}__:__{}".format(
+            "MavenReleasesAnalyses", "central_index_dir", central_index_dir))
+        self.log.info("{}__:__{}__:__{}"
+                      .format("MavenReleasesAnalyses", "timestamp_path", timestamp_path))
+
         s3 = StoragePool.get_connected_storage('S3MavenIndex')
         self.log.info('Fetching pre-built maven index from S3, if available.')
         s3.retrieve_index_if_exists(maven_index_checker_data_dir)
@@ -36,7 +45,9 @@ class MavenReleasesAnalyses(BaseHandler):
             self.log.info('Timestamp is missing, we need to build the index from scratch.')
             pass
 
-        last_offset = 12565048
+        last_offset = s3.get_last_offset()
+        self.log.info("{}__:__{}__:__{}".
+                      format("MavenReleasesAnalyses", "last_offset", last_offset))
 
         java_temp_dir = tempfile.mkdtemp(prefix='tmp-', dir=os.environ.get('PV_DIR', '/tmp'))
 
@@ -44,12 +55,14 @@ class MavenReleasesAnalyses(BaseHandler):
                '-Djava.io.tmpdir={}'.format(java_temp_dir),
                '-DcentralIndexDir={}'.format(central_index_dir),
                '-jar', 'maven-index-checker.jar', '-c']
+        self.log.info("{}__:__{}__:__{}".format("MavenReleasesAnalyses", "cmd1", cmd))
 
         with cwd(maven_index_checker_dir):
             try:
                 output = TimedCommand.get_command_output(
                     cmd, is_json=True, graceful=False, timeout=10800
                 )
+                self.log.info("{}__:__{}__:__{}".format("MavenReleasesAnalyses", "output", output))
 
                 current_count = output['count']
                 new_timestamp = int(os.stat(timestamp_path).st_mtime)
@@ -77,10 +90,18 @@ class MavenReleasesAnalyses(BaseHandler):
                        '-DcentralIndexDir={}'.format(central_index_dir),
                        '-jar', 'maven-index-checker.jar',
                        '-r', '0-{}'.format(to_schedule_count)]
+                self.log.info("{}__:__{}__:__{}"
+                              .format("MavenReleasesAnalyses", "cmd2", cmd))
+
                 output = TimedCommand.get_command_output(
                     cmd, is_json=True, graceful=False, timeout=10800
                 )
+                self.log.info("{}__:__{}__:__{}"
+                              .format("MavenReleasesAnalyses", "output", output))
+
             except TaskError as e:
+                self.log.info("{}__:__{}__:__{}"
+                              .format("MavenReleasesAnalyses", "TaskError", e))
                 self.log.exception(e)
                 raise
             finally:
@@ -91,6 +112,8 @@ class MavenReleasesAnalyses(BaseHandler):
             self.log.info("Found %d new packages to analyse, scheduling analyses...",
                           len(output))
             for entry in output:
+                self.log.info("{}__:__{}__:__{}"
+                              .format("MavenReleasesAnalyses", "Running ingestion for", entry))
                 self.run_selinon_flow('bayesianFlow', {
                     'ecosystem': 'maven',
                     'name': '{groupId}:{artifactId}'.format(**entry),
@@ -98,5 +121,7 @@ class MavenReleasesAnalyses(BaseHandler):
                     'recursive_limit': 0
                 })
 
+        self.log.info("{}__:__{}__:__{}"
+                      .format("MavenReleasesAnalyses", "current_count", current_count))
         s3.set_last_offset(current_count)
         self.log.info("All new maven releases scheduled for analysis, exiting..")
