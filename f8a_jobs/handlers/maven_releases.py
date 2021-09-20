@@ -25,8 +25,10 @@ class MavenReleasesAnalyses(BaseHandler):
         central_index_dir = os.path.join(maven_index_checker_data_dir, 'central-index')
         timestamp_path = os.path.join(central_index_dir, 'timestamp')
 
-        print("MavenReleasesAnalyses", "maven_index_checker_dir", maven_index_checker_dir, sep="__:__")
-        print("MavenReleasesAnalyses", "maven_index_checker_data_dir", maven_index_checker_data_dir, sep="__:__")
+        print("MavenReleasesAnalyses", "maven_index_checker_dir",
+              maven_index_checker_dir, sep="__:__")
+        print("MavenReleasesAnalyses", "maven_index_checker_data_dir",
+              maven_index_checker_data_dir, sep="__:__")
         print("MavenReleasesAnalyses", "central_index_dir", central_index_dir, sep="__:__")
         print("MavenReleasesAnalyses", "timestamp_path", timestamp_path, sep="__:__")
 
