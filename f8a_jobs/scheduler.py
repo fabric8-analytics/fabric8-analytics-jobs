@@ -144,6 +144,8 @@ class Scheduler(object):
         :return: scheduled apscheduler.Job instance
         """
         # check provided parameters
+        if job_id == "mavenReleasesJob":
+            periodically = None
         Scheduler.check_job_state(state)
         Scheduler.check_handler_name(handlers, handler_name)
 

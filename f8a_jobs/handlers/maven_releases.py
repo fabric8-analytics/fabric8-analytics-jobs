@@ -36,7 +36,7 @@ class MavenReleasesAnalyses(BaseHandler):
             self.log.info('Timestamp is missing, we need to build the index from scratch.')
             pass
 
-        last_offset = s3.get_last_offset()
+        last_offset = 12565048
 
         java_temp_dir = tempfile.mkdtemp(prefix='tmp-', dir=os.environ.get('PV_DIR', '/tmp'))
 
