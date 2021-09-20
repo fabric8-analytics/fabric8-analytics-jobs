@@ -144,6 +144,17 @@ class Scheduler(object):
         :return: scheduled apscheduler.Job instance
         """
         # check provided parameters
+
+        print("schedule_job", "scheduler", scheduler, sep="__:__")
+        print("schedule_job", "handler_name", handler_name, sep="__:__")
+        print("schedule_job", "job_id", job_id, sep="__:__")
+        print("schedule_job", "when", when, sep="__:__")
+        print("schedule_job", "periodically", periodically, sep="__:__")
+        print("schedule_job", "misfire_grace_time", misfire_grace_time, sep="__:__")
+        print("schedule_job", "state", state, sep="__:__")
+        print("schedule_job", "modify_existing_job", modify_existing_job, sep="__:__")
+        print("schedule_job", "kwargs", kwargs, sep="__:__")
+
         Scheduler.check_job_state(state)
         Scheduler.check_handler_name(handlers, handler_name)
 
@@ -163,12 +174,14 @@ class Scheduler(object):
                 'seconds': seconds,
                 'start_date': when
             }
+            print("schedule_job", "trigger_kwargs", trigger_kwargs, sep="__:__")
         else:
             # One time job
             trigger = 'date'
             trigger_kwargs = {
                 'run_date': when
             }
+            print("schedule_job", "trigger_kwargs", trigger_kwargs, sep="__:__")
 
         if state == 'paused':
             trigger_kwargs['next_run_time'] = None
