@@ -144,6 +144,19 @@ class Scheduler(object):
         :return: scheduled apscheduler.Job instance
         """
         # check provided parameters
+
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "scheduler", scheduler))
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "handler_name", handler_name))
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "job_id", job_id))
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "when", when))
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "periodically", periodically))
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "misfire_grace_time",
+                                               misfire_grace_time))
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "state", state))
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "modify_existing_job",
+                                               modify_existing_job))
+        cls.log.info("{}__:__{}__:__{}".format("schedule_job", "kwargs", kwargs))
+
         Scheduler.check_job_state(state)
         Scheduler.check_handler_name(handlers, handler_name)
 
@@ -163,12 +176,16 @@ class Scheduler(object):
                 'seconds': seconds,
                 'start_date': when
             }
+            cls.log.info("{}__:__{}__:__{}"
+                         .format("schedule_job", "trigger_kwargs", trigger_kwargs))
         else:
             # One time job
             trigger = 'date'
             trigger_kwargs = {
                 'run_date': when
             }
+            cls.log.info("{}__:__{}__:__{}"
+                         .format("schedule_job", "trigger_kwargs", trigger_kwargs))
 
         if state == 'paused':
             trigger_kwargs['next_run_time'] = None
