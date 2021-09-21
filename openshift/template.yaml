@@ -200,7 +200,7 @@ objects:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 10Gi
+        storage: ${STORAGE_SIZE}
 
 parameters:
 - description: A hostname where the Bayesian Jobs should be exposed (will be auto-generated if empty)
@@ -255,3 +255,9 @@ parameters:
   required: false
   name: DISABLE_UNKNOWN_PACKAGE_FLOW
   value: "False"
+
+- description: PVC STORAGE SIZE
+  displayName: STORAGE_SIZE
+  required: true
+  name: STORAGE_SIZE
+  value: "10Gi"
