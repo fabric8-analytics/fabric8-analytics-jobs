@@ -260,4 +260,4 @@ parameters:
   displayName: STORAGE_SIZE
   required: true
   name: STORAGE_SIZE
-  value: "40Gi"
+  value: "10Gi"
