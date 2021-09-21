@@ -200,7 +200,7 @@ objects:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 10Gi
+        storage: 40Gi
 
 parameters:
 - description: A hostname where the Bayesian Jobs should be exposed (will be auto-generated if empty)
