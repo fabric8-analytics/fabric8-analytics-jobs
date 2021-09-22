@@ -14,7 +14,7 @@ objects:
       service: bayesian-jobs
     name: bayesian-jobs
   spec:
-    replicas: 0
+    replicas: 1
     strategy:
       type: Recreate
     selector:
