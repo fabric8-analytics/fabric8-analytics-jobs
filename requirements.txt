@@ -26,7 +26,7 @@ configobj==5.0.6          # via anymarkup
 connexion[swagger-ui]==2.7.0  # via -r requirements.in
 cryptography==3.2.1       # via f8a-utils
 daiquiri==3.0.0           # via json2sql
-git+https://github.com/fabric8-analytics/fabric8-analytics-utils.git@95ebbf2#egg=f8a_utils  # via f8a-worker
+git+https://github.com/fabric8-analytics/fabric8-analytics-utils.git@f4fef58#egg=f8a_utils  # via f8a-worker
 git+https://github.com/fabric8-analytics/fabric8-analytics-version-comparator.git@8a57ac7#egg=f8a_version_comparator  # via f8a-utils
 git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@cf7b8a7#egg=f8a_worker  # via -r requirements.in
 flask-oauthlib==0.9.4     # via -r requirements.in

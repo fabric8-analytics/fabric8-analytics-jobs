@@ -45,7 +45,7 @@ class MavenReleasesAnalyses(BaseHandler):
             self.log.info('Timestamp is missing, we need to build the index from scratch.')
             pass
 
-        last_offset = 12565048
+        last_offset = 22383000
         self.log.info("{}__:__{}__:__{}".
                       format("MavenReleasesAnalyses", "last_offset", last_offset))
 
